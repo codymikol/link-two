@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "grunt": "node_modules/.bin/grunt",
-    "watch": "node_modules/.bin/grunt watch"
+    "watch": "node_modules/.bin/grunt watch",
+    "install": "node_modules/.bin/grunt"
   },
   "keywords": [
     "js13kgames",
