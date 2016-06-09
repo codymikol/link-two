@@ -53,12 +53,27 @@ module.exports = function (grunt) {
 
 		watch: {
             sync: {
-				files: ["src/*.*"],
-				tasks: ["sync", "uglify", "compress"],
+				files: ["src/*.html"],
+				tasks: ["sync", "compress", "express"],
+				options: {
+					spawn: false
+				}
+			},
+            uglify: {
+				files: ["src/*.js"],
+				tasks: ["uglify", "compress", "express"],
 				options: {
 					spawn: false
 				}
 			}
+		},
+
+		express: {
+  			dev: {
+				options: {
+    				script: 'index.js'
+				}
+  			}
 		}
 
 	});
@@ -67,6 +82,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks("grunt-contrib-compress");
 	grunt.loadNpmTasks("grunt-contrib-uglify");
 	grunt.loadNpmTasks("grunt-contrib-watch");
+	grunt.loadNpmTasks("grunt-express-server");
 	grunt.loadNpmTasks("grunt-sync");
-	grunt.registerTask("default", ["clean", "sync", "uglify", "compress"]);
+	grunt.registerTask("default", ["clean", "sync", "uglify", "compress", "express", "watch"]);
 };
