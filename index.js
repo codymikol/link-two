@@ -7,13 +7,14 @@ var http = require("http"),
 
 var app = express(),
     server = http.Server(app),
-    io = socketio(server),
-    port = process.env.port || 3000;
+    io = socketio(server);
+
+app.set('port', (process.env.PORT || 3000));
 
 app.use(express.static('dist'));
 
 io.on('connection', game);
 
-server.listen(port, function () {
+server.listen(app.get('port'), function () {
     console.log("Server started");
 });
