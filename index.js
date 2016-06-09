@@ -2,20 +2,20 @@
 
 function createSandbox() {
     var sandbox = Object.create(null);
-	Object.defineProperty(sandbox, 'module', {
-		enumerable: true,
-		configurable: false,
-		writable: false,
-		value: Object.create(null)
-	});
-	sandbox.module.exports = Object.create(null);
-	sandbox.exports = sandbox.module.exports;
+    Object.defineProperty(sandbox, 'module', {
+        enumerable: true,
+        configurable: false,
+        writable: false,
+        value: Object.create(null)
+    });
+    sandbox.module.exports = Object.create(null);
+    sandbox.exports = sandbox.module.exports;
     sandbox.console = console;
     sandbox.setTimeout = setTimeout;
     sandbox.setInterval = setInterval;
     sandbox.clearTimeout = clearTimeout;
     sandbox.clearInterval = clearInterval;
-	return sandbox;
+    return sandbox;
 };
 
 require('fs').readFile('./dist/server.js', 'utf8', function (err, data) {
@@ -29,7 +29,7 @@ require('fs').readFile('./dist/server.js', 'utf8', function (err, data) {
         io = require("socket.io")(server),
         sandbox = createSandbox();
 
-	require('vm').runInNewContext(data, sandbox);
+    require('vm').runInNewContext(data, sandbox);
     io.on('connection', sandbox.module.exports);
     app.set('port', (process.env.PORT || 3000));
     app.use(express.static('dist'));
