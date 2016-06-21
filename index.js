@@ -18,22 +18,24 @@ function createSandbox() {
     return sandbox;
 };
 
-require('fs').readFile('./dist/server.js', 'utf8', function (err, data) {
-    if (err) {
-        return console.log(err);
-    }
+require('fs').readFile('./public/shared.js', 'utf8', function (err, shared) {
+    require('fs').readFile('./public/server.js', 'utf8', function (err, code) {
+        if (err) {
+            return console.log(err);
+        }
 
-    var express = require("express"),
-        app = express(),
-        server = require("http").Server(app),
-        io = require("socket.io")(server),
-        sandbox = createSandbox();
+        var express = require("express"),
+            app = express(),
+            server = require("http").Server(app),
+            io = require("socket.io")(server),
+            sandbox = createSandbox();
 
-    require('vm').runInNewContext(data, sandbox);
-    io.on('connection', sandbox.module.exports);
-    app.set('port', (process.env.PORT || 3000));
-    app.use(express.static('dist'));
-    server.listen(app.get('port'), function () {
-        console.log("Server started");
+        require('vm').runInNewContext(shared + "\n" + code, sandbox);
+        io.on('connection', sandbox.module.exports);
+        app.set('port', (process.env.PORT || 3000));
+        app.use(express.static('public'));
+        server.listen(app.get('port'), function () {
+            console.log("Server started");
+        });
     });
 });
