@@ -35,7 +35,7 @@ require('fs').readFile('./public/shared.js', 'utf8', function (err, shared) {
         app.set('port', (process.env.PORT || 3000));
         app.use(express.static('public'));
         server.listen(app.get('port'), function () {
-            console.log("Server started");
+            console.log("Server started at port: " + app.get('port'));
         });
     });
 });
