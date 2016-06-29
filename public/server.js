@@ -1,10 +1,6 @@
 //Server code
 
 const users = [];
-const GUESS_NO = 0;
-const GUESS_ROCK = 1;
-const GUESS_PAPER = 2;
-const GUESS_SCISSORS = 3;
 
 function findOpponent() {
 	for (let i = 0; i < users.length; i++) {
@@ -24,38 +20,36 @@ class Game {
 	constructor(user1, user2) {
 		this.user1 = user1;
 		this.user2 = user2;
-		user1.game = this;
-		user2.game = this;
-		user1.guess = GUESS_NO;
-		user2.guess = GUESS_NO;
-		user1.send("start");
-		user2.send("start");
+	}
+
+	start() {
+		this.user1.start(this, this.user2);
+		this.user2.start(this, this.user1);
 	}
 
 	ended() {
 		return this.user1.guess !== GUESS_NO && this.user2.guess !== GUESS_NO;
 	}
 
-	winner() {
+	score() {
 		if (
 			this.user1.guess === GUESS_ROCK && this.user2.guess === GUESS_SCISSORS ||
 			this.user1.guess === GUESS_PAPER && this.user2.guess === GUESS_ROCK ||
 			this.user1.guess === GUESS_SCISSORS && this.user2.guess === GUESS_PAPER
 		) {
-			this.user1.won++;
-			this.user2.lost++;
-			return this.user1;
-		}
-		if (
+			this.user1.win();
+			this.user2.loose();
+		} else if (
 			this.user2.guess === GUESS_ROCK && this.user1.guess === GUESS_SCISSORS ||
 			this.user2.guess === GUESS_PAPER && this.user1.guess === GUESS_ROCK ||
 			this.user2.guess === GUESS_SCISSORS && this.user1.guess === GUESS_PAPER
 		) {
-			this.user2.won++;
-			this.user1.lost++;
-			return this.user2;
+			this.user2.win();
+			this.user1.loose();
+		} else {
+			this.user1.tie();
+			this.user2.tie();
 		}
-		return null;
 	}
 
 }
@@ -64,25 +58,19 @@ class User {
 
 	constructor(socket) {
 		this.socket = socket;
-		this.opponent = null;
 		this.game = null;
-		this.won = 0;
-		this.lost = 0;
+		this.opponent = null;
 		this.guess = GUESS_NO;
 	}
 
-	setOpponent(opponent) {
-		this.opponent = opponent;
-		if (opponent === null) {
-			this.endGame();
-		}
+	send() {
+		this.socket.emit(arguments);
+		console.log(this.socket.id + ": " + JSON.stringify(arguments));
 	}
 
 	setGuess(guess) {
-		const game = this.game;
 		if (
-			!game ||
-			game.ended() ||
+			!this.opponent ||
 			guess <= GUESS_NO ||
 			guess > GUESS_SCISSORS
 		) {
@@ -92,43 +80,56 @@ class User {
 		return true;
 	}
 
-	endGame() {
+	start(game, opponent) {
+		this.game = game;
+		this.opponent = opponent;
+		this.guess = GUESS_NO;
+		this.send("start");		
+	}
+
+	end() {
 		this.game = null;
+		this.opponent = null;
+		this.guess = GUESS_NO;
+		this.send("end");
 	}
 
-	leave() {
-		if (this.opponent) {
-			this.opponent.setOpponent(null);
-			this.opponent.send("leave");
-		}
+	win() {
+		this.send("win", this.opponent.guess);
 	}
 
-	send(message) {
-		console.log(message);
-		this.socket.emit(message, {
-			won: this.won,
-			lost: this.lost,
-			game: this.game !== null
-		});
+	loose() {
+		this.send("loose", this.opponent.guess);
+	}
+
+	tie() {
+		this.send("tie", this.opponent.guess);
 	}
 }
 
 module.exports = function (socket) {
-
 	const user = new User(socket);
 	const opponent = findOpponent();
 	users.push(user);
 
 	if (opponent) {
-		opponent.setOpponent(user);
-		user.setOpponent(opponent);
-		const game = new Game(user, opponent);
+		new Game(user, opponent).start();
 	}
 	
 	socket.on("disconnect", () => {
-		user.leave();
-		removeUser(user);
 		console.log("Disconnected: " + socket.id);
+		removeUser(user);
+		if (user.opponent) {
+			user.opponent.end();
+		}
+	});
+
+	socket.on("guess", (guess) => {
+		console.log("Guess: " + socket.id);
+		if (user.setGuess(guess) && user.game.ended()) {
+			user.game.score();
+			user.game.start();
+		}
 	});
 
 	console.log("Connected: " + socket.id);
