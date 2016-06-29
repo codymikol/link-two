@@ -13,7 +13,7 @@
   "author": "@CsabaCsecskedi",
   "license": "MIT",
   "engines": {
-    "node": "4.*"
+    "node": "6.*"
   },
   "dependencies": {
     "express": "^4.13.4",
