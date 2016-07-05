@@ -1,11 +1,14 @@
-//Server code
+"use strict";
 
 const users = [];
 
-function findOpponent() {
+function findOpponent(user) {
 	for (let i = 0; i < users.length; i++) {
-		if (users[i].opponent === null) {
-			return users[i];
+		if (
+			user !== users[i] && 
+			users[i].opponent === null
+		) {
+			new Game(user, users[i]).start();
 		}
 	}
 	return null;
@@ -63,11 +66,6 @@ class User {
 		this.guess = GUESS_NO;
 	}
 
-	send() {
-		this.socket.emit(arguments);
-		console.log(this.socket.id + ": " + JSON.stringify(arguments));
-	}
-
 	setGuess(guess) {
 		if (
 			!this.opponent ||
@@ -84,43 +82,40 @@ class User {
 		this.game = game;
 		this.opponent = opponent;
 		this.guess = GUESS_NO;
-		this.send("start");		
+		this.socket.emit("start");		
 	}
 
 	end() {
 		this.game = null;
 		this.opponent = null;
 		this.guess = GUESS_NO;
-		this.send("end");
+		this.socket.emit("end");
 	}
 
 	win() {
-		this.send("win", this.opponent.guess);
+		this.socket.emit("win", this.opponent.guess);
 	}
 
 	loose() {
-		this.send("loose", this.opponent.guess);
+		this.socket.emit("loose", this.opponent.guess);
 	}
 
 	tie() {
-		this.send("tie", this.opponent.guess);
+		this.socket.emit("tie", this.opponent.guess);
 	}
 }
 
 module.exports = function (socket) {
 	const user = new User(socket);
-	const opponent = findOpponent();
 	users.push(user);
-
-	if (opponent) {
-		new Game(user, opponent).start();
-	}
+	findOpponent(user);
 	
 	socket.on("disconnect", () => {
 		console.log("Disconnected: " + socket.id);
 		removeUser(user);
 		if (user.opponent) {
 			user.opponent.end();
+			findOpponent(user.opponent);
 		}
 	});
 
