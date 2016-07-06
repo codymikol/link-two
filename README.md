@@ -4,13 +4,18 @@ Project skeleton for js13kgames.com game jam entries in server category.
 
 ## Install
 
-    git clone ...
-    cd js13kserver
+Download the skeleton [here](https://github.com/tricsi/js13kserver/archive/master.zip).
+Extract the files and install the third party libraries with `npm`. 
+
     npm install
 
 ## Test enviroment
 
+You can run the server localy with the following command:
+
     npm start
+
+You can rerach the test server at http://localhost:3000/
 
 ## Code structure
 
@@ -33,21 +38,43 @@ the `server.js` file. The `shared.js` file is loaded at the begining of the
 
 ## Server category rules
 
-1. Do not touch the `procfile` and the `index.js` file.
+* Sandbox server
+ - You can find the official sandbox server at https://github.com/tricsi/js13kserver.
+
+* Package size still below 13 kB
+ - Game package will contain all the game code and assets, for the client and the server.
+
+* Sandboxed environment
+ - Your game will run in a node.js based sandbox environment. That means you will not really use node. You cannot require modules and your own modules shipped by your 13k pack.
+
+* Do not leak the sandbox
+ - This is not a hacking competition. This is a way to help the competition admins, the site persistence, and you. Do not touch the `procfile` and the `index.js` file. 
+
+* Socket.io client lib
+ - You can use it. Simply add `<script src="/socket.io/socket.io.js"></script>` to your HTML and that will be loaded. No server configuration will be needed. The sandbox already did it.
+
+* Can I test the sandbox before submitting?
+ - Yes, you can and you must! Installing and getting it running is simple. Visit the project page at js13kgames.github.io/js-game-server.
+
+* Is there any example? How do I develop my game using the sandbox server?
+ - There's a simple "Rock, Paper, Scissors" example in the public folder.
+
+* I have more questions!
+ - Feel free to send them to server@js13kgames.com. 
 
 ## FAQ
 
-1. Can I minify the server side code?
+* Can I minify the server side code?
   - Yes, but you have to keep the readable code also.
 
-2. Can I add more npm packages?
+* Can I add more npm packages?
   - Yes, but you cannot use them in your game code.
  
-3. What files count in the 13kb limit?
+* What files count in the 13kb limit?
   - All files in the `public` folder.
 
-4. Can I deploy new code after I submited the entry?
+* Can I deploy new code after I submited the entry?
   - Yes, but you have to resubmit your entry on the site also.
 
-5. Can I modify the `procfile` or the `index.js` file?
+* Can I modify the `procfile` or the `index.js` file?
   - No
