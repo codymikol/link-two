@@ -10,7 +10,6 @@
     "js13kgames",
     "server"
   ],
-  "author": "@CsabaCsecskedi",
   "license": "MIT",
   "engines": {
     "node": "6.*"
