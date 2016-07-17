@@ -1,90 +1,114 @@
 "use strict";
-(() => {
-    let socket, 
-        buttons, 
-        message,
-        score,
-        points = {
-            tie: 0,
+
+(function () {
+
+    var socket, //Socket.IO client
+        buttons, //Button elements
+        message, //Message element
+        score, //Score element
+        points = { //Game points
+            draw: 0,
             win: 0,
-            loose: 0
+            lose: 0
         };
 
+    /**
+     * Disable all button
+     */
     function disableButtons() {
-        for (let i = 0; i < buttons.length; i++) {
+        for (var i = 0; i < buttons.length; i++) {
             buttons[i].setAttribute("disabled", "disabled");
         }
     }
 
+    /**
+     * Enable all button
+     */
     function enableButtons() {
-        for (let i = 0; i < buttons.length; i++) {
+        for (var i = 0; i < buttons.length; i++) {
             buttons[i].removeAttribute("disabled");
         }
     }
 
+    /**
+     * Set message text
+     * @param {string} text
+     */
     function setMessage(text) {
         message.innerHTML = text;
     }
 
+    /**
+     * Set score text
+     * @param {string} text
+     */
     function displayScore(text) {
         score.innerHTML = [
-            `<h1>${text}</h1>`,
-            `Wins: ${points.win}`,
-            `Looses: ${points.loose}`,
-            `Ties: ${points.tie}`
+            "<h2>" + text + "</h2>",
+            "Won: " + points.win,
+            "Lost: " + points.lose,
+            "Draw: " + points.draw
         ].join("<br>");
     }
 
+    /**
+     * Binde Socket.IO and button events
+     */
     function bind() {
 
-        socket.on("start", () => {
+        socket.on("start", function () {
             enableButtons();
-            setMessage(`Round ${points.win + points.loose + points.tie + 1}`);
+            setMessage("Round " + (points.win + points.lose + points.draw + 1));
         });
 
-        socket.on("win", () => {
+        socket.on("win", function () {
             points.win++;
             displayScore("You win!");
         });
 
-        socket.on("loose", () => {
-            points.loose++;
-            displayScore("You loose!");
+        socket.on("lose", function () {
+            points.lose++;
+            displayScore("You lose!");
         });
 
-        socket.on("tie", () => {
-            points.tie++;
-            displayScore("Tie!");
+        socket.on("draw", function () {
+            points.draw++;
+            displayScore("Draw!");
         });
 
-        socket.on("end", () => {
+        socket.on("end", function () {
             disableButtons();
             setMessage("Waiting for opponent...");
         });
 
-        socket.on("connect", () => {
+        socket.on("connect", function () {
             disableButtons();
             setMessage("Waiting for opponent...");
         });
 
-        socket.on("disconnect", () => {
+        socket.on("disconnect", function () {
             disableButtons();
             setMessage("Connection lost!");
         });
 
-        socket.on("error", () => {
+        socket.on("error", function () {
             disableButtons();
             setMessage("Connection error!");
         });
 
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].addEventListener("click", (e) => {
-                disableButtons();
-                socket.emit("guess", i + 1);
-            }, false);
+        for (var i = 0; i < buttons.length; i++) {
+            (function (button, guess) {
+                button.addEventListener("click", function (e) {
+                    disableButtons();
+                    socket.emit("guess", guess);
+                }, false);
+            })(buttons[i], i + 1);
         }
     }
 
+    /**
+     * Client module init
+     */
     function init() {
         socket = io({ upgrade: false, transports: ["websocket"] });
         buttons = document.getElementsByTagName("button");
