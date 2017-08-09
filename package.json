@@ -1,7 +1,8 @@
 {
   "name": "js13kserver",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "js13kgames game jam server",
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -10,12 +11,12 @@
     "js13kgames",
     "server"
   ],
-  "license": "MIT",
   "engines": {
     "node": "8.*"
   },
   "dependencies": {
     "express": "4.15.*",
-    "socket.io": "2.0.*"
+    "socket.io": "2.0.*",
+    "glitchd-client-node": "*"
   }
 }

@@ -4,18 +4,18 @@ Game server for the [js13kGames Competition](http://js13kgames.com/).
 
 ## Install
 
-[Download](https://github.com/tricsi/js13kserver/archive/master.zip) the skeleton.
+[Download](https://github.com/js13kgames/js13kserver/archive/master.zip) the skeleton.
 Extract the files and install the third party libraries with `npm`. 
 
     npm install
 
 ## Runinng
 
-You can run the server localy with the following command:
+You can run the server locally with the following command:
 
     npm start
 
-You can rerach the test server at [http://localhost:3000](http://localhost:3000)
+You can reach the test server at [http://localhost:3000](http://localhost:3000)
 
 ## Code structure
 
