@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SRC=`curl "https://raw.githubusercontent.com/tricsi/js13kserver/master/index.js" | md5sum`
+SRC=`curl "https://raw.githubusercontent.com/js13kgames/js13kserver/master/index.js" | md5sum`
 
 echo
 
