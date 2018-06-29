@@ -15,8 +15,11 @@
     "node": "8.*"
   },
   "dependencies": {
-    "express": "4.15.*",
-    "socket.io": "2.0.*",
-    "glitchd-client-node": "*"
+    "express": "^4.16.0",
+    "sequelize": "^4.38.0",
+    "socket.io": "^2.1.0"
+  },
+  "devDependencies": {
+    "sqlite3": "^4.0.1"
   }
 }
