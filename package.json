@@ -5,7 +5,8 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node test.js"
   },
   "keywords": [
     "js13kgames",
@@ -16,10 +17,11 @@
   },
   "dependencies": {
     "express": "^4.16.0",
+    "mysql2": "^1.5.3",
+    "pg": "^7.4.3",
+    "pg-hstore": "^2.3.2",
     "sequelize": "^4.38.0",
-    "socket.io": "^2.1.0"
-  },
-  "devDependencies": {
+    "socket.io": "^2.1.0",
     "sqlite3": "^4.0.1"
   }
 }
