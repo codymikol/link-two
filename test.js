@@ -1,10 +1,9 @@
 const storage = require('./lib/storage');
-Promise.all([
-    storage.model.sequelize.authenticate(),
-    storage.model.sync(),
-]).then(() => {
+storage.init().then(() => {
     const interface = storage.interface;
-    interface.set('test', {test: 'ok'}).then(() => {
+    console.log(interface.size());
+    interface.set('test', 'árvíztűrő tükörfúrógép').then(() => {
+        console.log(interface.size());
         return interface.get('test');
     }).then(value => {
         console.log(value);

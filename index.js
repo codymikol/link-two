@@ -4,8 +4,7 @@ const fs = require('fs');
 const code = fs.readFileSync('./public/server.js', 'utf8');
 const shared = fs.readFileSync('./public/shared.js', 'utf8');
 const storage = require('./lib/storage');
-
-function createSandbox() {
+const createSandbox = () => {
   const sandbox = {
     console,
     setTimeout,
@@ -26,10 +25,7 @@ function createSandbox() {
   return sandbox;
 };
 
-Promise.all([
-  storage.model.sequelize.authenticate(),
-  storage.model.sync(),
-]).then(() => {
+storage.init().then(() => {
   const express = require('express');
   const app = express();
   const server = require('http').Server(app);
