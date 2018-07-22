@@ -25,7 +25,7 @@ const createSandbox = () => {
   return sandbox;
 };
 
-storage.init().then(() => {
+storage.init(process.env.DATABASE_URL || 'sqlite:storage.sqlite').then(() => {
   const express = require('express');
   const app = express();
   const server = require('http').Server(app);
