@@ -165,27 +165,34 @@ class User {
  * Socket.IO on connect event
  * @param {Socket} socket
  */
-module.exports = (socket) => {
-	const user = new User(socket);
-	users.push(user);
-	findOpponent(user);
+module.exports = {
 
-	socket.on("disconnect", () => {
-		console.log("Disconnected: " + socket.id);
-		removeUser(user);
-		if (user.opponent) {
-			user.opponent.end();
-			findOpponent(user.opponent);
-		}
-	});
+	ping: (req, res) => {
+		res.send(String(new Date().getTime()));
+	},
 
-	socket.on("guess", (guess) => {
-		console.log("Guess: " + socket.id);
-		if (user.setGuess(guess) && user.game.ended()) {
-			user.game.score();
-			user.game.start();
-		}
-	});
+	io: (socket) => {
+		const user = new User(socket);
+		users.push(user);
+		findOpponent(user);
 
-	console.log("Connected: " + socket.id);
+		socket.on("disconnect", () => {
+			console.log("Disconnected: " + socket.id);
+			removeUser(user);
+			if (user.opponent) {
+				user.opponent.end();
+				findOpponent(user.opponent);
+			}
+		});
+
+		socket.on("guess", (guess) => {
+			console.log("Guess: " + socket.id);
+			if (user.setGuess(guess) && user.game.ended()) {
+				user.game.score();
+				user.game.start();
+			}
+		});
+
+		console.log("Connected: " + socket.id);
+	}
 };
