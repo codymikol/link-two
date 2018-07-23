@@ -38,4 +38,6 @@ storage.init(process.env.DATABASE_URL || 'sqlite:storage.sqlite').then(() => {
   server.listen(app.get('port'), () => {
     console.log('Server started at port: ' + app.get('port'));
   });
+}).catch(err => {
+  console.error(err);
 });

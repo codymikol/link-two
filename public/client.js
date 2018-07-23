@@ -2,7 +2,7 @@
 
 (function () {
 
-    var socket, //Socket.IO client
+    let socket, //Socket.IO client
         buttons, //Button elements
         message, //Message element
         score, //Score element
@@ -16,7 +16,7 @@
      * Disable all button
      */
     function disableButtons() {
-        for (var i = 0; i < buttons.length; i++) {
+        for (let i = 0; i < buttons.length; i++) {
             buttons[i].setAttribute("disabled", "disabled");
         }
     }
@@ -25,7 +25,7 @@
      * Enable all button
      */
     function enableButtons() {
-        for (var i = 0; i < buttons.length; i++) {
+        for (let i = 0; i < buttons.length; i++) {
             buttons[i].removeAttribute("disabled");
         }
     }
@@ -56,48 +56,48 @@
      */
     function bind() {
 
-        socket.on("start", function () {
+        socket.on("start", () => {
             enableButtons();
             setMessage("Round " + (points.win + points.lose + points.draw + 1));
         });
 
-        socket.on("win", function () {
+        socket.on("win", () => {
             points.win++;
             displayScore("You win!");
         });
 
-        socket.on("lose", function () {
+        socket.on("lose", () => {
             points.lose++;
             displayScore("You lose!");
         });
 
-        socket.on("draw", function () {
+        socket.on("draw", () => {
             points.draw++;
             displayScore("Draw!");
         });
 
-        socket.on("end", function () {
+        socket.on("end", () => {
             disableButtons();
             setMessage("Waiting for opponent...");
         });
 
-        socket.on("connect", function () {
+        socket.on("connect", () => {
             disableButtons();
             setMessage("Waiting for opponent...");
         });
 
-        socket.on("disconnect", function () {
+        socket.on("disconnect", () => {
             disableButtons();
             setMessage("Connection lost!");
         });
 
-        socket.on("error", function () {
+        socket.on("error", () => {
             disableButtons();
             setMessage("Connection error!");
         });
 
-        for (var i = 0; i < buttons.length; i++) {
-            (function (button, guess) {
+        for (let i = 0; i < buttons.length; i++) {
+            ((button, guess) => {
                 button.addEventListener("click", function (e) {
                     disableButtons();
                     socket.emit("guess", guess);
