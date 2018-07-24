@@ -167,12 +167,6 @@ class User {
  */
 module.exports = {
 
-	stat: (req, res) => {
-		storage.get('games', 0).then(games => {
-			res.send(`<h1>Games played: ${games}</h1>`);
-		});
-	},
-
 	io: (socket) => {
 		const user = new User(socket);
 		users.push(user);
@@ -199,5 +193,12 @@ module.exports = {
 		});
 
 		console.log("Connected: " + socket.id);
+	},
+
+	stat: (req, res) => {
+		storage.get('games', 0).then(games => {
+			res.send(`<h1>Games played: ${games}</h1>`);
+		});
 	}
+
 };

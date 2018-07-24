@@ -3,6 +3,7 @@
 const fs = require('fs');
 const archiver = require('archiver');
 const express = require('express');
+const session = require('express-session');
 const parser = require('body-parser');
 const app = express();
 const server = require('http').Server(app);
@@ -55,6 +56,7 @@ app.get('/server-info', (req, res) => {
         `Storage: ${storageSize} byte / ${(storageSize ? storageSize / limit * 100 : 0).toFixed(2)}%`
     ].join("\n"));
 });
+app.use(session({secret: 'js13kserver'}));
 
 storage.init(process.env.DATABASE_URL || 'sqlite:storage.sqlite').then(() => {
     createZip();

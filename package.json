@@ -19,6 +19,7 @@
     "archiver": "^2.1.1",
     "body-parser": "^1.18.3",
     "express": "^4.16.0",
+    "express-session": "^1.15.6",
     "mysql2": "^1.5.3",
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
