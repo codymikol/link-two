@@ -168,7 +168,7 @@ class User {
 module.exports = {
 
 	stat: (req, res) => {
-		storage.get('games', 0, true).then(games => {
+		storage.get('games', 0).then(games => {
 			res.send(`<h1>Games played: ${games}</h1>`);
 		});
 	},
@@ -192,8 +192,8 @@ module.exports = {
 			if (user.setGuess(guess) && user.game.ended()) {
 				user.game.score();
 				user.game.start();
-				storage.get('games', 0, true).then(games => {
-					storage.set('games', games + 1, true);
+				storage.get('games', 0).then(games => {
+					storage.set('games', games + 1);
 				});
 			}
 		});
