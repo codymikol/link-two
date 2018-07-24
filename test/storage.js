@@ -19,8 +19,11 @@ describe('storage', () => {
     });
 
     describe('set() / get()', () => {
-        it ('set value', async () => {
+        it ('get default value', async () => {
             await interface.clear();
+            assert.equal(await interface.get(key, value), value);
+        });
+        it ('set value', async () => {
             assert.equal(await interface.set(key, value), true);
         });
         it ('get value', async () => {
@@ -37,6 +40,22 @@ describe('storage', () => {
         });
         it ('size updated', async () => {
             assert.equal(await interface.size(), length2);
+        });
+        it ('get default json', async () => {
+            await interface.clear();
+            assert.equal(await interface.get(key, true, true), true);
+        });
+        it ('set json', async () => {
+            assert.equal(await interface.set(key, true, true), true);
+        });
+        it ('get json', async () => {
+            assert.equal(await interface.get(key, true, true), true);
+        });
+        it ('update json', async () => {
+            assert.equal(await interface.set(key, false, true), true);
+        });
+        it ('value json', async () => {
+            assert.equal(await interface.get(key, false, true), false);
         });
     });
 

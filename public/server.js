@@ -46,9 +46,11 @@ class Game {
 	/**
 	 * Start new game
 	 */
-	start() {
+	async start() {
 		this.user1.start(this, this.user2);
 		this.user2.start(this, this.user1);
+		let games = await storage.get('games', 0, true);
+		storage.set('games', games + 1, true);
 	}
 
 	/**
@@ -167,8 +169,9 @@ class User {
  */
 module.exports = {
 
-	ping: (req, res) => {
-		res.send(String(new Date().getTime()));
+	stat: async (req, res) => {
+		let games = await storage.get('games', 0, true);
+		res.send(`<h1>Games started: ${games}</h1>`);
 	},
 
 	io: (socket) => {
