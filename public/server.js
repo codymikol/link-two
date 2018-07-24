@@ -46,7 +46,7 @@ class Game {
 	/**
 	 * Start new game
 	 */
-	async start() {
+	start() {
 		this.user1.start(this, this.user2);
 		this.user2.start(this, this.user1);
 	}
@@ -167,9 +167,10 @@ class User {
  */
 module.exports = {
 
-	stat: async (req, res) => {
-		let games = await storage.get('games', 0, true);
-		res.send(`<h1>Games played: ${games}</h1>`);
+	stat: (req, res) => {
+		storage.get('games', 0, true).then(games => {
+			res.send(`<h1>Games played: ${games}</h1>`);
+		});
 	},
 
 	io: (socket) => {
@@ -191,8 +192,9 @@ module.exports = {
 			if (user.setGuess(guess) && user.game.ended()) {
 				user.game.score();
 				user.game.start();
-				let games = await storage.get('games', 0, true);
-				storage.set('games', games + 1, true);
+				storage.get('games', 0, true).then(games => {
+					storage.set('games', games + 1, true);
+				});
 			}
 		});
 
