@@ -56,7 +56,11 @@ app.get('/server-info', (req, res) => {
         `Storage: ${storageSize} byte / ${(storageSize ? storageSize / limit * 100 : 0).toFixed(2)}%`
     ].join("\n"));
 });
-app.use(session({secret: 'js13kserver'}));
+app.use(session({
+    secret: 'js13kserver',
+    saveUninitialized: false,
+    resave: false
+}));
 
 storage.init(process.env.DATABASE_URL || 'sqlite:storage.sqlite').then(() => {
     createZip();
