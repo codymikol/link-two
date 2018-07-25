@@ -14,7 +14,7 @@ const storage = require('./lib/storage');
 
 let packageSize = 0;
 
-const createSandbox = () => {
+function createSandbox() {
     const sandbox = {
         console,
         setTimeout,
@@ -35,7 +35,7 @@ const createSandbox = () => {
     return sandbox;
 };
 
-const createZip = () => {
+function createZip() {
     const archive = archiver('zip', {zlib: { level: 9 }});
     const output = fs.createWriteStream('dist.zip');
     output.on('close', () => {
@@ -46,31 +46,27 @@ const createZip = () => {
     archive.finalize();
 };
 
-app.set('port', (process.env.PORT || 3000));
-app.use(express.static('public'));
-app.get('/server-info', (req, res) => {
-    let limit = 13312,
-        storageSize = storage.interface.size();
-    res.set('Content-Type', 'text/plain').send([
-        `Package: ${packageSize} byte / ${(packageSize ? packageSize / limit * 100 : 0).toFixed(2)}%`,
-        `Storage: ${storageSize} byte / ${(storageSize ? storageSize / limit * 100 : 0).toFixed(2)}%`
-    ].join("\n"));
-});
-app.use(session({
-    secret: 'js13kserver',
-    saveUninitialized: false,
-    resave: false
-}));
+app.set('port', (process.env.PORT || 3000))
+    .set('storage', process.env.DATABASE_URL || 'sqlite:storage.sqlite')
+    .get('/server-info', (req, res) => {
+        let limit = 13312,
+            storageSize = storage.interface.size();
+        res.set('Content-Type', 'text/plain').send([
+            `Package: ${packageSize} byte / ${(packageSize ? packageSize / limit * 100 : 0).toFixed(2)}%`,
+            `Storage: ${storageSize} byte / ${(storageSize ? storageSize / limit * 100 : 0).toFixed(2)}%`
+        ].join("\n"));
+    })
+    .use(express.static('public'))
+    .use(session({ secret: 'js13kserver', saveUninitialized: false, resave: false }));
 
-storage.init(process.env.DATABASE_URL || 'sqlite:storage.sqlite').then(() => {
-    createZip();
+storage.init(app.get('storage')).then(() => {
     const sandbox = createSandbox();
     require('vm').runInNewContext(shared + '\n' + code, sandbox);
     if (typeof sandbox.module.exports == 'function') {
         io.on('connection', sandbox.module.exports);
     } else if (typeof sandbox.module.exports == 'object') {
-        app.use(parser.json())
-        app.use(parser.urlencoded({ extended: true }));
+        app.use(parser.urlencoded({ extended: true }))
+            .use(parser.json());
         for (let route in sandbox.module.exports) {
             if (route == 'io') {
                 io.on('connection', sandbox.module.exports[route]);
@@ -81,6 +77,7 @@ storage.init(process.env.DATABASE_URL || 'sqlite:storage.sqlite').then(() => {
     }
     server.listen(app.get('port'), () => {
         console.log('Server started at port: ' + app.get('port'));
+        createZip();
     });
 }).catch(err => {
     console.error(err);
