@@ -27,8 +27,9 @@ the `server.js` file. The `shared.js` file is loaded at the begining of the
 
 1. Push your files to your GitHub repository
 2. Create new WebApp on heroku
-3. Connect your WebApp with the GitHub repository
-4. Deploy your code 
+3. Add Heroku Postgres add-on (optional)
+4. Connect your WebApp with the GitHub repository
+5. Deploy your code 
 
 ## Submit your entry
 
@@ -48,7 +49,7 @@ the `server.js` file. The `shared.js` file is loaded at the begining of the
   - Your game will run in a node.js based sandbox environment. That means you will not really use node. You cannot require modules and your own modules shipped by your 13k pack.
 
 * Do not leak the sandbox
-  - This is not a hacking competition. This is a way to help the competition admins, the site persistence, and you. Do not touch the `procfile` and the `index.js` file. 
+  - This is not a hacking competition. This is a way to help the competition admins, the site persistence, and you. Do not touch the `procfile` and the skeleton code. 
 
 * Socket.io client lib
   - You can use it. Simply add `<script src="/socket.io/socket.io.js"></script>` to your HTML and that will be loaded. No server configuration will be needed. The sandbox already did it.
@@ -76,5 +77,5 @@ the `server.js` file. The `shared.js` file is loaded at the begining of the
 * Can I deploy new code after I submited the entry?
   - Yes, but you have to resubmit your entry on the site also.
 
-* Can I modify the `procfile` or the `index.js` file?
+* Can I modify the `procfile` or the skeleton code?
   - No

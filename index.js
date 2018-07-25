@@ -1,63 +1,84 @@
 "use strict";
 
-const createSandbox = () => {
-  const sandbox = {
-    console,
-    setTimeout,
-    clearTimeout,
-    setInterval,
-    clearInterval
-  };
+const fs = require('fs');
+const archiver = require('archiver');
+const express = require('express');
+const session = require('express-session');
+const parser = require('body-parser');
+const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+const code = fs.readFileSync('./public/server.js', 'utf8');
+const shared = fs.readFileSync('./public/shared.js', 'utf8');
+const storage = require('./lib/storage');
 
-  Object.defineProperty(sandbox, 'module', {
-    enumerable: true,
-    configurable: false,
-    writable: false,
-    value: Object.create(null)
-  });
-  sandbox.module.exports = Object.create(null);
-  sandbox.exports = sandbox.module.exports;
+let packageSize = 0;
 
-  exposeRemoteServices(sandbox);
+function createSandbox() {
+    const sandbox = {
+        console,
+        setTimeout,
+        clearTimeout,
+        setInterval,
+        clearInterval,
+        storage: storage.interface
+    };
 
-  return sandbox;
-};
-
-const exposeRemoteServices = (sandbox) => {
-  if (process.env.GLITCHD_TOKEN === undefined) {
-    return
-  }
-
-  const services = require('glitchd-client-node');
-  sandbox.Buffer = Buffer;
-  Object.defineProperty(sandbox, 'glitchd', {
-    value: Object.create(null, {
-      items: {
-        value: new services.ItemsStore('services.js13kgames.com:13312', process.env.GLITCHD_TOKEN)
-      }
-    })
-  });
-};
-
-require('fs').readFile('./public/shared.js', 'utf8', (err, shared) => {
-  require('fs').readFile('./public/server.js', 'utf8', (err, code) => {
-    if (err) {
-      throw err
-    }
-
-    const
-      express = require('express'),
-      app     = express(),
-      server  = require('http').Server(app),
-      io      = require('socket.io')(server),
-      sandbox = createSandbox();
-
-    require('vm').runInNewContext(shared + '\n' + code, sandbox);
-    io.on('connection', sandbox.module.exports);
-    app.set('port', (process.env.PORT || 3000));
-    app.use(express.static('public'));
-    server.listen(app.get('port'), () => {
-      console.log('Server started at port: ' + app.get('port'));
+    Object.defineProperty(sandbox, 'module', {
+        enumerable: true,
+        configurable: false,
+        writable: false,
+        value: Object.create(null)
     });
-  });
+    sandbox.module.exports = Object.create(null);
+    sandbox.exports = sandbox.module.exports;
+    return sandbox;
+};
+
+function createZip() {
+    const archive = archiver('zip', {zlib: { level: 9 }});
+    const output = fs.createWriteStream('dist.zip');
+    output.on('close', () => {
+        packageSize = archive.pointer();
+    });
+    archive.pipe(output);
+    archive.directory('public/', '');
+    archive.finalize();
+};
+
+app.set('port', (process.env.PORT || 3000))
+    .set('storage', process.env.DATABASE_URL || 'sqlite:storage.sqlite')
+    .get('/server-info', (req, res) => {
+        let limit = 13312,
+            storageSize = storage.interface.size();
+        res.set('Content-Type', 'text/plain').send([
+            `Package: ${packageSize} byte / ${(packageSize ? packageSize / limit * 100 : 0).toFixed(2)}%`,
+            `Storage: ${storageSize} byte / ${(storageSize ? storageSize / limit * 100 : 0).toFixed(2)}%`
+        ].join("\n"));
+    })
+    .use(express.static('public'))
+    .use(session({ secret: 'js13kserver', saveUninitialized: false, resave: false }));
+
+storage.init(app.get('storage')).then(() => {
+    const sandbox = createSandbox();
+    require('vm').runInNewContext(shared + '\n' + code, sandbox);
+    if (typeof sandbox.module.exports == 'function') {
+        io.on('connection', sandbox.module.exports);
+    } else if (typeof sandbox.module.exports == 'object') {
+        app.use(parser.urlencoded({ extended: true }))
+            .use(parser.json());
+        for (let route in sandbox.module.exports) {
+            if (route == 'io') {
+                io.on('connection', sandbox.module.exports[route]);
+            } else {
+                app.all('/' + route, sandbox.module.exports[route])
+            }
+        }
+    }
+    server.listen(app.get('port'), () => {
+        console.log('Server started at port: ' + app.get('port'));
+        createZip();
+    });
+}).catch(err => {
+    console.error(err);
 });
