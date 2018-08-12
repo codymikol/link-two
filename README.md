@@ -31,11 +31,11 @@ The `server.js` is a standard Node.js module. You can use the following structur
 
 ## Persistent storage
 
-The server category entries can use 13k persistent storage. In the `server.js` file you can access the `storage` interface. The storage space has 13kByte limit. The key and the value size also counts into the storage limit!
+The server category entries can use 13kByte persistent storage. The key and value size also counts into the limit!
 
 The storage uses SQL database to save the key/value pairs. By default it's SQLite but on Heroku you have to use the Postgres add-on!
 
-You can find the API documentation inside the [lib](./lib/) folder.
+In the `server.js` file you can access the `storage` interface. The API documentation is inside the [lib](./lib/) folder.
 
 ## Deploy to Heroku
 
