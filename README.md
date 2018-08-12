@@ -4,8 +4,7 @@ Game server for the [js13kGames Competition](http://js13kgames.com/).
 
 ## Install
 
-[Download](https://github.com/js13kgames/js13kserver/archive/master.zip) the skeleton.
-Extract the files and install the third party libraries with `npm`. 
+[Download](https://github.com/js13kgames/js13kserver/archive/master.zip) the skeleton. Extract the files and install the third party libraries with `npm`. 
 
     npm install
 
@@ -19,11 +18,28 @@ You can reach the test server at [http://localhost:3000](http://localhost:3000)
 
 ## Code structure
 
-All your code must be in the `public` folder. Put your server side code into 
-the `server.js` file. The `shared.js` file is loaded at the begining of the
-`server.js` file. You can also use this code on the client side.
+All your code must be in the `public` folder. Put your server side code into the `server.js` file. The `shared.js` file is loaded at the begining of the `server.js` file. You can also use this code on the client side.
+
+The `server.js` is a standard Node.js module. You can use the following structure to create new [Express](https://expressjs.com/) routes or [Socket.io](https://socket.io/) connection handler.
+
+    module.exports = {
+        // Express route to /hello
+        hello => (req, res) { ... }
+        // Socket.io connection event handler
+        io => (socket) { ... }
+    }
+
+## Persistent storage
+
+The server category entries can use 13kByte persistent storage. The key and value size also counts into the limit!
+
+The storage uses SQL database to save the key/value pairs. By default it's SQLite but on Heroku you have to use the Postgres add-on!
+
+In the `server.js` file you can access the `storage` interface. The API documentation is inside the [lib](./lib/) folder.
 
 ## Deploy to Heroku
+
+All server category entries must be hosted on [Heroku](https://www.heroku.com/). You can either use free or paid plan.
 
 1. Push your files to your GitHub repository
 2. Create new WebApp on heroku
