@@ -1,6 +1,4 @@
-# Documentation
-
-Asyncronuos key/value store
+# Storage API Documentation
 
 ## `key: async (index) =>`
 
