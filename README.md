@@ -47,6 +47,8 @@ All server category entries must be hosted on [Heroku](https://www.heroku.com/).
 4. Connect your WebApp with the GitHub repository
 5. Deploy your code 
 
+You can find more information about the platform on the [Heroku Dev Center](https://devcenter.heroku.com/) site.
+
 ## Submit your entry
 
 1. Zip all files in the `public` folder.
