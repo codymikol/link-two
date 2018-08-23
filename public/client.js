@@ -96,7 +96,7 @@ function init() {
         }
     };
 
-    oninput = function (e) {
+    onkeydown = function (e) {
         console.log(e);
         switch (screen) {
             case 0:
