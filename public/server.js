@@ -92,8 +92,8 @@ module.exports = {
 
             theRoom.join(player);
 
-            socket.emit('joined-room');
-
+			socket.emit('joined-room');
+            socket.broadcast.emit('update-rooms', rooms);
             console.log("Connected: " + socket.id);
 
         });
