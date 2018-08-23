@@ -108,7 +108,9 @@ module.exports = {
 
         socket.on("disconnect", () => {
 
-            theRoom.leave(player);
+            if(theRoom) {
+                theRoom.leave(player);
+            }
 
             socket.broadcast.emit('update-rooms', rooms.map(function (room) {
                 return room.asDTO();
