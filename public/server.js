@@ -93,7 +93,9 @@ module.exports = {
             theRoom.join(player);
 
 			socket.emit('joined-room');
-            socket.broadcast.emit('update-rooms', rooms);
+            socket.broadcast.emit('update-rooms', rooms.map(function (room) {
+                return room.asDTO();
+            }));
             console.log("Connected: " + socket.id);
 
         });
