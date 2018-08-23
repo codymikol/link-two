@@ -1,123 +1,120 @@
-"use strict";
+let socket, rooms, roomButtons;
 
-(function () {
+let mouse = null,
+    screen = 0,
+    a = document.getElementById('a'),
+    ctx= a.getContext('2d'),
+    rect = a.getBoundingClientRect();
 
-    let socket, //Socket.IO client
-        buttons, //Button elements
-        message, //Message element
-        score, //Score element
-        points = { //Game points
-            draw: 0,
-            win: 0,
-            lose: 0
-        };
+//Buttons for room :D
+function Button (x, y, height, width, text, room) {
+    this.x = x;
+    this.y = y;
+    this.height = height;
+    this.room = room;
+    this.width = width;
+    this.text = text;
+    this.hovered = false;
+    this.setText = function (text) {
+      this.text = text;
+    };
+    this.setHovered = function (mouseX, mouseY) {
+        this.hovered = mouseX > this.x && mouseX < this.x + this.width && mouseY > this.y && mouseY < this.y + this.height;
+    };
+    this.click = function (fn) {
+       if (this.hovered){ fn(this.room); console.log('Joined ' + this.room.roomName); };
+    };
+    this.render = function () {
+        ctx.beginPath();
+        ctx.fillStyle = this.hovered ? "blue" : "#E9967A";
+        ctx.fillRect(this.x,this.y, this.width, this.height);
+        ctx.stroke();
+        ctx.fillStyle="black";
+        ctx.fillText(this.text, this.x + 20, this.y + 20);
+    };
+}
 
-    /**
-     * Disable all button
-     */
-    function disableButtons() {
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].setAttribute("disabled", "disabled");
+function bind() {
+    socket.on("rooms-available", function (response) {
+        roomButtons = response.map(function (room, index) {
+           return new Button(270, 90 + (40 * index), 30, 400, room.roomName + ' -- Players: ' + room.players.length + '/10', room, socket);
+        });
+    });
+    socket.on('joined-room', function () {
+       screen = 1;
+    });
+    socket.on('update-rooms', function (rooms, index) {
+       roomButtons.forEach(function (button) {
+         rooms.forEach(function (room) {
+             if(room.roomName === button.room.roomName) {
+                 button.setText(room.roomName + ' -- Players: ' + room.players.length + '/10');
+                 console.log('updated room!');
+             }
+         });
+       });
+    });
+}
+
+function init() {
+
+    socket = io({upgrade: false, transports: ["websocket"]});
+
+    bind();
+
+    ctx.font="20px Georgia";
+
+    function clr()  {ctx.clearRect(0, 0, a.width, a.height);}
+
+    setInterval(function (e) {
+        clr();
+        switch (screen) {
+            case 0:
+                roomButtons.forEach(function (button) {button.render();});
+                break;
+            case 1:
+                ctx.fillText("Game Screen",10,50);
+                break;
+            case 2:
+                ctx.fillText("Death Screen",10,50);
         }
-    }
+    }, 33);
 
-    /**
-     * Enable all button
-     */
-    function enableButtons() {
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].removeAttribute("disabled");
+    onclick = function (e) {
+        switch (screen) {
+            case 0:
+                roomButtons.forEach(function (button) {
+                  button.click(function (room) {
+                      socket.emit('join', room);
+                  });
+                });
+                break;
+            case 1:
+                // screen = 2;
+                break;
+            case 2:
+                // screen = 0;
         }
-    }
+    };
 
-    /**
-     * Set message text
-     * @param {string} text
-     */
-    function setMessage(text) {
-        message.innerHTML = text;
-    }
+    oninput = function (e) {
+        console.log(e);
+        switch (screen) {
+            case 0:
 
-    /**
-     * Set score text
-     * @param {string} text
-     */
-    function displayScore(text) {
-        score.innerHTML = [
-            "<h2>" + text + "</h2>",
-            "Won: " + points.win,
-            "Lost: " + points.lose,
-            "Draw: " + points.draw
-        ].join("<br>");
-    }
-
-    /**
-     * Binde Socket.IO and button events
-     */
-    function bind() {
-
-        socket.on("start", () => {
-            enableButtons();
-            setMessage("Round " + (points.win + points.lose + points.draw + 1));
-        });
-
-        socket.on("win", () => {
-            points.win++;
-            displayScore("You win!");
-        });
-
-        socket.on("lose", () => {
-            points.lose++;
-            displayScore("You lose!");
-        });
-
-        socket.on("draw", () => {
-            points.draw++;
-            displayScore("Draw!");
-        });
-
-        socket.on("end", () => {
-            disableButtons();
-            setMessage("Waiting for opponent...");
-        });
-
-        socket.on("connect", () => {
-            disableButtons();
-            setMessage("Waiting for opponent...");
-        });
-
-        socket.on("disconnect", () => {
-            disableButtons();
-            setMessage("Connection lost!");
-        });
-
-        socket.on("error", () => {
-            disableButtons();
-            setMessage("Connection error!");
-        });
-
-        for (let i = 0; i < buttons.length; i++) {
-            ((button, guess) => {
-                button.addEventListener("click", function (e) {
-                    disableButtons();
-                    socket.emit("guess", guess);
-                }, false);
-            })(buttons[i], i + 1);
         }
-    }
+    };
 
-    /**
-     * Client module init
-     */
-    function init() {
-        socket = io({ upgrade: false, transports: ["websocket"] });
-        buttons = document.getElementsByTagName("button");
-        message = document.getElementById("message");
-        score = document.getElementById("score");
-        disableButtons();
-        bind();
-    }
+    onmousemove = function (e) {
+        switch (screen) {
+            case 0:
+                roomButtons.forEach(function (button) {
+                    button.setHovered(e.clientX - rect.left,e.clientY - rect.top);
+                });
+                break;
+        }
+    };
 
-    window.addEventListener("load", init, false);
+}
 
-})();
+window.addEventListener("load", init, false);
+
