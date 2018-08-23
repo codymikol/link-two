@@ -60,7 +60,7 @@ class Player {
     }
 
     asDTO() {
-        return {name : this.name, health : this.health, x : this.x, y : this.y}
+        return {name: this.name, health: this.health, x: this.x, y: this.y}
     }
 
 }
@@ -94,12 +94,16 @@ module.exports = {
 
             socket.emit('joined-room');
 
-            socket.broadcast.emit('update-rooms', rooms.map(function (room) {
-                return room.asDTO();
-            }));
-
             console.log("Connected: " + socket.id);
 
+        });
+
+        socket.on("player-move", function (dtoPlayer) {
+            player.x = dtoPlayer.x;
+            player.y = dtoPlayer.y;
+            theRoom.players.forEach(function (player) {
+                player.socket.emit('update-room', theRoom.asDTO())
+            });
         });
 
         socket.on("disconnect", () => {
