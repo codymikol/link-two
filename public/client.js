@@ -2,8 +2,10 @@ let socket, rooms, roomButtons;
 
 let mouse = null,
     screen = 0,
+    room,
     a = document.getElementById('a'),
     ctx= a.getContext('2d'),
+    player = new Player();
     rect = a.getBoundingClientRect();
 
 //Buttons for room :D
@@ -34,6 +36,27 @@ function Button (x, y, height, width, text, room) {
     };
 }
 
+function Player() {
+
+    this.x = 0;
+    this.y = 0;
+
+    this.render = function () {
+        ctx.beginPath();
+        ctx.fillStyle = "blue";
+        ctx.fillRect(this.x,this.y, 50, 50);
+        ctx.stroke();
+    };
+
+}
+
+function renderEnemy(enemy) {
+    ctx.beginPath();
+    ctx.fillStyle = "blue";
+    ctx.fillRect(enemy.x,enemy.y, 50, 50);
+    ctx.stroke();
+}
+
 function bind() {
     socket.on("rooms-available", function (response) {
         roomButtons = response.map(function (room, index) {
@@ -42,6 +65,9 @@ function bind() {
     });
     socket.on('joined-room', function () {
        screen = 1;
+        socket.on('update-room', function (x) {
+            room =  x;
+        });
     });
     socket.on('update-rooms', function (rooms, index) {
        roomButtons.forEach(function (button) {
@@ -53,6 +79,7 @@ function bind() {
          });
        });
     });
+
 }
 
 function init() {
@@ -65,19 +92,32 @@ function init() {
 
     function clr()  {ctx.clearRect(0, 0, a.width, a.height);}
 
-    setInterval(function (e) {
+    //DRAWING
+    setInterval(function () {
         clr();
         switch (screen) {
             case 0:
                 roomButtons.forEach(function (button) {button.render();});
                 break;
             case 1:
+                player.render();
+                room.players.forEach(function (player) {
+                   renderEnemy(player);
+                });
                 ctx.fillText("Game Screen",10,50);
                 break;
             case 2:
                 ctx.fillText("Death Screen",10,50);
         }
     }, 33);
+
+    //NETWORK
+    setInterval(function () {
+        switch (screen) {
+            case 1:
+            socket.emit('player-move', player);
+        }
+    }, 10);
 
     onclick = function (e) {
         switch (screen) {
@@ -97,10 +137,22 @@ function init() {
     };
 
     onkeydown = function (e) {
-        console.log(e);
         switch (screen) {
-            case 0:
-
+            case 1:
+                switch(e.key) {
+                    case 'w':
+                        player.y -= 5;
+                        break;
+                    case 'a':
+                        player.x -= 5;
+                        break;
+                    case 's':
+                        player.y += 5;
+                        break;
+                    case 'd':
+                        player.x += 5;
+                        break;
+                }
         }
     };
 
