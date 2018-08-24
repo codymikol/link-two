@@ -103,9 +103,11 @@ module.exports = {
         socket.on("player-move", function (dtoPlayer) {
             player.x = dtoPlayer.x;
             player.y = dtoPlayer.y;
-            theRoom.players.forEach(function (player) {
-                player.socket.emit('update-room', theRoom.asDTO())
-            });
+            if(theRoom) {
+                theRoom.players.forEach(function (player) {
+                    player.socket.emit('update-room', theRoom.asDTO())
+                });
+            }
         });
 
         socket.on("disconnect", () => {
