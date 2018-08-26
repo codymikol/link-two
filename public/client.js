@@ -57,17 +57,11 @@ class Actor extends Entity {
         this.color = color;
         this.velocity = .1;
         this.render = function () {
-            ctx.setTransform(1, 0, 0, 1, this.x, this.y);
-            ctx.rotate(Math.atan2(mousePos.y - (this.y - 150), mousePos.x - (this.x - 150)));
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 100, 0, Math.PI * 2);
-            ctx.moveTo(this.x - 100, this.y);
-            ctx.lineTo(this.x + 100, this.y);
-            ctx.lineTo(this.x + 60, this.y - 80);
-            ctx.closePath();
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x,this.y, this.width, this.height);
             ctx.stroke();
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-        }
+        };
     }
 }
 
@@ -79,7 +73,7 @@ class Player extends Actor {
 
 class Enemy extends Actor {
     constructor(x,y) {
-        super(x,y,'green');
+        super(x,y,'red');
     }
 }
 
@@ -137,6 +131,6 @@ window.addEventListener("load", function () {
         entitiesCall('_sethover');
     };
 
-    requestAnimationFrame(mainLoop)
+    requestAnimationFrame(mainLoop);
 
 }, false);
