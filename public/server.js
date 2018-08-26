@@ -1,6 +1,5 @@
 "use strict";
 
-const rooms = new RoomList();
 const required_players = 2;
 
 class RoomList {
@@ -89,6 +88,7 @@ class Player {
 }
 
 function init() {
+    const rooms = new RoomList();
     for (let i = 0; i < 10; i++) {
         rooms.add(new Room(i));
     }
