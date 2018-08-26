@@ -1,172 +1,104 @@
-let socket, rooms, roomButtons;
-
-let mouse = null,
+let socket,
+    rooms,
     screen = 0,
-    room,
+    entityNonce = 0,
+    mousePos = {},
+    keyDown = {},
+    entities = {},
     a = document.getElementById('a'),
     ctx= a.getContext('2d'),
-    player = new Player();
-    rect = a.getBoundingClientRect();
+    player = new Player(10,10);
 
-//Buttons for room :D
-function Button (x, y, height, width, text, room) {
+function mouseInBounds(x,y,height,width) {return mousePos.x > x && mousePos.x < x + width && mousePos.y > y && mousePos.y < y + height;}
+function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
+function entitiesCall(method){ forObj(entities, function (entity) { entity[method]() }) }
+function addEntity(entity){ entity.nonce = entityNonce; entities[entityNonce] = entity; entityNonce++;}
+
+function Entity(x, y, height, width, _screen) {
+    this.nonce = null;
     this.x = x;
     this.y = y;
     this.height = height;
-    this.room = room;
     this.width = width;
-    this.text = text;
     this.hovered = false;
-    this.setText = function (text) {
-      this.text = text;
-    };
-    this.setHovered = function (mouseX, mouseY) {
-        this.hovered = mouseX > this.x && mouseX < this.x + this.width && mouseY > this.y && mouseY < this.y + this.height;
-    };
-    this.click = function (fn) {
-       if (this.hovered){ fn(this.room); console.log('Joined ' + this.room.roomName); };
-    };
-    this.render = function () {
-        ctx.beginPath();
-        ctx.fillStyle = this.hovered ? "blue" : "#E9967A";
-        ctx.fillRect(this.x,this.y, this.width, this.height);
-        ctx.stroke();
-        ctx.fillStyle="black";
-        ctx.fillText(this.text, this.x + 20, this.y + 20);
-    };
+    this.isOnScreen = function(){return this._screen === screen};
+    this._screen = _screen;
+    this._sethover = function () {this.hovered = this.isOnScreen() && mouseInBounds(this.x,this.y,this.height,this.width)};
+    this._click = function () {if (this.hovered) this.onClick();};
+    this._render = function () {if(this.isOnScreen()) this.render();};
 }
 
-function Player() {
 
-    this.x = 0;
-    this.y = 0;
 
-    this.render = function () {
-        ctx.beginPath();
-        ctx.fillStyle = "blue";
-        ctx.fillRect(this.x,this.y, 50, 50);
-        ctx.stroke();
-    };
-
+function Button(x,y,room) {
+    this.room = room;
+    this.text = this.room.roomName + ' -- Players: ' + this.room.players.length + '/10';
+    Entity.call(this, x,y,30,400,0);
 }
 
-function renderEnemy(enemy) {
+Button.prototype = Object.create(new Entity());
+
+Button.prototype.render = function () {
     ctx.beginPath();
-    ctx.fillStyle = "blue";
-    ctx.fillRect(enemy.x,enemy.y, 50, 50);
+    ctx.fillStyle = this.hovered ? "pink" : "#E9967A";
+    ctx.fillRect(this.x,this.y, this.width, this.height);
     ctx.stroke();
+    ctx.font="20px Georgia";
+    ctx.fillStyle="black";
+    ctx.fillText(this.text, this.x + 20, this.y + 20);
+};
+
+Button.prototype.onClick = function () {socket.emit('join', this.room);};
+
+function Player(x,y) {
+    this.playerName = 'Cody Mikol';
+    Entity.call(this,x,y,20,20,1);
 }
 
-function bind() {
-    socket.on("rooms-available", function (response) {
-        roomButtons = response.map(function (room, index) {
-           return new Button(270, 90 + (40 * index), 30, 400, room.roomName + ' -- Players: ' + room.players.length + '/10', room, socket);
-        });
-    });
-    socket.on('joined-room', function () {
-       screen = 1;
-        socket.on('update-room', function (x) {
-            room =  x;
-        });
-    });
-    socket.on('update-rooms', function (rooms, index) {
-       roomButtons.forEach(function (button) {
-         rooms.forEach(function (room) {
-             if(room.roomName === button.room.roomName) {
-                 button.setText(room.roomName + ' -- Players: ' + room.players.length + '/10');
-                 console.log('updated room!');
-             }
-         });
-       });
-    });
+Player.prototype = Object.create(new Entity());
 
-}
+Player.prototype.render = function () {
+    ctx.beginPath();
+    ctx.ffillStyle = "blue";
+    ctx.fillRect(this.x,this.y, 50, 50);
+    ctx.stroke();
+};
 
-function init() {
+window.addEventListener("load", function () {
 
     socket = io({upgrade: false, transports: ["websocket"]});
 
-    bind();
+    addEntity(player);
 
-    ctx.font="20px Georgia";
+    forObj({
+        'rooms-available': function (response) {response.forEach(function (room) {addEntity(new Button(270, 90 + (40 * entityNonce),room))})},
+        'joined-room': function () {screen = 1;},
+        'update-rooms': function (_rooms) {rooms = _rooms;}
+    }, function (fn, key) {socket.on(key, fn)});
 
-    function clr()  {ctx.clearRect(0, 0, a.width, a.height);}
-
-    //DRAWING
     setInterval(function () {
-        clr();
-        switch (screen) {
-            case 0:
-                roomButtons.forEach(function (button) {button.render();});
-                break;
-            case 1:
-                player.render();
-                room.players.forEach(function (player) {
-                   renderEnemy(player);
-                });
-                ctx.fillText("Game Screen",10,50);
-                break;
-            case 2:
-                ctx.fillText("Death Screen",10,50);
-        }
+        ctx.clearRect(0, 0, a.width, a.height);
+        forObj(entities, function (entity) {entity._render()})
     }, 33);
 
-    //NETWORK
     setInterval(function () {
         switch (screen) {
             case 1:
-            socket.emit('player-move', player);
+                socket.emit('player-move', player);
         }
     }, 10);
 
-    onclick = function (e) {
-        switch (screen) {
-            case 0:
-                roomButtons.forEach(function (button) {
-                  button.click(function (room) {
-                      socket.emit('join', room);
-                  });
-                });
-                break;
-            case 1:
-                // screen = 2;
-                break;
-            case 2:
-                // screen = 0;
-        }
-    };
+    onclick = function (e) { entitiesCall('_click') };
 
-    onkeydown = function (e) {
-        switch (screen) {
-            case 1:
-                switch(e.key) {
-                    case 'w':
-                        player.y -= 5;
-                        break;
-                    case 'a':
-                        player.x -= 5;
-                        break;
-                    case 's':
-                        player.y += 5;
-                        break;
-                    case 'd':
-                        player.x += 5;
-                        break;
-                }
-        }
-    };
+    function bindKey(e) {keyDown[e.key] = e.type[3] === 'd';}
+    onkeydown = bindKey;
+    onkeyup = bindKey;
 
     onmousemove = function (e) {
-        switch (screen) {
-            case 0:
-                roomButtons.forEach(function (button) {
-                    button.setHovered(e.clientX - rect.left,e.clientY - rect.top);
-                });
-                break;
-        }
+        let rect = a.getBoundingClientRect();
+        mousePos.x = e.clientX - rect.left;
+        mousePos.y = e.clientY - rect.top;
+        entitiesCall('_sethover');
     };
 
-}
-
-window.addEventListener("load", init, false);
-
+}, false);
