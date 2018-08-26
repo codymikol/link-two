@@ -34,7 +34,6 @@ class Button extends Entity {
     constructor(x,y,room) {
         super(x,y,30,400,0);
         this.room = room;
-        this.text = this.room.roomName + ' -- Players: ' + this.room.players.length + '/10';
         this.render = function () {
             ctx.beginPath();
             ctx.fillStyle = this.hovered ? "pink" : "#E9967A";
@@ -42,6 +41,7 @@ class Button extends Entity {
             ctx.stroke();
             ctx.font="20px Georgia";
             ctx.fillStyle="black";
+            this.text = this.room.roomName + ' -- Players: ' + this.room.players.length + '/10';
             ctx.fillText(this.text, this.x + 20, this.y + 20);
         };
         this.onClick = function () {
@@ -56,12 +56,17 @@ class Actor extends Entity {
         this.health = 100;
         this.color = color;
         this.velocity = .1;
-        this.name = 'Morty';
         this.render = function () {
+            ctx.setTransform(1, 0, 0, 1, this.x, this.y);
+            ctx.rotate(Math.atan2(mousePos.y - (this.y - 150), mousePos.x - (this.x - 150)));
             ctx.beginPath();
-            ctx.fillStyle = this.color;
-            ctx.fillRect(this.x,this.y, 25, 25);
+            ctx.arc(this.x, this.y, 100, 0, Math.PI * 2);
+            ctx.moveTo(this.x - 100, this.y);
+            ctx.lineTo(this.x + 100, this.y);
+            ctx.lineTo(this.x + 60, this.y - 80);
+            ctx.closePath();
             ctx.stroke();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
         }
     }
 }
