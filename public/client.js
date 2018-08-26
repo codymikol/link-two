@@ -14,66 +14,69 @@ function mouseInBounds(x,y,height,width) {return mousePos.x > x && mousePos.x < 
 function entitiesCall(method){ forObj(entities, function (entity) { entity[method]() }) }
 function addEntity(entity){ entity.nonce = entityNonce; entities[entityNonce] = entity; entityNonce++;}
 
-function Entity(x, y, height, width, _screen) {
-    this.nonce = null;
-    this.x = x;
-    this.y = y;
-    this.height = height;
-    this.width = width;
-    this.hovered = false;
-    this.isOnScreen = function(){return this._screen === screen};
-    this._screen = _screen;
-    this._sethover = function () {this.hovered = this.isOnScreen() && mouseInBounds(this.x,this.y,this.height,this.width)};
-    this._click = function () {if (this.hovered && this.onClick) this.onClick();};
-    this._render = function () {if(this.isOnScreen()) this.render();};
+class Entity {
+    constructor(x, y, height, width, _screen) {
+        this.nonce = null;
+        this.x = x;
+        this.y = y;
+        this.height = height;
+        this.width = width;
+        this.hovered = false;
+        this.isOnScreen = function(){return this._screen === screen};
+        this._screen = _screen;
+        this._sethover = function () {this.hovered = this.isOnScreen() && mouseInBounds(this.x,this.y,this.height,this.width)};
+        this._click = function () {if (this.hovered && this.onClick) this.onClick();};
+        this._render = function () {if(this.isOnScreen()) this.render();};
+    }
 }
 
-
-let Button = function(x,y,room) {
-    this.room = room;
-    this.text = this.room.roomName + ' -- Players: ' + this.room.players.length + '/10';
-    Entity.call(this, x,y,30,400,0);
-};
-
-Button.prototype = {
-    render: function () {
-        ctx.beginPath();
-        ctx.fillStyle = this.hovered ? "pink" : "#E9967A";
-        ctx.fillRect(this.x,this.y, this.width, this.height);
-        ctx.stroke();
-        ctx.font="20px Georgia";
-        ctx.fillStyle="black";
-        ctx.fillText(this.text, this.x + 20, this.y + 20);
-    },
-    onClick: function () {
-        socket.emit('join', this.room);
+class Button extends Entity {
+    constructor(x,y,room) {
+        super(x,y,30,400,0);
+        this.room = room;
+        this.text = this.room.roomName + ' -- Players: ' + this.room.players.length + '/10';
+        this.render = function () {
+            ctx.beginPath();
+            ctx.fillStyle = this.hovered ? "pink" : "#E9967A";
+            ctx.fillRect(this.x,this.y, this.width, this.height);
+            ctx.stroke();
+            ctx.font="20px Georgia";
+            ctx.fillStyle="black";
+            ctx.fillText(this.text, this.x + 20, this.y + 20);
+        };
+        this.onClick = function () {
+            socket.emit('join', this.room);
+        }
     }
-};
+}
 
-let Actor = function (x,y,color) {
-  this.health = 100;
-  this.color = color;
-  this.velocity = .1;
-  this.name = 'Morty';
-  Entity.call(this,x,y,20,20,1);
-};
-
-Actor.prototype = {
-    render: function () {
-        ctx.beginPath();
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x,this.y, 25, 25);
-        ctx.stroke();
+class Actor extends Entity {
+    constructor(x,y,color) {
+        super(x,y,20,20,1);
+        this.health = 100;
+        this.color = color;
+        this.velocity = .1;
+        this.name = 'Morty';
+        this.render = function () {
+            ctx.beginPath();
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x,this.y, 25, 25);
+            ctx.stroke();
+        }
     }
-};
+}
 
-let Player = function (x,y) {
-    Actor.call(this,x,y,'green');
-};
+class Player extends Actor {
+    constructor(x,y) {
+        super(x,y,'green');
+    }
+}
 
-let Enemy = function (x,y) {
-    Actor.call(this,x,y,'red');
-};
+class Enemy extends Actor {
+    constructor(x,y) {
+        super(x,y,'green');
+    }
+}
 
 window.addEventListener("load", function () {
 
