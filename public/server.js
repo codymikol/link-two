@@ -3,14 +3,27 @@
 const rooms = new RoomList();
 const required_players = 2;
 
-function RoomList() {
+class RoomList {
 
-    this.rooms = [];
+    constructor() {
 
-    this.add = function (room) {this.rooms.push(room)};
-    this.byId = function (id) {return this.rooms.filter(function (room) {return room.id === id;})[0]};
-    this.asDTO = function () {return this.rooms.reduce(function (col, room) {col[room.id] = room.asDTO(); return col;},{})}
+        this.rooms = [];
 
+        this.add = function (room) {
+            this.rooms.push(room)
+        };
+        this.byId = function (id) {
+            return this.rooms.filter(function (room) {
+                return room.id === id;
+            })[0]
+        };
+        this.asDTO = function () {
+            return this.rooms.reduce(function (col, room) {
+                col[room.id] = room.asDTO();
+                return col;
+            }, {})
+        }
+    }
 }
 
 class Room {
@@ -63,6 +76,7 @@ class Player {
     constructor(socket) {
         this.x = 0;
         this.y = 0;
+
         this.health = 100;
         this.socket = socket;
         this.name = 'cody mikol';
@@ -94,7 +108,7 @@ module.exports = {
         socket.on("join", function (room) {
             theRoom = rooms.byId(room.id);
             theRoom.join(player);
-			socket.emit('joined-room');
+            socket.emit('joined-room');
             socket.broadcast.emit('update-rooms', rooms.asDTO());
             console.log("Connected: " + socket.id);
         });
@@ -102,7 +116,7 @@ module.exports = {
         socket.on("player-move", function (dtoPlayer) {
             player.x = dtoPlayer.x;
             player.y = dtoPlayer.y;
-            if(theRoom) {
+            if (theRoom) {
                 theRoom.players.forEach(function (player) {
                     player.socket.emit('update-room', theRoom.asDTO())
                 });
@@ -110,7 +124,7 @@ module.exports = {
         });
 
         socket.on("disconnect", () => {
-            if(theRoom) theRoom.leave(player);
+            if (theRoom) theRoom.leave(player);
             socket.broadcast.emit('update-rooms', rooms.asDTO());
         });
 
