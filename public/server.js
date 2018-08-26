@@ -1,8 +1,17 @@
 "use strict";
 
-const rooms = [];
-
+const rooms = new RoomList();
 const required_players = 2;
+
+function RoomList() {
+
+    this.rooms = [];
+
+    this.add = function (room) {this.rooms.push(room)};
+    this.byId = function (id) {return this.rooms.filter(function (room) {return room.id === id;})[0]};
+    this.asDTO = function () {return this.rooms.reduce(function (col, room) {col[room.id] = room.asDTO(); return col;},{})}
+
+}
 
 class Room {
 
@@ -31,7 +40,6 @@ class Room {
         }))
     }
 
-
     leave(player) {
         this.players = this.players.filter(function (mPlayer) {
             return player !== mPlayer;
@@ -40,6 +48,7 @@ class Room {
 
     asDTO() {
         return {
+            id: this.id,
             players: this.players.map(function (player) {
                 return player.asDTO()
             }),
@@ -67,7 +76,7 @@ class Player {
 
 function init() {
     for (let i = 0; i < 10; i++) {
-        rooms.push(new Room(i));
+        rooms.add(new Room(i));
     }
 }
 
@@ -78,26 +87,16 @@ module.exports = {
     io: (socket) => {
 
         const player = new Player(socket);
-        var theRoom = null;
+        var theRoom;
 
-
-        socket.emit("rooms-available", rooms.map(function (room) {
-            return room.asDTO();
-        }));
+        socket.emit("rooms-available", rooms.asDTO());
 
         socket.on("join", function (room) {
-            theRoom = rooms.filter(function (mRoom) {
-                return room.roomName === mRoom.roomName;
-            })[0];
-
+            theRoom = rooms.byId(room.id);
             theRoom.join(player);
-
 			socket.emit('joined-room');
-            socket.broadcast.emit('update-rooms', rooms.map(function (room) {
-                return room.asDTO();
-            }));
+            socket.broadcast.emit('update-rooms', rooms.asDTO());
             console.log("Connected: " + socket.id);
-
         });
 
         socket.on("player-move", function (dtoPlayer) {
@@ -111,14 +110,8 @@ module.exports = {
         });
 
         socket.on("disconnect", () => {
-
-            if(theRoom) {
-                theRoom.leave(player);
-            }
-
-            socket.broadcast.emit('update-rooms', rooms.map(function (room) {
-                return room.asDTO();
-            }));
+            if(theRoom) theRoom.leave(player);
+            socket.broadcast.emit('update-rooms', rooms.asDTO());
         });
 
     },
