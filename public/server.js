@@ -59,14 +59,14 @@ class Room {
         });
     }
 
-    asDTO() {
+    asDTO(isFullDTO) {
         return {
             id: this.id,
-            players: this.players.map(function (player) {
-                return player.asDTO()
-            }),
+            players: isFullDTO ? this.players.map(function (player) {
+                return player.asDTO();
+            }) : null,
             roomName: this.roomName
-        }
+        };
     }
 
 }
