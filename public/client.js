@@ -50,20 +50,29 @@ Button.prototype = {
     }
 };
 
-let Player = function (x,y) {
-    this.health = 100;
-    this.velocity = .1;
-    this.name = 'Morty Jr';
-    Entity.call(this,x,y,20,20,1);
+let Actor = function (x,y,color) {
+  this.health = 100;
+  this.color = color;
+  this.velocity = .1;
+  this.name = 'Morty';
+  Entity.call(this,x,y,20,20,1);
 };
 
-Player.prototype = {
+Actor.prototype = {
     render: function () {
         ctx.beginPath();
-        ctx.fillStyle = "blue";
+        ctx.fillStyle = this.color;
         ctx.fillRect(this.x,this.y, 25, 25);
         ctx.stroke();
     }
+};
+
+let Player = function (x,y) {
+    Actor.call(this,x,y,'green');
+};
+
+let Enemy = function (x,y) {
+    Actor.call(this,x,y,'red');
 };
 
 window.addEventListener("load", function () {
@@ -76,6 +85,8 @@ window.addEventListener("load", function () {
     forObj({
         'rooms-available': function (response) {forObj(response, function (room) {addEntity(new Button(270, 90 + (40 * entityNonce),room))})},
         'joined-room': function () {screen = 1;},
+        'enemy-joined': function (enemy) {addEntity(new Enemy(enemy.x,enemy.y,enemy.id))},
+        'enemy-left': function (enemy) {},
         'update-rooms': function (_rooms) {rooms = _rooms;}
     }, function (fn, key) {socket.on(key, fn)});
 
