@@ -31,7 +31,6 @@ class Entity {
         this.nonce = null;
         this.x = x;
         this.y = y;
-        this.rotationDegrees;
         this.height = height;
         this.width = width;
         this.hovered = false;
@@ -51,9 +50,8 @@ class Entity {
         this._render = function () {
             if (this.isOnScreen()) this.render();
         };
-
         this._mousemove = function () {
-            this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
+            if (this.isOnScreen() && this.onMouseMove) this.onMouseMove();
         }
     }
 }
@@ -82,6 +80,7 @@ class Actor extends Entity {
     constructor(x, y, color) {
         super(x, y, 20, 20, 1);
         this.health = 100;
+        this.rotationDegrees = 0;
         this.color = color;
         this.velocity = .1;
         this.render = function () {
@@ -100,6 +99,9 @@ class Actor extends Entity {
 class Player extends Actor {
     constructor(x, y) {
         super(x, y, 'green');
+        this.onMouseMove = function () {
+            this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
+        };
         this.onAnyClick = function () {
             addEntity(new Projectile(this.x, this.y), '');
         };
