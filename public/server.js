@@ -1,6 +1,7 @@
 "use strict";
 
 const required_players = 2;
+var globalNonce = 0;
 let rooms;
 
 class RoomList {
@@ -74,17 +75,17 @@ class Room {
 
 class Player {
 
-    constructor(socket) {
+    constructor(id, socket) {
+        this.id = id;
         this.x = 0;
         this.y = 0;
-
         this.health = 100;
         this.socket = socket;
         this.name = 'cody mikol';
     }
 
     asDTO() {
-        return {name: this.name, health: this.health, x: this.x, y: this.y}
+        return {id : this.id, name: this.name, health: this.health, x: this.x, y: this.y}
     }
 
 }
@@ -102,7 +103,8 @@ module.exports = {
 
     io: (socket) => {
 
-        const player = new Player(socket);
+        const player = new Player(globalNonce, socket);
+        globalNonce++;
         var theRoom;
 
         socket.emit("rooms-available", rooms.asDTO());
