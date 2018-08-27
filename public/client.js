@@ -31,6 +31,7 @@ class Entity {
         this.nonce = null;
         this.x = x;
         this.y = y;
+        this.rotationDegrees;
         this.height = height;
         this.width = width;
         this.hovered = false;
@@ -47,6 +48,10 @@ class Entity {
         this._render = function () {
             if (this.isOnScreen()) this.render();
         };
+
+        this._mousemove = function () {
+            this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
+        }
     }
 }
 
@@ -125,7 +130,7 @@ window.addEventListener("load", function () {
         'update-chosen-room': function (room) {
             room.players.forEach(function (server_player) {
 
-                if(server_player.id !== player.id) {
+                if (server_player.id !== player.id) {
                     var cached_player = entities['enemy-' + server_player.id];
 
                     if (cached_player) {
@@ -194,6 +199,7 @@ window.addEventListener("load", function () {
         mousePos.x = e.clientX - rect.left;
         mousePos.y = e.clientY - rect.top;
         entitiesCall('_sethover');
+        entitiesCall('_mousemove');
     };
 
     requestAnimationFrame(mainLoop);
