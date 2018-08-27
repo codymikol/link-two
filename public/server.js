@@ -114,7 +114,7 @@ module.exports = {
         socket.on("join", function (room) {
             selectedRoom = rooms.byId(room.id);
             selectedRoom.join(player);
-            socket.emit('joined-room');
+            socket.emit('joined-room', player.asDTO());
 
             updater = setInterval(function () {
                 socket.emit('update-chosen-room', selectedRoom.asDTO(true));
