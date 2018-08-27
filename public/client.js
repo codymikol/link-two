@@ -85,10 +85,14 @@ class Actor extends Entity {
         this.color = color;
         this.velocity = .1;
         this.render = function () {
-            ctx.beginPath();
             ctx.fillStyle = this.color;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-            ctx.stroke();
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotationDegrees * Math.PI / 180);
+            ctx.fillRect(this.width / this.x - 10
+                , this.height / this.y - 10
+                , this.width, this.height);
+            ctx.restore();
         };
     }
 }
@@ -109,8 +113,8 @@ class Enemy extends Actor {
 }
 
 class Projectile extends Entity {
-    constructor(x,y) {
-        super(x,y,5,5,1);
+    constructor(x, y) {
+        super(x, y, 5, 5, 1);
         this.render = function () {
             ctx.beginPath();
             ctx.fillStyle = 'purple';
