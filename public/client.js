@@ -110,7 +110,8 @@ window.addEventListener("load", function () {
                 addEntity(new Button(270, 90 + (40 * entityNonce), room))
             })
         },
-        'joined-room': function () {
+        'joined-room': function (server_player) {
+            player.id = server_player.id;
             screen = 1;
         },
         'enemy-joined': function (enemy) {
@@ -124,13 +125,15 @@ window.addEventListener("load", function () {
         'update-chosen-room': function (room) {
             room.players.forEach(function (server_player) {
 
-                var cached_player = entities['enemy-' + server_player.id];
+                if(server_player.id !== player.id) {
+                    var cached_player = entities['enemy-' + server_player.id];
 
-                if (cached_player) {
-                 cached_player.x = server_player.x;
-                 cached_player.y = server_player.y;
-                } else {
-                    addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.id);
+                    if (cached_player) {
+                        cached_player.x = server_player.x;
+                        cached_player.y = server_player.y;
+                    } else {
+                        addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.id);
+                    }
                 }
 
                 socket.emit('update-player', player);
