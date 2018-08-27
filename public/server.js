@@ -45,13 +45,7 @@ class Room {
     }
 
     startGame() {
-        this.players.forEach(this.broadcastPlayer)
-    }
-
-    broadcastPlayer(player, index) {
-        player.socket.emit("player-info", players.map(function (player) {
-            return {name: player.name, health: player.health, x: player.x, y: player.y}
-        }))
+        // todo implement start game logic!
     }
 
     leave(player) {
@@ -66,7 +60,7 @@ class Room {
             players: isFullDTO ? this.players.map(function (player) {
                 return player.asDTO();
             }) : null,
-            playerSize : this.players.length,
+            playerSize: this.players.length,
             roomName: this.roomName
         };
     }
@@ -76,17 +70,24 @@ class Room {
 class Player {
 
     constructor(socket) {
-        this.id = playerNonce
+        this.id = playerNonce;
         this.x = 0;
         this.y = 0;
-
+        this.rotationDegrees = 0;
         this.health = 100;
         this.socket = socket;
         this.name = 'cody mikol';
     }
 
     asDTO() {
-        return {name: this.name, health: this.health, x: this.x, y: this.y, id: this.id}
+        return {
+            name: this.name,
+            health: this.health,
+            x: this.x,
+            y: this.y,
+            id: this.id,
+            rotationDegrees: this.rotationDegrees
+        }
     }
 
 }
@@ -104,7 +105,7 @@ module.exports = {
 
     io: (socket) => {
 
-        playerNonce ++;
+        playerNonce++;
         const player = new Player(socket);
         var updater;
         var selectedRoom;
@@ -125,6 +126,7 @@ module.exports = {
         socket.on('update-player', function (client_player) {
             player.x = client_player.x;
             player.y = client_player.y;
+            player.rotationDegrees = client_player.rotationDegrees;
         });
 
         socket.on("disconnect", () => {
