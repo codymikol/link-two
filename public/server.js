@@ -117,7 +117,7 @@ module.exports = {
             console.log("Connected: " + socket.id);
         });
 
-        socket.on("player-move", function (dtoPlayer) {
+        socket.on("player-update", function (dtoPlayer) {
             player.x = dtoPlayer.x;
             player.y = dtoPlayer.y;
             if (theRoom) {
