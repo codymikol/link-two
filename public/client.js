@@ -41,6 +41,9 @@ class Entity {
         this._sethover = function () {
             this.hovered = this.isOnScreen() && mouseInBounds(this.x, this.y, this.height, this.width)
         };
+        this._anyclick = function () {
+            if (this.isOnScreen() && this.onAnyClick) this.onAnyClick();
+        };
         this._click = function () {
             if (this.hovered && this.onClick) this.onClick();
         };
@@ -88,12 +91,27 @@ class Actor extends Entity {
 class Player extends Actor {
     constructor(x, y) {
         super(x, y, 'green');
+        this.onAnyClick = function () {
+            addEntity(new Projectile(this.x, this.y), '');
+        };
     }
 }
 
 class Enemy extends Actor {
     constructor(x, y) {
         super(x, y, 'red');
+    }
+}
+
+class Projectile extends Entity {
+    constructor(x,y) {
+        super(x,y,5,5,1);
+        this.render = function () {
+            ctx.beginPath();
+            ctx.fillStyle = 'purple';
+            ctx.fillRect(this.x, this.y, this.height, this.width);
+            ctx.stroke();
+        };
     }
 }
 
@@ -179,7 +197,8 @@ window.addEventListener("load", function () {
     }
 
     onclick = function (e) {
-        entitiesCall('_click')
+        entitiesCall('_click');
+        entitiesCall('_anyclick');
     };
 
     function bindKey(e) {
