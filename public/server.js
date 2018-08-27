@@ -2,6 +2,7 @@
 
 const required_players = 2;
 let rooms;
+var playerNonce = 0;
 
 class RoomList {
 
@@ -75,6 +76,7 @@ class Room {
 class Player {
 
     constructor(socket) {
+        this.id = playerNonce
         this.x = 0;
         this.y = 0;
 
@@ -84,7 +86,7 @@ class Player {
     }
 
     asDTO() {
-        return {name: this.name, health: this.health, x: this.x, y: this.y}
+        return {name: this.name, health: this.health, x: this.x, y: this.y, id: this.id}
     }
 
 }
@@ -102,32 +104,32 @@ module.exports = {
 
     io: (socket) => {
 
+        playerNonce ++;
         const player = new Player(socket);
-        var theRoom;
+        var updater;
+        var selectedRoom;
 
         socket.emit("rooms-available", rooms.asDTO());
 
         socket.on("join", function (room) {
-            theRoom = rooms.byId(room.id);
-            theRoom.join(player);
+            selectedRoom = rooms.byId(room.id);
+            selectedRoom.join(player);
             socket.emit('joined-room');
-            socket.broadcast.emit('update-rooms', rooms.asDTO());
-            console.log("Connected: " + socket.id);
+
+            updater = setInterval(function () {
+                socket.emit('update-chosen-room', selectedRoom.asDTO(true));
+            }, 15);
+
         });
 
-        socket.on("player-move", function (dtoPlayer) {
-            player.x = dtoPlayer.x;
-            player.y = dtoPlayer.y;
-            if (theRoom) {
-                theRoom.players.forEach(function (player) {
-                    player.socket.emit('update-room', theRoom.asDTO())
-                });
-            }
+        socket.on('update-player', function (client_player) {
+            player.x = client_player.x;
+            player.y = client_player.y;
         });
 
         socket.on("disconnect", () => {
-            if (theRoom) theRoom.leave(player);
-            socket.broadcast.emit('update-rooms', rooms.asDTO());
+            if (selectedRoom) selectedRoom.leave(player);
+            if (updater) clearInterval(updater);
         });
 
     },
