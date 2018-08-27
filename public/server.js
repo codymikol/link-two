@@ -65,6 +65,7 @@ class Room {
             players: isFullDTO ? this.players.map(function (player) {
                 return player.asDTO();
             }) : null,
+            playerSize : this.players.length,
             roomName: this.roomName
         };
     }

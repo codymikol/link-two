@@ -61,7 +61,7 @@ class Button extends Entity {
             ctx.stroke();
             ctx.font = "20px Georgia";
             ctx.fillStyle = "black";
-            this.text = this.room.roomName + ' -- Players: ' + this.room.players.length + '/10';
+            this.text = this.room.roomName + ' -- Players: ' + this.room.playerSize + '/10';
             ctx.fillText(this.text, this.x + 20, this.y + 20);
         };
         this.onClick = function () {
