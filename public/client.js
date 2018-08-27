@@ -160,6 +160,7 @@ window.addEventListener("load", function () {
                     if (cached_player) {
                         cached_player.x = server_player.x;
                         cached_player.y = server_player.y;
+                        cached_player.rotationDegrees = server_player.rotationDegrees;
                     } else {
                         addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.id);
                     }
