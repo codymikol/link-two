@@ -20,9 +20,9 @@ function entitiesCall(method) {
     })
 }
 
-function addEntity(entity) {
+function addEntity(entity, namespace) {
     entity.nonce = entityNonce;
-    entities[entityNonce] = entity;
+    entities[namespace || entityNonce] = entity;
     entityNonce++;
 }
 
@@ -120,6 +120,22 @@ window.addEventListener("load", function () {
         },
         'update-rooms': function (_rooms) {
             rooms = _rooms;
+        },
+        'update-chosen-room': function (room) {
+            room.players.forEach(function (server_player) {
+
+                var cached_player = entities['enemy-' + server_player.id];
+
+                if (cached_player) {
+                 cached_player.x = server_player.x;
+                 cached_player.y = server_player.y;
+                } else {
+                    addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.id);
+                }
+
+                socket.emit('update-player', player);
+
+            });
         }
     }, function (fn, key) {
         socket.on(key, fn)
