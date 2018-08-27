@@ -85,10 +85,12 @@ class Actor extends Entity {
         this.color = color;
         this.velocity = .1;
         this.render = function () {
+            ctx.save();
             ctx.beginPath();
             ctx.fillStyle = this.color;
             ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.stroke();
+            ctx.restore();
         };
     }
 }
