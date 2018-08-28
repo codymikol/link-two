@@ -95,9 +95,13 @@ class Actor extends Entity {
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotationDegrees * Math.PI / 180);
-            ctx.fillRect(this.width / this.x - 10
-                , this.height / this.y - 10
-                , this.width, this.height);
+            ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
+            ctx.fillStyle = 'salmon';
+            ctx.beginPath();
+            ctx.moveTo(-(this.width / 2), this.height / 2);
+            ctx.lineTo(-(this.width / 2), -(this.height / 2));
+            ctx.lineTo(this.width / 2, 0);
+            ctx.fill();
             ctx.restore();
         };
     }
