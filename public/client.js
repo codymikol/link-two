@@ -23,6 +23,7 @@ function entitiesCall(method, arg) {
 
 function addEntity(entity, namespace) {
     entity.nonce = entityNonce;
+    entity.namespace = namespace;
     entities[namespace || entityNonce] = entity;
     entityNonce++;
 }
@@ -30,6 +31,7 @@ function addEntity(entity, namespace) {
 class Entity {
     constructor(x, y, height, width, _screen) {
         this.nonce = null;
+        this.namespace = null;
         this.x = x;
         this.y = y;
         this.height = height;
