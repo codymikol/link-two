@@ -204,6 +204,8 @@ window.addEventListener("load", function () {
 
     function draw() {
         ctx.clearRect(0, 0, a.width, a.height);
+        ctx.font = "30px Arial";
+        ctx.fillText("Entities on screen: " + Object.keys(entities).length, 10, 50);
         entitiesCall('_render')
     }
 
