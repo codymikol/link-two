@@ -144,6 +144,7 @@ class Projectile extends Entity {
         this.onTick = function () {
             this.x += this.speed * Math.cos(this.rotation * Math.PI / 180);
             this.y += this.speed * Math.sin(this.rotation * Math.PI / 180);
+            if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
     }
 }
