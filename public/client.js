@@ -15,9 +15,9 @@ function mouseInBounds(x, y, height, width) {
     return mousePos.x > x && mousePos.x < x + width && mousePos.y > y && mousePos.y < y + height;
 }
 
-function entitiesCall(method) {
+function entitiesCall(method, arg) {
     forObj(entities, function (entity) {
-        entity[method]()
+        entity[method](arg);
     })
 }
 
