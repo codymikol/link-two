@@ -5,6 +5,7 @@ let socket,
     screen = 0,
     entityNonce = 0,
     mousePos = {},
+    player;
     keyDown = {},
     entities = {},
     a = document.getElementById('a'),
@@ -52,7 +53,10 @@ class Entity {
         };
         this._mousemove = function () {
             if (this.isOnScreen() && this.onMouseMove) this.onMouseMove();
-        }
+        };
+        this._tick = function (delta) {
+            if (this.isOnScreen() && this.onTick) this.onTick(delta);
+        };
     }
 }
 
@@ -103,7 +107,15 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            addEntity(new Projectile(this.x, this.y), '');
+            addEntity(new Projectile(this.x, this.y, this.rotationDegrees));
+        };
+        this.onTick = function (delta) {
+            ctx.fillRect(this.x * this.rotationDegrees, this.y * this.rotationDegrees, 10, 10);
+
+            if (keyDown.w) this.y -= this.velocity * delta;
+            if (keyDown.a) this.x -= this.velocity * delta;
+            if (keyDown.s) this.y += this.velocity * delta;
+            if (keyDown.d) this.x += this.velocity * delta;
         };
     }
 }
@@ -115,13 +127,23 @@ class Enemy extends Actor {
 }
 
 class Projectile extends Entity {
-    constructor(x, y) {
+    constructor(x, y, rotation, color) {
         super(x, y, 5, 5, 1);
+        this.rotation = rotation;
+        this.speed = 10;
+        this.dx = this.rotation * x;
+        this.dy = this.rotation * y;
+        this.color = color;
         this.render = function () {
             ctx.beginPath();
-            ctx.fillStyle = 'purple';
+            ctx.fillStyle = this.color || 'purple';
+            ctx.font = "12px Arial";
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
+        };
+        this.onTick = function () {
+            this.x += this.speed * Math.cos(this.rotation * Math.PI / 180);
+            this.y += this.speed * Math.sin(this.rotation * Math.PI / 180);
         };
     }
 }
@@ -129,7 +151,8 @@ class Projectile extends Entity {
 window.addEventListener("load", function () {
 
     socket = io({upgrade: false, transports: ["websocket"]});
-    let player = new Player(10, 10);
+
+    player = new Player(10, 10);
 
     addEntity(player);
 
@@ -176,18 +199,7 @@ window.addEventListener("load", function () {
 
 
     function update(delta) {
-        if (keyDown.w) {
-            player.y -= player.velocity * delta
-        }
-        if (keyDown.a) {
-            player.x -= player.velocity * delta
-        }
-        if (keyDown.s) {
-            player.y += player.velocity * delta
-        }
-        if (keyDown.d) {
-            player.x += player.velocity * delta
-        }
+        entitiesCall('_tick', delta);
     }
 
     function draw() {
