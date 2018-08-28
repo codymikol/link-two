@@ -57,6 +57,9 @@ class Entity {
         this._tick = function (delta) {
             if (this.isOnScreen() && this.onTick) this.onTick(delta);
         };
+        this.destroy = function () {
+            delete entities[this.namespace || this.nonce];
+        };
     }
 }
 
