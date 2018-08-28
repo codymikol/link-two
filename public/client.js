@@ -76,7 +76,7 @@ class Button extends Entity {
         };
         this.onClick = function () {
             socket.emit('join', this.room);
-        }
+        };
     }
 }
 
