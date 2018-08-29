@@ -48,8 +48,6 @@ class Projectile extends Entity {
         this.rotation = rotation;
         this.speed = randomIntFromInterval(5, 10);
         this.color = color;
-        this.wobble = 1;
-        this.wobbleRotation = randomIntFromInterval(this.rotation - this.wobble, this.rotation + this.wobble);
         this.render = function () {
             ctx.beginPath();
             ctx.fillStyle = this.color || 'purple';
