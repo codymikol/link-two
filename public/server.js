@@ -1,6 +1,5 @@
 "use strict";
 
-const required_players = 1;
 let rooms;
 var playerNonce = 0;
 var projectileNonce = 0;

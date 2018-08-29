@@ -1,6 +1,10 @@
 "use strict";
 function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
 
+const map_height = 600;
+const map_width = 1000;
+const required_players = 1;
+
 class Entity {
     constructor(x, y, height, width, _screen) {
         this.nonce = null;
@@ -55,6 +59,7 @@ class Projectile extends Entity {
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
         };
+        this._
         this._serverTick = function () {
             this.wobbleRotation = 3;
 
