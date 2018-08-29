@@ -22,7 +22,6 @@ function entitiesCall(method, arg) {
 }
 
 function addEntity(entity, namespace) {
-
     entity.nonce = entityNonce;
     entity.namespace = namespace;
     entities[namespace || entityNonce] = entity;
@@ -81,7 +80,7 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            socket.emit('fire-projectile', new Projectile(this.x, this.y, this.rotationDegrees));
+            socket.emit('fire-projectile', new Projectile(null, this.x, this.y, this.rotationDegrees));
         };
         this.onTick = function (delta) {
             if (keyDown.w) this.y -= this.velocity * delta;
@@ -149,9 +148,7 @@ window.addEventListener("load", function () {
             room.projectiles.forEach(function (server_projectile) {
 
                 var cached_projectile = entities['projectile-' + server_projectile.id];
-                console.log("Cached projectile nonce " + "projectile-" + server_projectile.id);
                 if (cached_projectile) {
-                    console.log("Local projectile.");
                     cached_projectile.x = server_projectile.x;
                     cached_projectile.y = server_projectile.y;
                     cached_projectile.rotation = server_projectile.rotation;
@@ -160,7 +157,7 @@ window.addEventListener("load", function () {
                     cached_projectile.color = server_projectile.color;
                     cached_projectile.wobbleRotation = server_projectile.wobbleRotation;
                 } else {
-                    addEntity(new Projectile(server_projectile.x, server_projectile.y), 'projectile-' + server_projectile.id)
+                    addEntity(new Projectile(server_projectile.id, server_projectile.x, server_projectile.y), 'projectile-' + server_projectile.id)
                 }
             });
         }

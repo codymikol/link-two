@@ -41,9 +41,9 @@ class Entity {
 
 
 class Projectile extends Entity {
-    constructor(x, y, rotation, color) {
+    constructor(id, x, y, rotation, color) {
         super(x, y, 5, 5, 1);
-        console.log("creating projectile! " + this.id);
+        this.id = id;
         this.rotation = rotation;
         this.speed = randomIntFromInterval(5, 10);
         this.color = color;
@@ -57,10 +57,10 @@ class Projectile extends Entity {
             ctx.stroke();
         };
         this.onTick = function () {
-            this.wobbleRotation += 3;
-            this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
-            this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
-            if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
+            // this.wobbleRotation += 3;
+            // this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
+            // this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
+            // if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
     }
 }

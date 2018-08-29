@@ -138,7 +138,6 @@ module.exports = {
 
         socket.on('fire-projectile', function (projectile) {
             if (selectedRoom) {
-                console.log("fire projectile event!");
                 projectileNonce++;
                 projectile.id = projectileNonce;
                 selectedRoom.addProjctile(projectile)
