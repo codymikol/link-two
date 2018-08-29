@@ -42,10 +42,10 @@ function randomIntFromInterval(min, max) {
 }
 
 class Projectile extends Entity {
-    constructor(id, x, y, rotation, color) {
+    constructor(id, x, y, rotationDegrees, color) {
         super(x, y, 5, 5, 1);
         this.id = id;
-        this.rotation = rotation;
+        this.rotationDegrees = rotationDegrees;
         this.speed = randomIntFromInterval(2, 5);
         this.color = color;
         this.render = function () {
@@ -57,8 +57,9 @@ class Projectile extends Entity {
         };
         this._serverTick = function () {
             this.wobbleRotation = 3;
-            this.x += this.speed * Math.cos(this.rotation);
-            this.y += this.speed * Math.sin(this.rotation);
+
+            this.x += this.speed * Math.cos(this.rotationDegrees * Math.PI / 180);
+            this.y += this.speed * Math.sin(this.rotationDegrees * Math.PI / 180);
             // todo destroy projectiles once they have exited the room this requires canvas dimensions to be tracked.
             // if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
