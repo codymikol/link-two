@@ -5,6 +5,7 @@ let socket,
     screen = 0,
     entityNonce = 0,
     mousePos = {},
+    player;
     keyDown = {},
     entities = {},
     a = document.getElementById('a'),
@@ -14,14 +15,15 @@ function mouseInBounds(x, y, height, width) {
     return mousePos.x > x && mousePos.x < x + width && mousePos.y > y && mousePos.y < y + height;
 }
 
-function entitiesCall(method) {
+function entitiesCall(method, arg) {
     forObj(entities, function (entity) {
-        entity[method]()
+        entity[method](arg);
     })
 }
 
 function addEntity(entity, namespace) {
     entity.nonce = entityNonce;
+    entity.namespace = namespace;
     entities[namespace || entityNonce] = entity;
     entityNonce++;
 }
@@ -29,6 +31,7 @@ function addEntity(entity, namespace) {
 class Entity {
     constructor(x, y, height, width, _screen) {
         this.nonce = null;
+        this.namespace = null;
         this.x = x;
         this.y = y;
         this.height = height;
@@ -52,7 +55,13 @@ class Entity {
         };
         this._mousemove = function () {
             if (this.isOnScreen() && this.onMouseMove) this.onMouseMove();
-        }
+        };
+        this._tick = function (delta) {
+            if (this.isOnScreen() && this.onTick) this.onTick(delta);
+        };
+        this.destroy = function () {
+            delete entities[this.namespace || this.nonce];
+        };
     }
 }
 
@@ -72,7 +81,7 @@ class Button extends Entity {
         };
         this.onClick = function () {
             socket.emit('join', this.room);
-        }
+        };
     }
 }
 
@@ -88,9 +97,13 @@ class Actor extends Entity {
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotationDegrees * Math.PI / 180);
-            ctx.fillRect(this.width / this.x - 10
-                , this.height / this.y - 10
-                , this.width, this.height);
+            ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
+            ctx.fillStyle = 'salmon';
+            ctx.beginPath();
+            ctx.moveTo(-(this.width / 2), this.height / 2);
+            ctx.lineTo(-(this.width / 2), -(this.height / 2));
+            ctx.lineTo(this.width / 2, 0);
+            ctx.fill();
             ctx.restore();
         };
     }
@@ -103,7 +116,15 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            addEntity(new Projectile(this.x, this.y), '');
+            for(var i = 0; i < 25; i++) {
+                addEntity(new Projectile(this.x, this.y, this.rotationDegrees));
+            }
+        };
+        this.onTick = function (delta) {
+            if (keyDown.w) this.y -= this.velocity * delta;
+            if (keyDown.a) this.x -= this.velocity * delta;
+            if (keyDown.s) this.y += this.velocity * delta;
+            if (keyDown.d) this.x += this.velocity * delta;
         };
     }
 }
@@ -114,14 +135,31 @@ class Enemy extends Actor {
     }
 }
 
+function randomIntFromInterval(min,max)
+{
+    return Math.random()*(max-min+1)+min;
+}
+
 class Projectile extends Entity {
-    constructor(x, y) {
+    constructor(x, y, rotation, color) {
         super(x, y, 5, 5, 1);
+        this.rotation = rotation;
+        this.speed = randomIntFromInterval(5, 10);
+        this.color = color;
+        this.wobble = 1;
+        this.wobbleRotation = randomIntFromInterval(this.rotation - this.wobble, this.rotation + this.wobble);
         this.render = function () {
             ctx.beginPath();
-            ctx.fillStyle = 'purple';
+            ctx.fillStyle = this.color || 'purple';
+            ctx.font = "12px Arial";
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
+        };
+        this.onTick = function () {
+            this.wobbleRotation += 3;
+            this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
+            this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
+            if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
     }
 }
@@ -129,7 +167,8 @@ class Projectile extends Entity {
 window.addEventListener("load", function () {
 
     socket = io({upgrade: false, transports: ["websocket"]});
-    let player = new Player(10, 10);
+
+    player = new Player(10, 10);
 
     addEntity(player);
 
@@ -176,22 +215,13 @@ window.addEventListener("load", function () {
 
 
     function update(delta) {
-        if (keyDown.w) {
-            player.y -= player.velocity * delta
-        }
-        if (keyDown.a) {
-            player.x -= player.velocity * delta
-        }
-        if (keyDown.s) {
-            player.y += player.velocity * delta
-        }
-        if (keyDown.d) {
-            player.x += player.velocity * delta
-        }
+        entitiesCall('_tick', delta);
     }
 
     function draw() {
         ctx.clearRect(0, 0, a.width, a.height);
+        ctx.font = "30px Arial";
+        ctx.fillText("Entities on screen: " + Object.keys(entities).length, 10, 50);
         entitiesCall('_render')
     }
 
