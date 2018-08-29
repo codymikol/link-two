@@ -46,7 +46,8 @@ class Room {
         }
     }
 
-    addProjctile(projectile) {
+    addProjectile(projectile) {
+        setInterval(projectile._serverTick, 3);
         this.projectiles.push(projectile);
     }
 
@@ -137,10 +138,11 @@ module.exports = {
         });
 
         socket.on('fire-projectile', function (projectile) {
-            if (selectedRoom) {
+            if (selectedRoom && player) {
                 projectileNonce++;
                 projectile.id = projectileNonce;
-                selectedRoom.addProjctile(projectile)
+                console.log("firing projectile player at x " + player.x + ' y ' + player.y);
+                selectedRoom.addProjectile(new Projectile(projectile.id, player.x, player.y, projectile.rotation, projectile.color))
             }
         });
 

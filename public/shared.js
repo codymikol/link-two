@@ -37,14 +37,15 @@ class Entity {
         };
     }
 }
-
-
+function randomIntFromInterval(min, max) {
+    return Math.random() * (max - min + 1) + min;
+}
 
 class Projectile extends Entity {
     constructor(id, x, y, rotation, color) {
         super(x, y, 5, 5, 1);
         this.id = id;
-        this.rotation = rotation;
+        this.rotation = 1;
         this.speed = randomIntFromInterval(5, 10);
         this.color = color;
         this.wobble = 1;
@@ -56,10 +57,12 @@ class Projectile extends Entity {
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
         };
-        this.onTick = function () {
-            // this.wobbleRotation += 3;
-            // this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
-            // this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
+        this._serverTick = function () {
+            this.wobbleRotation = 3;
+            this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
+            this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
+            // console.log("Server tick on projectile " + id + " x : " + this.x + ' y: ' + this.y + " Wobble " + this.wobbleRotation);
+            // todo destroy projectiles once they have exited the room this requires canvas dimensions to be tracked.
             // if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
     }

@@ -97,9 +97,7 @@ class Enemy extends Actor {
     }
 }
 
-function randomIntFromInterval(min, max) {
-    return Math.random() * (max - min + 1) + min;
-}
+
 
 window.addEventListener("load", function () {
 
