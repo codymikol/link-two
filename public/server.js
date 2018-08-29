@@ -59,12 +59,28 @@ class Room {
     }
 
     _roomTick() {
+        var self = this;
         this.projectiles.forEach(function (projectile, index, projectiles) {
             projectile._serverTick();
-            if (projectile.isOutOfBounds()) {
+            if (projectile.isOutOfBounds()
+                    || self.isProjectileHit(projectile)) {
                 projectiles.splice(index, 1);
             }
         });
+    }
+
+    isProjectileHit (projectile) {
+        var hit = false;
+        this.players.forEach(function(player, index, players){
+            if (entitiesCollide(projectile, player)) {
+                console.log("Collision detected!");
+                player.health--;
+                if (player.health <= 0) {
+                    players.splice(index, 1);
+                }
+            }
+        });
+        return hit;
     }
 
     leave(player) {

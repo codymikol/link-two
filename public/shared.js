@@ -41,6 +41,12 @@ class Entity {
         };
     }
 }
+
+function entitiesCollide(entityA, entityB) {
+    return ((entityA.x >= entityB.x && entityA.x <= (entityB.x + entityB.width))
+        && ((entityA.y >= entityB.y && entityA.y <= (entityB.y + entityB.height))));
+}
+
 function randomIntFromInterval(min, max) {
     return Math.random() * (max - min + 1) + min;
 }
