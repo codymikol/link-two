@@ -116,11 +116,11 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            addEntity(new Projectile(this.x, this.y, this.rotationDegrees));
+            for(var i = 0; i < 25; i++) {
+                addEntity(new Projectile(this.x, this.y, this.rotationDegrees));
+            }
         };
         this.onTick = function (delta) {
-            ctx.fillRect(this.x * this.rotationDegrees, this.y * this.rotationDegrees, 10, 10);
-
             if (keyDown.w) this.y -= this.velocity * delta;
             if (keyDown.a) this.x -= this.velocity * delta;
             if (keyDown.s) this.y += this.velocity * delta;
@@ -135,14 +135,19 @@ class Enemy extends Actor {
     }
 }
 
+function randomIntFromInterval(min,max)
+{
+    return Math.random()*(max-min+1)+min;
+}
+
 class Projectile extends Entity {
     constructor(x, y, rotation, color) {
         super(x, y, 5, 5, 1);
         this.rotation = rotation;
-        this.speed = 10;
-        this.dx = this.rotation * x;
-        this.dy = this.rotation * y;
+        this.speed = randomIntFromInterval(5, 10);
         this.color = color;
+        this.wobble = 1;
+        this.wobbleRotation = randomIntFromInterval(this.rotation - this.wobble, this.rotation + this.wobble);
         this.render = function () {
             ctx.beginPath();
             ctx.fillStyle = this.color || 'purple';
@@ -151,8 +156,9 @@ class Projectile extends Entity {
             ctx.stroke();
         };
         this.onTick = function () {
-            this.x += this.speed * Math.cos(this.rotation * Math.PI / 180);
-            this.y += this.speed * Math.sin(this.rotation * Math.PI / 180);
+            this.wobbleRotation += 3;
+            this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
+            this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
             if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
     }
