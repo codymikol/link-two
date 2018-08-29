@@ -57,8 +57,9 @@ class Projectile extends Entity {
         };
         this._serverTick = function () {
             this.wobbleRotation = 3;
-            this.x += this.speed * Math.cos(this.rotation);
-            this.y += this.speed * Math.sin(this.rotation);
+
+            this.x += this.speed * Math.cos(this.rotationDegrees * Math.PI / 180);
+            this.y += this.speed * Math.sin(this.rotationDegrees * Math.PI / 180);
             // todo destroy projectiles once they have exited the room this requires canvas dimensions to be tracked.
             // if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
