@@ -1,6 +1,10 @@
 "use strict";
 function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
 
+const map_height = 600;
+const map_width = 1000;
+const required_players = 1;
+
 class Entity {
     constructor(x, y, height, width, _screen) {
         this.nonce = null;
@@ -55,6 +59,10 @@ class Projectile extends Entity {
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
         };
+        this.isOutOfBounds = function() {
+            return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
+        };
+
         this._serverTick = function () {
             this.wobbleRotation = 3;
 
@@ -63,5 +71,7 @@ class Projectile extends Entity {
             // todo destroy projectiles once they have exited the room this requires canvas dimensions to be tracked.
             // if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
+
+
     }
 }

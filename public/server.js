@@ -1,6 +1,5 @@
 "use strict";
 
-const required_players = 1;
 let rooms;
 var playerNonce = 0;
 var projectileNonce = 0;
@@ -53,13 +52,18 @@ class Room {
     startGame() {
         // set update projectiles tick.
         var room = this;
-        setInterval(function() {
+        setInterval(function () {
             room._roomTick();
         }, 10)
     }
 
     _roomTick() {
-        this.projectiles.forEach(function(projectile) { projectile._serverTick() });
+        this.projectiles.forEach(function (projectile, index, projectiles) {
+            projectile._serverTick();
+            if (projectile.isOutOfBounds()) {
+                projectiles.splice(index, 1);
+            }
+        });
     }
 
     leave(player) {
@@ -74,7 +78,7 @@ class Room {
             players: isFullDTO ? this.players.map(function (player) {
                 return player.asDTO();
             }) : null,
-            projectiles : isFullDTO ? this.projectiles : null,
+            projectiles: isFullDTO ? this.projectiles : null,
             playerSize: this.players.length,
             roomName: this.roomName
         };
