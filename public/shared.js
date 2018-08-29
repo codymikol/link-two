@@ -1,9 +1,6 @@
 "use strict";
 function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
 
-
-
-
 class Entity {
     constructor(x, y, height, width, _screen) {
         this.nonce = null;
