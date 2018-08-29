@@ -1,4 +1,3 @@
-
 let socket,
     rooms,
     maxFPS = 60,
@@ -7,7 +6,7 @@ let socket,
     entityNonce = 0,
     mousePos = {},
     player;
-    keyDown = {},
+keyDown = {},
     entities = {},
     a = document.getElementById('a'),
     ctx = a.getContext('2d');
@@ -23,10 +22,12 @@ function entitiesCall(method, arg) {
 }
 
 function addEntity(entity, namespace) {
+
     entity.nonce = entityNonce;
     entity.namespace = namespace;
     entities[namespace || entityNonce] = entity;
     entityNonce++;
+    return entity;
 }
 
 class Button extends Entity {
@@ -80,9 +81,7 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            for(var i = 0; i < 25; i++) {
-                addEntity(new Projectile(this.x, this.y, this.rotationDegrees));
-            }
+            socket.emit('fire-projectile', new Projectile(this.x, this.y, this.rotationDegrees));
         };
         this.onTick = function (delta) {
             if (keyDown.w) this.y -= this.velocity * delta;
@@ -99,9 +98,8 @@ class Enemy extends Actor {
     }
 }
 
-function randomIntFromInterval(min,max)
-{
-    return Math.random()*(max-min+1)+min;
+function randomIntFromInterval(min, max) {
+    return Math.random() * (max - min + 1) + min;
 }
 
 window.addEventListener("load", function () {
@@ -147,6 +145,23 @@ window.addEventListener("load", function () {
 
                 socket.emit('update-player', player);
 
+            });
+            room.projectiles.forEach(function (server_projectile) {
+
+                var cached_projectile = entities['projectile-' + server_projectile.id];
+                console.log("Cached projectile nonce " + "projectile-" + server_projectile.id);
+                if (cached_projectile) {
+                    console.log("Local projectile.");
+                    cached_projectile.x = server_projectile.x;
+                    cached_projectile.y = server_projectile.y;
+                    cached_projectile.rotation = server_projectile.rotation;
+                    cached_projectile.rotationDegrees = server_projectile.rotationDegrees;
+                    cached_projectile.wobble = server_projectile.wobble;
+                    cached_projectile.color = server_projectile.color;
+                    cached_projectile.wobbleRotation = server_projectile.wobbleRotation;
+                } else {
+                    addEntity(new Projectile(server_projectile.x, server_projectile.y), 'projectile-' + server_projectile.id)
+                }
             });
         }
     }, function (fn, key) {

@@ -3,6 +3,7 @@
 const required_players = 2;
 let rooms;
 var playerNonce = 0;
+var projectileNonce = 0;
 
 class RoomList {
 
@@ -33,6 +34,7 @@ class Room {
         this.id = index;
         this.roomName = 'Room #' + (index + 1);
         this.players = [];
+        this.projectiles = [];
     }
 
     join(player) {
@@ -40,8 +42,12 @@ class Room {
         this.players.push(player);
         console.log('User: ' + player.name + ' has joined: ' + this.roomName);
         if (player.length === required_players) {
-            setInterval(this.startGame, 3)
+            // setInterval(this.startGame, 3)
         }
+    }
+
+    addProjctile(projectile) {
+        this.projectiles.push(projectile);
     }
 
     startGame() {
@@ -60,6 +66,7 @@ class Room {
             players: isFullDTO ? this.players.map(function (player) {
                 return player.asDTO();
             }) : null,
+            projectiles : isFullDTO ? this.projectiles : null,
             playerSize: this.players.length,
             roomName: this.roomName
         };
@@ -127,6 +134,15 @@ module.exports = {
             player.x = client_player.x;
             player.y = client_player.y;
             player.rotationDegrees = client_player.rotationDegrees;
+        });
+
+        socket.on('fire-projectile', function (projectile) {
+            if (selectedRoom) {
+                console.log("fire projectile event!");
+                projectileNonce++;
+                projectile.id = projectileNonce;
+                selectedRoom.addProjctile(projectile)
+            }
         });
 
         socket.on("disconnect", () => {

@@ -38,9 +38,12 @@ class Entity {
     }
 }
 
+
+
 class Projectile extends Entity {
     constructor(x, y, rotation, color) {
         super(x, y, 5, 5, 1);
+        console.log("creating projectile! " + this.id);
         this.rotation = rotation;
         this.speed = randomIntFromInterval(5, 10);
         this.color = color;
