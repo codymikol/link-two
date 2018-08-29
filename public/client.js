@@ -60,17 +60,21 @@ class Background extends Entity {
             ctx.fillRect(0,0,this.width,this.height);
 
             //Text LINK
+            ctx.globalAlpha = 0.5;
             ctx.font="240px Arial Black";
             ctx.fillStyle='#083F10';
             ctx.fillText(">LINK",this.x + 5 + 80,this.y + 5 + 275);
             ctx.fillStyle='#208C30';
             ctx.fillText(">LINK",this.x + 80,this.y + 275);
 
+
             ctx.font="24px Arial Black";
             for(let i = 0; i < 36; i++) {
                 ctx.fillText('= ', (i * 25) + 54, 80);
                 ctx.fillText('= ', (i * 25) + 54, 335);
             }
+
+            ctx.globalAlpha = 1;
 
         };
     }
