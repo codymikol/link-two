@@ -2,10 +2,11 @@ let socket,
     rooms,
     maxFPS = 60,
     lastFrameTimeMs = 0,
-    screen = 0,
+    screen = 3,
     entityNonce = 0,
     mousePos = {},
-    player;
+    player,
+    background,
 keyDown = {},
     entities = {},
     a = document.getElementById('a'),
@@ -45,6 +46,32 @@ class Button extends Entity {
         };
         this.onClick = function () {
             socket.emit('join', this.room);
+        };
+    }
+}
+
+class Background extends Entity {
+    constructor() {
+        super(0,0,a.height,a.width, 3);
+        this.render = function () {
+
+            //Background
+            ctx.fillStyle='black';
+            ctx.fillRect(0,0,this.width,this.height);
+
+            //Text LINK
+            ctx.font="240px Arial Black";
+            ctx.fillStyle='#083F10';
+            ctx.fillText(">LINK",this.x + 5 + 80,this.y + 5 + 275);
+            ctx.fillStyle='#208C30';
+            ctx.fillText(">LINK",this.x + 80,this.y + 275);
+
+            ctx.font="24px Arial Black";
+            for(let i = 0; i < 36; i++) {
+                ctx.fillText('= ', (i * 25) + 54, 80);
+                ctx.fillText('= ', (i * 25) + 54, 335);
+            }
+
         };
     }
 }
@@ -106,8 +133,10 @@ window.addEventListener("load", function () {
     socket = io({upgrade: false, transports: ["websocket"]});
 
     player = new Player(10, 10);
+    background = new Background();
 
     addEntity(player);
+    addEntity(background);
 
     forObj({
         'rooms-available': function (response) {
