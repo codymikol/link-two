@@ -1,6 +1,6 @@
 "use strict";
 
-const required_players = 2;
+const required_players = 1;
 let rooms;
 var playerNonce = 0;
 var projectileNonce = 0;
@@ -41,8 +41,8 @@ class Room {
         console.log(player)
         this.players.push(player);
         console.log('User: ' + player.name + ' has joined: ' + this.roomName);
-        if (player.length === required_players) {
-            // setInterval(this.startGame, 3)
+        if (this.players.length === required_players) {
+            this.startGame()
         }
     }
 
@@ -51,7 +51,15 @@ class Room {
     }
 
     startGame() {
-        // todo implement start game logic!
+        // set update projectiles tick.
+        var room = this;
+        setInterval(function() {
+            room._roomTick();
+        }, 10)
+    }
+
+    _roomTick() {
+        this.projectiles.forEach(function(projectile) { projectile._serverTick() });
     }
 
     leave(player) {
@@ -125,7 +133,6 @@ module.exports = {
             socket.emit('joined-room', player.asDTO());
 
             updater = setInterval(function () {
-                selectedRoom.projectiles.forEach(function(projectile) { projectile._serverTick() });
                 socket.emit('update-chosen-room', selectedRoom.asDTO(true));
             }, 15);
 
