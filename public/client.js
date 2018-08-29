@@ -151,7 +151,6 @@ window.addEventListener("load", function () {
                 if (cached_projectile) {
                     cached_projectile.x = server_projectile.x;
                     cached_projectile.y = server_projectile.y;
-                    cached_projectile.rotation = server_projectile.rotation;
                     cached_projectile.rotationDegrees = server_projectile.rotationDegrees;
                     cached_projectile.wobble = server_projectile.wobble;
                     cached_projectile.color = server_projectile.color;
