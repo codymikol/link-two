@@ -80,7 +80,9 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            socket.emit('fire-projectile', new Projectile(null, this.x, this.y, this.rotationDegrees));
+            for (var i =0; i < 10; i++) {
+                socket.emit('fire-projectile', new Projectile(null, this.x, this.y, this.rotationDegrees));
+            }
         };
         this.onTick = function (delta) {
             if (keyDown.w) this.y -= this.velocity * delta;

@@ -46,7 +46,7 @@ class Projectile extends Entity {
         super(x, y, 5, 5, 1);
         this.id = id;
         this.rotation = rotation;
-        this.speed = randomIntFromInterval(5, 10);
+        this.speed = randomIntFromInterval(2, 5);
         this.color = color;
         this.render = function () {
             ctx.beginPath();
