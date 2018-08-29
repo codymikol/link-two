@@ -47,7 +47,6 @@ class Room {
     }
 
     addProjectile(projectile) {
-        setInterval(projectile._serverTick, 3);
         this.projectiles.push(projectile);
     }
 
@@ -126,6 +125,7 @@ module.exports = {
             socket.emit('joined-room', player.asDTO());
 
             updater = setInterval(function () {
+                selectedRoom.projectiles.forEach(function(projectile) { projectile._serverTick() });
                 socket.emit('update-chosen-room', selectedRoom.asDTO(true));
             }, 15);
 
@@ -141,8 +141,10 @@ module.exports = {
             if (selectedRoom && player) {
                 projectileNonce++;
                 projectile.id = projectileNonce;
-                console.log("firing projectile player at x " + player.x + ' y ' + player.y);
-                selectedRoom.addProjectile(new Projectile(projectile.id, player.x, player.y, projectile.rotation, projectile.color))
+                selectedRoom.addProjectile(new Projectile(projectile.id
+                    , player.x, player.y
+                    , player.rotationDegrees
+                    , projectile.color))
             }
         });
 
