@@ -37,13 +37,15 @@ class Button extends Entity {
         super(x, y, 30, 400, 3);
         this.text = text;
         this.render = function () {
+            ctx.globalAlpha = 0.6;
             ctx.beginPath();
-            ctx.fillStyle = this.hovered ? "pink" : "#E9967A";
+            ctx.fillStyle = this.hovered ? "#083F10" : "#208C30";
             ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.stroke();
-            ctx.font = "20px Georgia";
+            ctx.font = "20px Arial Black";
             ctx.fillStyle = "black";
             ctx.fillText(this.text, this.x + 20, this.y + 20);
+            ctx.globalAlpha = 1;
         };
         this.onClick = onClick;
     }
