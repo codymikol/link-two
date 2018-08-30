@@ -81,7 +81,6 @@ class Room {
 
     hurtPlayer(player, index) {
         player.health--;
-        console.log("Health is now" + player.health);
         if (player.health <= 0) {
             this.players.splice(index, 1);
         }
