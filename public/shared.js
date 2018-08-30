@@ -59,17 +59,15 @@ class Projectile extends Entity {
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
         };
+
         this.isOutOfBounds = function() {
             return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
         };
 
         this._serverTick = function () {
             this.wobbleRotation = 3;
-
             this.x += this.speed * Math.cos(this.rotationDegrees * Math.PI / 180);
             this.y += this.speed * Math.sin(this.rotationDegrees * Math.PI / 180);
-            // todo destroy projectiles once they have exited the room this requires canvas dimensions to be tracked.
-            // if(this.x > a.width || this.x < 0 || this.y > a.height || this.y < 0) this.destroy();
         };
 
 

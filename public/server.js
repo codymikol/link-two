@@ -23,7 +23,15 @@ class RoomList {
                 col[room.id] = room.asDTO();
                 return col;
             }, {})
-        }
+        };
+
+        this.serverTick = function () {
+            console.log(this)
+            this.rooms.forEach(function (room) {
+                room._roomTick();
+            });
+        };
+
     }
 }
 
@@ -50,11 +58,7 @@ class Room {
     }
 
     startGame() {
-        // set update projectiles tick.
-        var room = this;
-        setInterval(function () {
-            room._roomTick();
-        }, 10)
+        //TODO: Start the game
     }
 
     _roomTick() {
@@ -111,11 +115,16 @@ class Player {
 
 }
 
+function daemon() {
+    setInterval(function(){rooms.serverTick()}, 15);
+}
+
 function init() {
     rooms = new RoomList();
     for (let i = 0; i < 10; i++) {
         rooms.add(new Room(i));
     }
+    daemon();
 }
 
 init();
