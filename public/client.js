@@ -2,10 +2,13 @@ let socket,
     rooms,
     maxFPS = 60,
     lastFrameTimeMs = 0,
-    screen = 0,
+    screen = 3,
     entityNonce = 0,
     mousePos = {},
-    player;
+    player,
+    background,
+    roomsAvailable,
+    button,
 keyDown = {},
     entities = {},
     a = document.getElementById('a'),
@@ -30,21 +33,64 @@ function addEntity(entity, namespace) {
 }
 
 class Button extends Entity {
-    constructor(x, y, room) {
-        super(x, y, 30, 400, 0);
-        this.room = room;
+    constructor(x, y, text, onClick) {
+        super(x, y, 30, 400, 3);
+        this.text = text;
         this.render = function () {
+            ctx.globalAlpha = 0.6;
             ctx.beginPath();
-            ctx.fillStyle = this.hovered ? "pink" : "#E9967A";
+            ctx.fillStyle = this.hovered ? "#083F10" : "#208C30";
             ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.stroke();
-            ctx.font = "20px Georgia";
+            ctx.font = "20px Arial Black";
             ctx.fillStyle = "black";
-            this.text = this.room.roomName + ' -- Players: ' + this.room.playerSize + '/10';
             ctx.fillText(this.text, this.x + 20, this.y + 20);
+            ctx.globalAlpha = 1;
         };
-        this.onClick = function () {
-            socket.emit('join', this.room);
+        this.onClick = onClick;
+    }
+}
+
+class Background extends Entity {
+    constructor() {
+        super(0,0,a.height,a.width, 3);
+        this.timer = 0;
+        this.render = function () {
+
+            //Background
+            ctx.fillStyle='black';
+            ctx.fillRect(0,0,this.width,this.height);
+
+            //Text LINK
+            ctx.globalAlpha = 0.6;
+            ctx.font="240px Arial Black";
+            ctx.fillStyle='#083F10';
+            if(this.timer <= 30) ctx.fillText(">",this.x + 5 + 80,this.y + 5 + 275);
+            ctx.fillText("LINK",this.x + 5 + 240,this.y + 5 + 275);
+            ctx.fillStyle='#208C30';
+            if(this.timer >= 30) ctx.globalAlpha = 0.2;
+            ctx.fillText(">",this.x + 80,this.y + 275);
+            if(this.timer >= 30) ctx.globalAlpha = 0.6;
+            ctx.fillText("LINK",this.x + 240,this.y + 275);
+
+            ctx.font="24px Arial Black";
+            for(let i = 0; i < 36; i++) {
+                [80,335].forEach(function (y) {ctx.fillText('= ', (i * 25) + 54, y);});
+                [44,935].forEach(function (x) {ctx.fillText('+', x, (i * 7) + 88)})
+            }
+
+            ctx.filter = 'blur(5px)';
+            for(let i = 0; i < 60; i++) {
+                ctx.fillRect(this.x,this.y + (15 * i) + this.timer - 200,this.width,5);
+            }
+            ctx.filter = 'none';
+
+            ctx.globalAlpha = 1;
+
+        };
+        this.onTick = function () {
+            this.timer += 2;
+            if(this.timer === 60) this.timer = 0;
         };
     }
 }
@@ -106,14 +152,21 @@ window.addEventListener("load", function () {
     socket = io({upgrade: false, transports: ["websocket"]});
 
     player = new Player(10, 10);
+    background = new Background();
 
     addEntity(player);
+    addEntity(background);
+
+    addEntity(new Button(300,400, 'Connect', function () {
+       socket.emit('join', roomsAvailable[0]);
+    }));
+
+    addEntity(new Button(300,440, 'Our Creators'));
+    addEntity(new Button(300,480, 'Internal Documentation'));
 
     forObj({
         'rooms-available': function (response) {
-            forObj(response, function (room) {
-                addEntity(new Button(270, 90 + (40 * entityNonce), room))
-            })
+            roomsAvailable = response;
         },
         'joined-room': function (server_player) {
             player.nonce = server_player.nonce;
