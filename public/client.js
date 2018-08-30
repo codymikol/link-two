@@ -53,6 +53,7 @@ class Button extends Entity {
 class Background extends Entity {
     constructor() {
         super(0,0,a.height,a.width, 3);
+        this.timer = 0;
         this.render = function () {
 
             //Background
@@ -60,22 +61,35 @@ class Background extends Entity {
             ctx.fillRect(0,0,this.width,this.height);
 
             //Text LINK
-            ctx.globalAlpha = 0.5;
+            ctx.globalAlpha = 0.6;
             ctx.font="240px Arial Black";
             ctx.fillStyle='#083F10';
-            ctx.fillText(">LINK",this.x + 5 + 80,this.y + 5 + 275);
+            if(this.timer <= 30) ctx.fillText(">",this.x + 5 + 80,this.y + 5 + 275);
+            ctx.fillText("LINK",this.x + 5 + 240,this.y + 5 + 275);
             ctx.fillStyle='#208C30';
-            ctx.fillText(">LINK",this.x + 80,this.y + 275);
-
+            if(this.timer >= 30) ctx.globalAlpha = 0.2;
+            ctx.fillText(">",this.x + 80,this.y + 275);
+            if(this.timer >= 30) ctx.globalAlpha = 0.6;
+            ctx.fillText("LINK",this.x + 240,this.y + 275);
 
             ctx.font="24px Arial Black";
             for(let i = 0; i < 36; i++) {
-                ctx.fillText('= ', (i * 25) + 54, 80);
-                ctx.fillText('= ', (i * 25) + 54, 335);
+                [80,335].forEach(function (y) {ctx.fillText('= ', (i * 25) + 54, y);});
+                [44,935].forEach(function (x) {ctx.fillText('+', x, (i * 7) + 88)})
             }
+
+            ctx.filter = 'blur(5px)';
+            for(let i = 0; i < 100; i++) {
+                ctx.fillRect(this.x,this.y + (15 * i) + this.timer - 200,this.width,5);
+            }
+            ctx.filter = 'none';
 
             ctx.globalAlpha = 1;
 
+        };
+        this.onTick = function () {
+            this.timer += 2;
+            if(this.timer === 60) this.timer = 0;
         };
     }
 }
