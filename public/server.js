@@ -66,13 +66,22 @@ class Room {
             if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 projectiles.splice(index, 1);
             }
-            hitPlayers.forEach(self.hurtPlayer)
+            hitPlayers.forEach(function (player, index) {
+                self.hurtPlayer(player, index)
+            })
         });
 
     }
 
+    isPlayerInRoom(nonce) {
+        return this.players.some(function (player) {
+            return player.nonce === nonce
+        })
+    }
+
     hurtPlayer(player, index) {
         player.health--;
+        console.log("Health is now" + player.health);
         if (player.health <= 0) {
             this.players.splice(index, 1);
         }
@@ -146,6 +155,10 @@ function init() {
     daemon();
 }
 
+function isPlayerRoomValid(player, room) {
+    return player && room && room.isPlayerInRoom(player.nonce);
+}
+
 init();
 
 module.exports = {
@@ -166,18 +179,20 @@ module.exports = {
 
             updater = setInterval(function () {
                 socket.emit('update-chosen-room', selectedRoom.asDTO(true));
-            }, 50);
+            }, 30);
 
         });
 
         socket.on('update-player', function (client_player) {
-            player.x = client_player.x;
-            player.y = client_player.y;
-            player.rotationDegrees = client_player.rotationDegrees;
+            if (isPlayerRoomValid(player, selectedRoom)) {
+                player.x = client_player.x;
+                player.y = client_player.y;
+                player.rotationDegrees = client_player.rotationDegrees;
+            }
         });
 
         socket.on('fire-projectile', function (projectile) {
-            if (selectedRoom && player) {
+            if (isPlayerRoomValid(player, selectedRoom)) {
                 projectileNonce++;
                 projectile.nonce = projectileNonce;
                 selectedRoom.addProjectile(new Projectile(projectile.nonce
