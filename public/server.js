@@ -26,7 +26,6 @@ class RoomList {
         };
 
         this.serverTick = function () {
-            console.log(this)
             this.rooms.forEach(function (room) {
                 room._roomTick();
             });
