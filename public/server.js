@@ -67,17 +67,19 @@ class Room {
                 projectiles.splice(index, 1);
             }
         });
+
     }
 
     isProjectileHit (projectile) {
         var hit = false;
         this.players.forEach(function(player, index, players){
-            if (entitiesCollide(projectile, player)) {
-                console.log("Collision detected!");
+            if (projectile.playerNonce !== player.nonce
+                && entitiesCollide(projectile, player)) {
                 player.health--;
                 if (player.health <= 0) {
                     players.splice(index, 1);
                 }
+                hit = true;
             }
         });
         return hit;
@@ -110,7 +112,9 @@ class Player {
         this.x = 0;
         this.y = 0;
         this.rotationDegrees = 0;
-        this.health = 100;
+        this.health = 1000;
+        this.height = 20;
+        this.width = 20;
         this.socket = socket;
         this.name = 'cody mikol';
     }
@@ -177,7 +181,8 @@ module.exports = {
                 selectedRoom.addProjectile(new Projectile(projectile.nonce
                     , player.x, player.y
                     , player.rotationDegrees
-                    , projectile.color))
+                    , projectile.color
+                    , player.nonce))
             }
         });
 
