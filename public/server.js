@@ -62,27 +62,27 @@ class Room {
         var self = this;
         this.projectiles.forEach(function (projectile, index, projectiles) {
             projectile._serverTick();
-            if (projectile.isOutOfBounds()
-                    || self.isProjectileHit(projectile)) {
+            var hitPlayers = self.getPlayerColliding(projectile);
+            if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 projectiles.splice(index, 1);
             }
+            hitPlayers.forEach(this.hurtPlayer)
         });
 
     }
 
-    isProjectileHit (projectile) {
-        var hit = false;
-        this.players.forEach(function(player, index, players){
-            if (projectile.playerNonce !== player.nonce
-                && entitiesCollide(projectile, player)) {
-                player.health--;
-                if (player.health <= 0) {
-                    players.splice(index, 1);
-                }
-                hit = true;
-            }
+    hurtPlayer(player, index) {
+        player.health--;
+        if (player.health <= 0) {
+            this.players.splice(index, 1);
+        }
+    }
+
+
+    getPlayerColliding(projectile) {
+        return this.players.filter(function (player) {
+            return (projectile.playerNonce !== player.nonce && entitiesCollide(projectile, player));
         });
-        return hit;
     }
 
     leave(player) {
@@ -133,7 +133,9 @@ class Player {
 }
 
 function daemon() {
-    setInterval(function(){rooms.serverTick()}, 15);
+    setInterval(function () {
+        rooms.serverTick()
+    }, 15);
 }
 
 function init() {
