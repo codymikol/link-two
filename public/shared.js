@@ -43,6 +43,10 @@ class Entity {
 }
 
 function entitiesCollide(entityA, entityB) {
+    return entityACollidesWithB(entityA, entityB) || entityACollidesWithB(entityB, entityA);
+}
+
+function entityACollidesWithB(entityA, entityB) {
     return ((entityA.x >= (entityB.x - entityB.width / 2) && entityA.x <= (entityB.x + entityB.width / 2))
         && ((entityA.y >= (entityB.y - entityB.height / 2) && entityA.y <= (entityB.y + entityB.height / 2))));
 }
