@@ -41,14 +41,25 @@ class Entity {
         };
     }
 }
+
+function entitiesCollide(entityA, entityB) {
+    return entityACollidesWithB(entityA, entityB) || entityACollidesWithB(entityB, entityA);
+}
+
+function entityACollidesWithB(entityA, entityB) {
+    return ((entityA.x >= (entityB.x - entityB.width / 2) && entityA.x <= (entityB.x + entityB.width / 2))
+        && ((entityA.y >= (entityB.y - entityB.height / 2) && entityA.y <= (entityB.y + entityB.height / 2))));
+}
+
 function randomIntFromInterval(min, max) {
     return Math.random() * (max - min + 1) + min;
 }
 
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, color) {
+    constructor(nonce, x, y, rotationDegrees, color, playerNonce) {
         super(x, y, 5, 5, 1);
         this.nonce = nonce;
+        this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
         this.speed = randomIntFromInterval(2, 5);
         this.color = color;

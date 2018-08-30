@@ -59,11 +59,29 @@ class Room {
     }
 
     _roomTick() {
+        var self = this;
         this.projectiles.forEach(function (projectile, index, projectiles) {
             projectile._serverTick();
-            if (projectile.isOutOfBounds()) {
+            var hitPlayers = self.getPlayerColliding(projectile);
+            if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 projectiles.splice(index, 1);
             }
+            hitPlayers.forEach(this.hurtPlayer)
+        });
+
+    }
+
+    hurtPlayer(player, index) {
+        player.health--;
+        if (player.health <= 0) {
+            this.players.splice(index, 1);
+        }
+    }
+
+
+    getPlayerColliding(projectile) {
+        return this.players.filter(function (player) {
+            return (projectile.playerNonce !== player.nonce && entitiesCollide(projectile, player));
         });
     }
 
@@ -94,7 +112,9 @@ class Player {
         this.x = 0;
         this.y = 0;
         this.rotationDegrees = 0;
-        this.health = 100;
+        this.health = 1000;
+        this.height = 20;
+        this.width = 20;
         this.socket = socket;
         this.name = 'cody mikol';
     }
@@ -113,7 +133,9 @@ class Player {
 }
 
 function daemon() {
-    setInterval(function(){rooms.serverTick()}, 15);
+    setInterval(function () {
+        rooms.serverTick()
+    }, 15);
 }
 
 function init() {
@@ -161,7 +183,8 @@ module.exports = {
                 selectedRoom.addProjectile(new Projectile(projectile.nonce
                     , player.x, player.y
                     , player.rotationDegrees
-                    , projectile.color))
+                    , projectile.color
+                    , player.nonce))
             }
         });
 
