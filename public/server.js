@@ -1,8 +1,8 @@
 "use strict";
 
 let rooms;
-var playerNonce = 0;
-var projectileNonce = 0;
+let playerNonce = 0;
+let projectileNonce = 0;
 
 class RoomList {
 
@@ -59,16 +59,24 @@ class Room {
     }
 
     _roomTick() {
-        var self = this;
+        let self = this;
         this.projectiles.forEach(function (projectile, index, projectiles) {
             projectile._serverTick();
-            var hitPlayers = self.getPlayerColliding(projectile);
+            let hitPlayers = self.getPlayerColliding(projectile);
             if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 projectiles.splice(index, 1);
             }
-            hitPlayers.forEach(self.hurtPlayer)
+            hitPlayers.forEach(function (player, index) {
+                self.hurtPlayer(player, index)
+            })
         });
 
+    }
+
+    isPlayerInRoom(nonce) {
+        return this.players.some(function (player) {
+            return player.nonce === nonce
+        })
     }
 
     hurtPlayer(player, index) {
@@ -146,6 +154,10 @@ function init() {
     daemon();
 }
 
+function isPlayerRoomValid(player, room) {
+    return player && room && room.isPlayerInRoom(player.nonce);
+}
+
 init();
 
 module.exports = {
@@ -154,8 +166,8 @@ module.exports = {
 
         playerNonce++;
         const player = new Player(socket);
-        var updater;
-        var selectedRoom;
+        let updater;
+        let selectedRoom;
 
         socket.emit("rooms-available", rooms.asDTO());
 
@@ -166,18 +178,20 @@ module.exports = {
 
             updater = setInterval(function () {
                 socket.emit('update-chosen-room', selectedRoom.asDTO(true));
-            }, 15);
+            }, 30);
 
         });
 
         socket.on('update-player', function (client_player) {
-            player.x = client_player.x;
-            player.y = client_player.y;
-            player.rotationDegrees = client_player.rotationDegrees;
+            if (isPlayerRoomValid(player, selectedRoom)) {
+                player.x = client_player.x;
+                player.y = client_player.y;
+                player.rotationDegrees = client_player.rotationDegrees;
+            }
         });
 
         socket.on('fire-projectile', function (projectile) {
-            if (selectedRoom && player) {
+            if (isPlayerRoomValid(player, selectedRoom)) {
                 projectileNonce++;
                 projectile.nonce = projectileNonce;
                 selectedRoom.addProjectile(new Projectile(projectile.nonce

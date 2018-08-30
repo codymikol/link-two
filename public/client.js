@@ -147,7 +147,7 @@ window.addEventListener("load", function () {
             });
             room.projectiles.forEach(function (server_projectile) {
 
-                var cached_projectile = entities['projectile-' + server_projectile.nonce];
+                let cached_projectile = entities['projectile-' + server_projectile.nonce];
                 if (cached_projectile) {
                     cached_projectile.x = server_projectile.x;
                     cached_projectile.y = server_projectile.y;
