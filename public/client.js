@@ -7,6 +7,8 @@ let socket,
     mousePos = {},
     player,
     background,
+    roomsAvailable,
+    button,
 keyDown = {},
     entities = {},
     a = document.getElementById('a'),
@@ -31,9 +33,9 @@ function addEntity(entity, namespace) {
 }
 
 class Button extends Entity {
-    constructor(x, y, room) {
-        super(x, y, 30, 400, 0);
-        this.room = room;
+    constructor(x, y, text) {
+        super(x, y, 30, 400, 3);
+        this.text = text;
         this.render = function () {
             ctx.beginPath();
             ctx.fillStyle = this.hovered ? "pink" : "#E9967A";
@@ -41,7 +43,6 @@ class Button extends Entity {
             ctx.stroke();
             ctx.font = "20px Georgia";
             ctx.fillStyle = "black";
-            this.text = this.room.roomName + ' -- Players: ' + this.room.playerSize + '/10';
             ctx.fillText(this.text, this.x + 20, this.y + 20);
         };
         this.onClick = function () {
@@ -155,6 +156,9 @@ window.addEventListener("load", function () {
 
     addEntity(player);
     addEntity(background);
+    addEntity(new Button(300,400, 'Connect'));
+    addEntity(new Button(300,440, 'Our Creators'));
+    addEntity(new Button(300,480, 'Internal Documentation'));
 
     forObj({
         'rooms-available': function (response) {
