@@ -81,7 +81,7 @@ class Player extends Actor {
         };
         this.onAnyClick = function () {
             for (var i =0; i < 10; i++) {
-                socket.emit('fire-projectile', new Projectile(null, this.x, this.y, this.rotationDegrees));
+                socket.emit('fire-projectile', { x : this.x, y: this.y, rotationDegrees : this.rotationDegrees});
             }
         };
         this.onTick = function (delta) {
@@ -116,11 +116,11 @@ window.addEventListener("load", function () {
             })
         },
         'joined-room': function (server_player) {
-            player.id = server_player.id;
+            player.nonce = server_player.nonce;
             screen = 1;
         },
         'enemy-joined': function (enemy) {
-            addEntity(new Enemy(enemy.x, enemy.y, enemy.id))
+            addEntity(new Enemy(enemy.x, enemy.y, enemy.nonce))
         },
         'enemy-left': function (enemy) {
         },
@@ -130,15 +130,15 @@ window.addEventListener("load", function () {
         'update-chosen-room': function (room) {
             room.players.forEach(function (server_player) {
 
-                if (server_player.id !== player.id) {
-                    var cached_player = entities['enemy-' + server_player.id];
+                if (server_player.nonce !== player.nonce) {
+                    var cached_player = entities['enemy-' + server_player.nonce];
 
                     if (cached_player) {
                         cached_player.x = server_player.x;
                         cached_player.y = server_player.y;
                         cached_player.rotationDegrees = server_player.rotationDegrees;
                     } else {
-                        addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.id);
+                        addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.nonce);
                     }
                 }
 
@@ -147,7 +147,7 @@ window.addEventListener("load", function () {
             });
             room.projectiles.forEach(function (server_projectile) {
 
-                var cached_projectile = entities['projectile-' + server_projectile.id];
+                var cached_projectile = entities['projectile-' + server_projectile.nonce];
                 if (cached_projectile) {
                     cached_projectile.x = server_projectile.x;
                     cached_projectile.y = server_projectile.y;
@@ -156,7 +156,7 @@ window.addEventListener("load", function () {
                     cached_projectile.color = server_projectile.color;
                     cached_projectile.wobbleRotation = server_projectile.wobbleRotation;
                 } else {
-                    addEntity(new Projectile(server_projectile.id, server_projectile.x, server_projectile.y), 'projectile-' + server_projectile.id)
+                    addEntity(new Projectile(server_projectile.nonce, server_projectile.x, server_projectile.y), 'projectile-' + server_projectile.nonce)
                 }
             });
         }

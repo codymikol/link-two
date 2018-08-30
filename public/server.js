@@ -13,14 +13,14 @@ class RoomList {
         this.add = function (room) {
             this.rooms.push(room)
         };
-        this.byId = function (id) {
+        this.bynonce = function (nonce) {
             return this.rooms.filter(function (room) {
-                return room.id === id;
+                return room.nonce === nonce;
             })[0]
         };
         this.asDTO = function () {
             return this.rooms.reduce(function (col, room) {
-                col[room.id] = room.asDTO();
+                col[room.nonce] = room.asDTO();
                 return col;
             }, {})
         };
@@ -37,7 +37,7 @@ class RoomList {
 class Room {
 
     constructor(index) {
-        this.id = index;
+        this.nonce = index;
         this.roomName = 'Room #' + (index + 1);
         this.players = [];
         this.projectiles = [];
@@ -77,7 +77,7 @@ class Room {
 
     asDTO(isFullDTO) {
         return {
-            id: this.id,
+            nonce: this.nonce,
             players: isFullDTO ? this.players.map(function (player) {
                 return player.asDTO();
             }) : null,
@@ -92,7 +92,7 @@ class Room {
 class Player {
 
     constructor(socket) {
-        this.id = playerNonce;
+        this.nonce = playerNonce;
         this.x = 0;
         this.y = 0;
         this.rotationDegrees = 0;
@@ -107,7 +107,7 @@ class Player {
             health: this.health,
             x: this.x,
             y: this.y,
-            id: this.id,
+            nonce: this.nonce,
             rotationDegrees: this.rotationDegrees
         }
     }
@@ -140,7 +140,7 @@ module.exports = {
         socket.emit("rooms-available", rooms.asDTO());
 
         socket.on("join", function (room) {
-            selectedRoom = rooms.byId(room.id);
+            selectedRoom = rooms.bynonce(room.nonce);
             selectedRoom.join(player);
             socket.emit('joined-room', player.asDTO());
 
@@ -159,8 +159,8 @@ module.exports = {
         socket.on('fire-projectile', function (projectile) {
             if (selectedRoom && player) {
                 projectileNonce++;
-                projectile.id = projectileNonce;
-                selectedRoom.addProjectile(new Projectile(projectile.id
+                projectile.nonce = projectileNonce;
+                selectedRoom.addProjectile(new Projectile(projectile.nonce
                     , player.x, player.y
                     , player.rotationDegrees
                     , projectile.color))

@@ -46,9 +46,9 @@ function randomIntFromInterval(min, max) {
 }
 
 class Projectile extends Entity {
-    constructor(id, x, y, rotationDegrees, color) {
+    constructor(nonce, x, y, rotationDegrees, color) {
         super(x, y, 5, 5, 1);
-        this.id = id;
+        this.nonce = nonce;
         this.rotationDegrees = rotationDegrees;
         this.speed = randomIntFromInterval(2, 5);
         this.color = color;
