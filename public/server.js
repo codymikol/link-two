@@ -59,10 +59,10 @@ class Room {
     }
 
     _roomTick() {
-        var self = this;
+        let self = this;
         this.projectiles.forEach(function (projectile, index, projectiles) {
             projectile._serverTick();
-            var hitPlayers = self.getPlayerColliding(projectile);
+            let hitPlayers = self.getPlayerColliding(projectile);
             if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 projectiles.splice(index, 1);
             }
