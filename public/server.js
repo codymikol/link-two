@@ -1,8 +1,8 @@
 "use strict";
 
 let rooms;
-var playerNonce = 0;
-var projectileNonce = 0;
+let playerNonce = 0;
+let projectileNonce = 0;
 
 class RoomList {
 
@@ -154,8 +154,8 @@ module.exports = {
 
         playerNonce++;
         const player = new Player(socket);
-        var updater;
-        var selectedRoom;
+        let updater;
+        let selectedRoom;
 
         socket.emit("rooms-available", rooms.asDTO());
 
@@ -166,7 +166,7 @@ module.exports = {
 
             updater = setInterval(function () {
                 socket.emit('update-chosen-room', selectedRoom.asDTO(true));
-            }, 15);
+            }, 50);
 
         });
 
