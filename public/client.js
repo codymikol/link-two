@@ -79,7 +79,7 @@ class Background extends Entity {
             }
 
             ctx.filter = 'blur(5px)';
-            for(let i = 0; i < 100; i++) {
+            for(let i = 0; i < 60; i++) {
                 ctx.fillRect(this.x,this.y + (15 * i) + this.timer - 200,this.width,5);
             }
             ctx.filter = 'none';
