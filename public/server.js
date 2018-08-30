@@ -66,7 +66,7 @@ class Room {
             if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 projectiles.splice(index, 1);
             }
-            hitPlayers.forEach(this.hurtPlayer)
+            hitPlayers.forEach(self.hurtPlayer)
         });
 
     }
