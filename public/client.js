@@ -33,7 +33,7 @@ function addEntity(entity, namespace) {
 }
 
 class Button extends Entity {
-    constructor(x, y, text) {
+    constructor(x, y, text, onClick) {
         super(x, y, 30, 400, 3);
         this.text = text;
         this.render = function () {
@@ -45,9 +45,7 @@ class Button extends Entity {
             ctx.fillStyle = "black";
             ctx.fillText(this.text, this.x + 20, this.y + 20);
         };
-        this.onClick = function () {
-            socket.emit('join', this.room);
-        };
+        this.onClick = onClick;
     }
 }
 
@@ -156,7 +154,11 @@ window.addEventListener("load", function () {
 
     addEntity(player);
     addEntity(background);
-    addEntity(new Button(300,400, 'Connect'));
+
+    addEntity(new Button(300,400, 'Connect', function () {
+        screen = 1;
+    }));
+
     addEntity(new Button(300,440, 'Our Creators'));
     addEntity(new Button(300,480, 'Internal Documentation'));
 
