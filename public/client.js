@@ -158,9 +158,7 @@ window.addEventListener("load", function () {
 
     forObj({
         'rooms-available': function (response) {
-            forObj(response, function (room) {
-                addEntity(new Button(270, 90 + (40 * entityNonce), room))
-            })
+            roomsAvailable = response;
         },
         'joined-room': function (server_player) {
             player.nonce = server_player.nonce;
