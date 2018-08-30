@@ -44,9 +44,7 @@ class Room {
     }
 
     join(player) {
-        console.log(player)
         this.players.push(player);
-        console.log('User: ' + player.name + ' has joined: ' + this.roomName);
         if (this.players.length === required_players) {
             this.startGame()
         }
