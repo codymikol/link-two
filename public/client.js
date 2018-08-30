@@ -158,7 +158,7 @@ window.addEventListener("load", function () {
     addEntity(background);
 
     addEntity(new Button(300,400, 'Connect', function () {
-        screen = 1;
+       socket.emit('join', roomsAvailable[0]);
     }));
 
     addEntity(new Button(300,440, 'Our Creators'));
