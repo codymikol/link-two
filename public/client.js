@@ -275,6 +275,8 @@ window.addEventListener("load", function () {
             rooms = _rooms;
         },
         'update-chosen-room': function (room) {
+
+            entities['room-time'] = room.roomTime;
             room.players.forEach(function (server_player) {
 
                 if (server_player.nonce !== player.nonce) {
@@ -292,20 +294,20 @@ window.addEventListener("load", function () {
                 socket.emit('update-player', player);
 
             });
-            room.projectiles.forEach(function (server_projectile) {
-
-                let cached_projectile = entities['projectile-' + server_projectile.nonce];
-                if (cached_projectile) {
-                    cached_projectile.x = server_projectile.x;
-                    cached_projectile.y = server_projectile.y;
-                    cached_projectile.rotationDegrees = server_projectile.rotationDegrees;
-                    cached_projectile.wobble = server_projectile.wobble;
-                    cached_projectile.color = server_projectile.color;
-                    cached_projectile.wobbleRotation = server_projectile.wobbleRotation;
-                } else {
-                    addEntity(new Projectile(server_projectile.nonce, server_projectile.x, server_projectile.y), 'projectile-' + server_projectile.nonce)
-                }
-            });
+            // room.projectiles.forEach(function (server_projectile) {
+            //
+            //     let cached_projectile = entities['projectile-' + server_projectile.nonce];
+            //     if (cached_projectile) {
+            //         cached_projectile.x = server_projectile.x;
+            //         cached_projectile.y = server_projectile.y;
+            //         cached_projectile.rotationDegrees = server_projectile.rotationDegrees;
+            //         cached_projectile.wobble = server_projectile.wobble;
+            //         cached_projectile.color = server_projectile.color;
+            //         cached_projectile.wobbleRotation = server_projectile.wobbleRotation;
+            //     } else {
+            //         addEntity(new Projectile(server_projectile.nonce, server_projectile.x, server_projectile.y), 'projectile-' + server_projectile.nonce)
+            //     }
+            // });
         }
     }, function (fn, key) {
         socket.on(key, fn)
