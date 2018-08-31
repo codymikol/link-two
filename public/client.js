@@ -70,24 +70,50 @@ class TitleButton extends Button {
     }
 }
 
-class Background extends Entity {
-    constructor() {
-        super(0, 0, a.height, a.width, 3);
+class FullSize extends Entity {
+    constructor(_screen) {
+        super(0,0,window.innerHeight,window.innerWidth, _screen);
+        this.onResize = function () {
+            this.height = window.innerHeight;
+            this.width = window.innerWidth;
+        };
+        this.onTick = function () {
+            this.timer += 1;
+            if (this.timer === 60) this.timer = 0;
+        };}
+}
+
+class Background extends FullSize {
+    constructor(screen) {
+        super(screen);
         this.timer = 0;
+        this.render = function () {
+
+            //Background
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, this.width, this.height);
+            ctx.fillStyle = '#208C30';
+            for (let i = 0; i < 1000; i++) {
+                ctx.globalAlpha = 0.05;
+                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 5);
+                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 10);
+                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 15);
+                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 120);
+            }
+            ctx.globalAlpha = 1;
+        };
+    }
+}
+
+class TitleCard extends FullSize {
+    constructor(_screen){
+        super(_screen);
         this.render = function () {
 
             let vm = this;
 
             let linkOffset = 280;
             let carrotOffset = 440;
-
-
-            //Background
-            ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, this.width, this.height);
-
-            ctx.save();
-            // ctx.transform(1.5,0,0,1,0,0);
 
             //Text LINK
             ctx.globalAlpha = 0.6;
@@ -110,29 +136,8 @@ class Background extends Entity {
                     ctx.fillText('+', x + (vm.width / 2), (i * 7) + 88)
                 })
             }
-
-            for (let i = 0; i < 1000; i++) {
-                ctx.globalAlpha = 0.05;
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 5);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 10);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 15);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 120);
-                ctx.globalAlpha = 1;
-            }
-
             ctx.globalAlpha = 1;
-
-            ctx.restore();
-
-        };
-        this.onTick = function () {
-            this.timer += 1;
-            if (this.timer === 60) this.timer = 0;
-        };
-        this.onResize = function () {
-            this.height = window.innerHeight;
-            this.width = window.innerWidth;
-        };
+        }
     }
 }
 
@@ -192,15 +197,11 @@ window.addEventListener("load", function () {
     socket = io({upgrade: false, transports: ["websocket"]});
 
     player = new Player(10, 10);
-    background = new Background();
 
     addEntity(player);
-    addEntity(background);
-
-    addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {
-        socket.emit('join', roomsAvailable[0]);
-    }));
-
+    addEntity(new Background(3));
+    addEntity(new TitleCard(3));
+    addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {socket.emit('join', roomsAvailable[0]);}));
     addEntity(new TitleButton((a.width/2) - 200, 440, 'Our Creators', 'blame'));
     addEntity(new TitleButton(a.width/2 - 200, 480, 'Internal Documentation', 'man'));
 
