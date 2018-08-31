@@ -1,8 +1,8 @@
 "use strict";
 
 let rooms;
-var playerNonce = 0;
-var projectileNonce = 0;
+let playerNonce = 0;
+let projectileNonce = 0;
 
 class RoomList {
 
@@ -13,14 +13,14 @@ class RoomList {
         this.add = function (room) {
             this.rooms.push(room)
         };
-        this.byId = function (id) {
+        this.bynonce = function (nonce) {
             return this.rooms.filter(function (room) {
-                return room.id === id;
+                return room.nonce === nonce;
             })[0]
         };
         this.asDTO = function () {
             return this.rooms.reduce(function (col, room) {
-                col[room.id] = room.asDTO();
+                col[room.nonce] = room.asDTO();
                 return col;
             }, {})
         };
@@ -37,16 +37,14 @@ class RoomList {
 class Room {
 
     constructor(index) {
-        this.id = index;
+        this.nonce = index;
         this.roomName = 'Room #' + (index + 1);
         this.players = [];
         this.projectiles = [];
     }
 
     join(player) {
-        console.log(player)
         this.players.push(player);
-        console.log('User: ' + player.name + ' has joined: ' + this.roomName);
         if (this.players.length === required_players) {
             this.startGame()
         }
@@ -61,11 +59,37 @@ class Room {
     }
 
     _roomTick() {
+        let self = this;
         this.projectiles.forEach(function (projectile, index, projectiles) {
             projectile._serverTick();
-            if (projectile.isOutOfBounds()) {
+            let hitPlayers = self.getPlayerColliding(projectile);
+            if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 projectiles.splice(index, 1);
             }
+            hitPlayers.forEach(function (player, index) {
+                self.hurtPlayer(player, index)
+            })
+        });
+
+    }
+
+    isPlayerInRoom(nonce) {
+        return this.players.some(function (player) {
+            return player.nonce === nonce
+        })
+    }
+
+    hurtPlayer(player, index) {
+        player.health--;
+        if (player.health <= 0) {
+            this.players.splice(index, 1);
+        }
+    }
+
+
+    getPlayerColliding(projectile) {
+        return this.players.filter(function (player) {
+            return (projectile.playerNonce !== player.nonce && entitiesCollide(projectile, player));
         });
     }
 
@@ -77,7 +101,7 @@ class Room {
 
     asDTO(isFullDTO) {
         return {
-            id: this.id,
+            nonce: this.nonce,
             players: isFullDTO ? this.players.map(function (player) {
                 return player.asDTO();
             }) : null,
@@ -92,11 +116,13 @@ class Room {
 class Player {
 
     constructor(socket) {
-        this.id = playerNonce;
+        this.nonce = playerNonce;
         this.x = 0;
         this.y = 0;
         this.rotationDegrees = 0;
-        this.health = 100;
+        this.health = 1000;
+        this.height = 20;
+        this.width = 20;
         this.socket = socket;
         this.name = 'cody mikol';
     }
@@ -107,7 +133,7 @@ class Player {
             health: this.health,
             x: this.x,
             y: this.y,
-            id: this.id,
+            nonce: this.nonce,
             rotationDegrees: this.rotationDegrees
         }
     }
@@ -115,7 +141,9 @@ class Player {
 }
 
 function daemon() {
-    setInterval(function(){rooms.serverTick()}, 15);
+    setInterval(function () {
+        rooms.serverTick()
+    }, 15);
 }
 
 function init() {
@@ -126,6 +154,10 @@ function init() {
     daemon();
 }
 
+function isPlayerRoomValid(player, room) {
+    return player && room && room.isPlayerInRoom(player.nonce);
+}
+
 init();
 
 module.exports = {
@@ -134,36 +166,39 @@ module.exports = {
 
         playerNonce++;
         const player = new Player(socket);
-        var updater;
-        var selectedRoom;
+        let updater;
+        let selectedRoom;
 
         socket.emit("rooms-available", rooms.asDTO());
 
         socket.on("join", function (room) {
-            selectedRoom = rooms.byId(room.id);
+            selectedRoom = rooms.bynonce(room.nonce);
             selectedRoom.join(player);
             socket.emit('joined-room', player.asDTO());
 
             updater = setInterval(function () {
                 socket.emit('update-chosen-room', selectedRoom.asDTO(true));
-            }, 15);
+            }, 30);
 
         });
 
         socket.on('update-player', function (client_player) {
-            player.x = client_player.x;
-            player.y = client_player.y;
-            player.rotationDegrees = client_player.rotationDegrees;
+            if (isPlayerRoomValid(player, selectedRoom)) {
+                player.x = client_player.x;
+                player.y = client_player.y;
+                player.rotationDegrees = client_player.rotationDegrees;
+            }
         });
 
         socket.on('fire-projectile', function (projectile) {
-            if (selectedRoom && player) {
+            if (isPlayerRoomValid(player, selectedRoom)) {
                 projectileNonce++;
-                projectile.id = projectileNonce;
-                selectedRoom.addProjectile(new Projectile(projectile.id
+                projectile.nonce = projectileNonce;
+                selectedRoom.addProjectile(new Projectile(projectile.nonce
                     , player.x, player.y
                     , player.rotationDegrees
-                    , projectile.color))
+                    , projectile.color
+                    , player.nonce))
             }
         });
 

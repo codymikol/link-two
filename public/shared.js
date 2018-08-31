@@ -1,8 +1,8 @@
 "use strict";
 function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
 
-const map_height = 600;
-const map_width = 1000;
+const map_height = 5000;
+const map_width = 5000;
 const required_players = 1;
 
 class Entity {
@@ -36,19 +36,33 @@ class Entity {
         this._tick = function (delta) {
             if (this.isOnScreen() && this.onTick) this.onTick(delta);
         };
+        this._resize = function () {
+            if(this.onResize) this.onResize();
+        };
         this.destroy = function () {
             delete entities[this.namespace || this.nonce];
         };
     }
 }
+
+function entitiesCollide(entityA, entityB) {
+    return entityACollidesWithB(entityA, entityB) || entityACollidesWithB(entityB, entityA);
+}
+
+function entityACollidesWithB(entityA, entityB) {
+    return ((entityA.x >= (entityB.x - entityB.width / 2) && entityA.x <= (entityB.x + entityB.width / 2))
+        && ((entityA.y >= (entityB.y - entityB.height / 2) && entityA.y <= (entityB.y + entityB.height / 2))));
+}
+
 function randomIntFromInterval(min, max) {
     return Math.random() * (max - min + 1) + min;
 }
 
 class Projectile extends Entity {
-    constructor(id, x, y, rotationDegrees, color) {
+    constructor(nonce, x, y, rotationDegrees, color, playerNonce) {
         super(x, y, 5, 5, 1);
-        this.id = id;
+        this.nonce = nonce;
+        this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
         this.speed = randomIntFromInterval(2, 5);
         this.color = color;
