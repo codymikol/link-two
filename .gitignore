@@ -3,3 +3,8 @@
 /.vscode
 /dist.zip
 *.sqlite
+*.xml
+_windows/*
+codestyles/*
+colors/*
+keymaps/*
