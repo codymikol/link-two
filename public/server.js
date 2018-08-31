@@ -27,7 +27,9 @@ class RoomList {
 
         this.serverTick = function () {
             this.rooms.forEach(function (room) {
-                room._roomTick();
+                if (room.isActive) {
+                    room._roomTick();
+                }
             });
         };
 
@@ -41,6 +43,7 @@ class Room {
         this.roomName = 'Room #' + (index + 1);
         this.players = [];
         this.projectiles = [];
+        this.isActive = false;
     }
 
     join(player) {
@@ -55,6 +58,7 @@ class Room {
     }
 
     startGame() {
+        this.isActive = true;
         //TODO: Start the game
     }
 
@@ -70,7 +74,10 @@ class Room {
                 self.hurtPlayer(player, index)
             })
         });
-
+        var self = this;
+        this.players.forEach(function(player) {
+            player.socket.emit('update-chosen-room', self.asDTO(true))
+        });
     }
 
     isPlayerInRoom(nonce) {
@@ -96,6 +103,19 @@ class Room {
     leave(player) {
         this.players = this.players.filter(function (mPlayer) {
             return player !== mPlayer;
+        });
+    }
+
+    projectileFire(projectile) {
+        var projectileObj = new Projectile(projectile.nonce
+            , player.x, player.y
+            , player.rotationDegrees
+            , Date.now()
+            , player.nonce
+            , randomIntFromInterval(2, 5));
+        this.addProjectile(projectileObj);
+        this.players.forEach(function(player) {
+            player.socket.emit('projectile-fire', projectileObj)
         });
     }
 
@@ -144,7 +164,7 @@ class Player {
 function daemon() {
     setInterval(function () {
         rooms.serverTick()
-    }, 15);
+    }, 30);
 }
 
 function init() {
@@ -176,11 +196,6 @@ module.exports = {
             selectedRoom = rooms.bynonce(room.nonce);
             selectedRoom.join(player);
             socket.emit('joined-room', player.asDTO());
-
-            updater = setInterval(function () {
-                socket.emit('update-chosen-room', selectedRoom.asDTO(true));
-            }, 30);
-
         });
 
         socket.on('update-player', function (client_player) {
@@ -195,11 +210,7 @@ module.exports = {
             if (isPlayerRoomValid(player, selectedRoom)) {
                 projectileNonce++;
                 projectile.nonce = projectileNonce;
-                selectedRoom.addProjectile(new Projectile(projectile.nonce
-                    , player.x, player.y
-                    , player.rotationDegrees
-                    , projectile.color
-                    , player.nonce))
+                selectedRoom.projectileFire(projectile)
             }
         });
 

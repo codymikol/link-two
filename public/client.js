@@ -10,7 +10,7 @@ let socket,
     roomsAvailable,
     button,
     surfaces = [];
-    keyDown = {},
+keyDown = {},
     entities = {},
     a = document.getElementById('a'),
     ctx = a.getContext('2d');
@@ -58,7 +58,7 @@ class TitleButton extends Button {
             ctx.fillStyle = "black";
             ctx.fillText(this.text, this.x + 20, this.y + 20);
             ctx.globalAlpha = 1;
-            if(this.hovered) {
+            if (this.hovered) {
                 ctx.fillStyle = "#208C80";
                 ctx.textAlign = 'right';
                 ctx.fillText('> ' + this.sideText, this.x - 20, this.y + (this.height / 2) + 7);
@@ -66,14 +66,14 @@ class TitleButton extends Button {
             }
         };
         this.onResize = function () {
-            this.x = (a.width/2) - 200;
+            this.x = (a.width / 2) - 200;
         }
     }
 }
 
 class FullSize extends Entity {
     constructor(_screen) {
-        super(0,0,window.innerHeight,window.innerWidth, _screen);
+        super(0, 0, window.innerHeight, window.innerWidth, _screen);
         this.onResize = function () {
             this.height = window.innerHeight;
             this.width = window.innerWidth;
@@ -81,7 +81,8 @@ class FullSize extends Entity {
         this.onTick = function () {
             this.timer += 1;
             if (this.timer === 60) this.timer = 0;
-        };}
+        };
+    }
 }
 
 class Background extends FullSize {
@@ -107,7 +108,7 @@ class Background extends FullSize {
 }
 
 class TitleCard extends FullSize {
-    constructor(_screen){
+    constructor(_screen) {
         super(_screen);
         this.render = function () {
 
@@ -190,9 +191,9 @@ class Player extends Actor {
             if (keyDown.d) this.x += this.velocity * delta;
 
             if (Object.keys(entities).some(function (entityKey) {
-                if(!entities[entityKey].blocking) return false;
-                return entitiesCollideTwo(entities[entityKey], vm);
-            })) {
+                    if (!entities[entityKey].blocking) return false;
+                    return entitiesCollideTwo(entities[entityKey], vm);
+                })) {
                 this.x = originalX;
                 this.y = originalY;
             }
@@ -207,30 +208,30 @@ class Enemy extends Actor {
 }
 
 class Surface extends Entity {
-    constructor(x,y,height,width) {
-        super(x,y,height,width,1);
+    constructor(x, y, height, width) {
+        super(x, y, height, width, 1);
     }
 }
 
 class Floor extends Surface {
-    constructor(x,y,height,width) {
-        super(x,y,height,width);
+    constructor(x, y, height, width) {
+        super(x, y, height, width);
         this.render = function () {
             ctx.globalAlpha = .5;
             ctx.fillStyle = '#bcb9ad';
-            ctx.fillRect(this.x,this.y,this.width,this.height);
+            ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.globalAlpha = 1;
         }
     }
 }
 
 class Wall extends Surface {
-    constructor(x,y,height,width) {
-        super(x,y,height,width);
+    constructor(x, y, height, width) {
+        super(x, y, height, width);
         this.blocking = true;
         this.render = function () {
             ctx.fillStyle = 'black';
-            ctx.fillRect(this.x,this.y,this.width,this.height);
+            ctx.fillRect(this.x, this.y, this.width, this.height);
         }
     }
 }
@@ -244,19 +245,21 @@ window.addEventListener("load", function () {
 
     //load order for screen 1
     addEntity(new Background(1));
-    addEntity(new Floor(100,100,500,500));
-    addEntity(new Wall(100,80,20,500));
-    addEntity(new Wall(100,600,20,500));
-    addEntity(new Wall(100,100,500,20));
-    addEntity(new Wall(580,100,500,20));
+    addEntity(new Floor(100, 100, 500, 500));
+    addEntity(new Wall(100, 80, 20, 500));
+    addEntity(new Wall(100, 600, 20, 500));
+    addEntity(new Wall(100, 100, 500, 20));
+    addEntity(new Wall(580, 100, 500, 20));
     addEntity(player);
 
     //load order for screen 3
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
-    addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {socket.emit('join', roomsAvailable[0]);}));
-    addEntity(new TitleButton((a.width/2) - 200, 440, 'Our Creators', 'blame'));
-    addEntity(new TitleButton(a.width/2 - 200, 480, 'Internal Documentation', 'man'));
+    addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', function () {
+        socket.emit('join', roomsAvailable[0]);
+    }));
+    addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame'));
+    addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man'));
 
     forObj({
         'rooms-available': function (response) {
@@ -270,6 +273,15 @@ window.addEventListener("load", function () {
             addEntity(new Enemy(enemy.x, enemy.y, enemy.nonce))
         },
         'enemy-left': function (enemy) {
+        },
+
+        'projectile-fire': function (projectile) {
+            addEntity(new Projectile(projectile.nonce
+                , projectile.x, projectile.y
+                , projectile.rotationDegrees
+                , projectile.fireTime
+                , projectile.playerNonce
+                , projectile.speed))
         },
         'update-rooms': function (_rooms) {
             rooms = _rooms;
