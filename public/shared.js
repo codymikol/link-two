@@ -1,6 +1,6 @@
 "use strict";
 function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
-
+let abs = Math.abs;
 const map_height = 5000;
 const map_width = 5000;
 const required_players = 1;
@@ -45,6 +45,10 @@ class Entity {
     }
 }
 
+function entitiesCollideTwo(a,b) {
+    return (abs(a.x - b.x) * 2 < (a.width + b.width)) && (abs(a.y - b.y) * 2 < (a.height + b.height));
+}
+
 function entitiesCollide(entityA, entityB) {
     return entityACollidesWithB(entityA, entityB) || entityACollidesWithB(entityB, entityA);
 }
@@ -72,6 +76,18 @@ class Projectile extends Entity {
             ctx.font = "12px Arial";
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
+        };
+
+        this.onTick = function () {
+
+            let vm = this;
+
+          if (Object.keys(entities).some(function(entityKey){
+              if(!entities[entityKey].blocking) return false;
+              return entitiesCollide(vm, entities[entityKey])
+          })){
+              addEntity(new Floor(vm.x, vm.y, 30, 30));
+          }
         };
 
         this.isOutOfBounds = function() {

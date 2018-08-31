@@ -9,6 +9,7 @@ let socket,
     background,
     roomsAvailable,
     button,
+    surfaces = [];
     keyDown = {},
     entities = {},
     a = document.getElementById('a'),
@@ -177,10 +178,24 @@ class Player extends Actor {
             }
         };
         this.onTick = function (delta) {
+
+            let vm = this;
+
+            let originalX = this.x;
+            let originalY = this.y;
+
             if (keyDown.w) this.y -= this.velocity * delta;
             if (keyDown.a) this.x -= this.velocity * delta;
             if (keyDown.s) this.y += this.velocity * delta;
             if (keyDown.d) this.x += this.velocity * delta;
+
+            if (Object.keys(entities).some(function (entityKey) {
+                if(!entities[entityKey].blocking) return false;
+                return entitiesCollideTwo(entities[entityKey], vm);
+            })) {
+                this.x = originalX;
+                this.y = originalY;
+            }
         };
     }
 }
@@ -212,11 +227,10 @@ class Floor extends Surface {
 class Wall extends Surface {
     constructor(x,y,height,width) {
         super(x,y,height,width);
+        this.blocking = true;
         this.render = function () {
-            // ctx.globalAlpha = .5;
             ctx.fillStyle = 'black';
             ctx.fillRect(this.x,this.y,this.width,this.height);
-            // ctx.globalAlpha = 1;
         }
     }
 }
@@ -226,7 +240,7 @@ window.addEventListener("load", function () {
 
     socket = io({upgrade: false, transports: ["websocket"]});
 
-    player = new Player(10, 10);
+    player = new Player(250, 250);
 
     //load order for screen 1
     addEntity(new Background(1));
@@ -234,7 +248,7 @@ window.addEventListener("load", function () {
     addEntity(new Wall(100,80,20,500));
     addEntity(new Wall(100,600,20,500));
     addEntity(new Wall(100,100,500,20));
-    // addEntity(new Wall(600,100,20,500));
+    addEntity(new Wall(580,100,500,20));
     addEntity(player);
 
     //load order for screen 3
@@ -305,8 +319,10 @@ window.addEventListener("load", function () {
     function draw() {
         ctx.clearRect(0, 0, a.width, a.height);
         ctx.font = "30px Arial";
+        entitiesCall('_render');
+        ctx.font = "30px Arial";
+        ctx.fillStyle = 'black';
         ctx.fillText("Entities on screen: " + Object.keys(entities).length, 10, 50);
-        entitiesCall('_render')
     }
 
     function mainLoop(timestamp) {
