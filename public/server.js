@@ -25,6 +25,17 @@ class RoomList {
             }, {})
         };
 
+        this.bestRoom = function () {
+            let openRooms = this.rooms.filter(room => (room.players.length < room.maxPlayers));
+            let bestRoom = openRooms[0];
+            for (let i = 0; i < openRooms.length; i++) {
+                if (openRooms[i].playerSize > bestRoom.playerSize) {
+                    bestRoom = openRooms[i];
+                }
+            }
+            return bestRoom;
+        };
+
         this.serverTick = function () {
             this.rooms.forEach(function (room) {
                 room._roomTick();
@@ -41,6 +52,7 @@ class Room {
         this.roomName = 'Room #' + (index + 1);
         this.players = [];
         this.projectiles = [];
+        this.maxPlayers = 10
     }
 
     join(player) {
@@ -171,8 +183,8 @@ module.exports = {
 
         socket.emit("rooms-available", rooms.asDTO());
 
-        socket.on("join", function (room) {
-            selectedRoom = rooms.bynonce(room.nonce);
+        socket.on("join", function () {
+            selectedRoom = rooms.bestRoom();
             selectedRoom.join(player);
             socket.emit('joined-room', player.asDTO());
 
