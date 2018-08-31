@@ -196,7 +196,9 @@ window.addEventListener("load", function () {
 
     socket = io({upgrade: false, transports: ["websocket"]});
 
-    addEntity(new Player(10, 10));
+    player = new Player(10, 10);
+
+    addEntity(player);
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
     addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {socket.emit('join', roomsAvailable[0]);}));
