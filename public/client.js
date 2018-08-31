@@ -9,10 +9,13 @@ let socket,
     background,
     roomsAvailable,
     button,
-keyDown = {},
+    keyDown = {},
     entities = {},
     a = document.getElementById('a'),
     ctx = a.getContext('2d');
+
+a.width = window.innerWidth;
+a.height = window.innerHeight;
 
 function mouseInBounds(x, y, height, width) {
     return mousePos.x > x && mousePos.x < x + width && mousePos.y > y && mousePos.y < y + height;
@@ -36,61 +39,99 @@ class Button extends Entity {
     constructor(x, y, text, onClick) {
         super(x, y, 30, 400, 3);
         this.text = text;
+        this.onClick = onClick;
+    }
+}
+
+class TitleButton extends Button {
+    constructor(x, y, text, sideText, onClick) {
+        super(x, y, text, onClick);
+        this.sideText = sideText;
         this.render = function () {
             ctx.globalAlpha = 0.6;
             ctx.beginPath();
-            ctx.fillStyle = this.hovered ? "#083F10" : "#208C30";
+            ctx.fillStyle = this.hovered ? "#208C80" : "#208C30";
             ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.stroke();
             ctx.font = "20px Arial Black";
             ctx.fillStyle = "black";
             ctx.fillText(this.text, this.x + 20, this.y + 20);
             ctx.globalAlpha = 1;
+            if(this.hovered) {
+                ctx.fillStyle = "#208C80";
+                ctx.textAlign = 'right';
+                ctx.fillText('> ' + this.sideText, this.x - 20, this.y + (this.height / 2) + 7);
+                ctx.textAlign = 'start'
+            }
         };
-        this.onClick = onClick;
+        this.onResize = function () {
+            this.x = (a.width/2) - 200;
+        }
     }
 }
 
 class Background extends Entity {
     constructor() {
-        super(0,0,a.height,a.width, 3);
+        super(0, 0, a.height, a.width, 3);
         this.timer = 0;
         this.render = function () {
 
+            let vm = this;
+
+            let linkOffset = 280;
+            let carrotOffset = 440;
+
+
             //Background
-            ctx.fillStyle='black';
-            ctx.fillRect(0,0,this.width,this.height);
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, this.width, this.height);
+
+            ctx.save();
+            // ctx.transform(1.5,0,0,1,0,0);
 
             //Text LINK
             ctx.globalAlpha = 0.6;
-            ctx.font="240px Arial Black";
-            ctx.fillStyle='#083F10';
-            if(this.timer <= 30) ctx.fillText(">",this.x + 5 + 80,this.y + 5 + 275);
-            ctx.fillText("LINK",this.x + 5 + 240,this.y + 5 + 275);
-            ctx.fillStyle='#208C30';
-            if(this.timer >= 30) ctx.globalAlpha = 0.2;
-            ctx.fillText(">",this.x + 80,this.y + 275);
-            if(this.timer >= 30) ctx.globalAlpha = 0.6;
-            ctx.fillText("LINK",this.x + 240,this.y + 275);
+            ctx.font = "240px Arial Black";
+            ctx.fillStyle = '#083F10';
+            if (this.timer <= 30) ctx.fillText(">", (this.width / 2) + 5 - carrotOffset, this.y + 5 + 275);
+            ctx.fillText("LINK", (this.width / 2) - 5 - linkOffset, this.y + 5 + 275);
+            ctx.fillStyle = '#208C30';
+            if (this.timer >= 30) ctx.globalAlpha = 0.2;
+            ctx.fillText(">", (this.width / 2) - carrotOffset, this.y + 275);
+            if (this.timer >= 30) ctx.globalAlpha = 0.6;
+            ctx.fillText("LINK", (this.width / 2) - linkOffset, this.y + 275);
 
-            ctx.font="24px Arial Black";
-            for(let i = 0; i < 36; i++) {
-                [80,335].forEach(function (y) {ctx.fillText('= ', (i * 25) + 54, y);});
-                [44,935].forEach(function (x) {ctx.fillText('+', x, (i * 7) + 88)})
+            ctx.font = "24px Arial Black";
+            for (let i = 0; i < 36; i++) {
+                [80, 335].forEach(function (y) {
+                    ctx.fillText('= ', (i * 25) + (vm.width / 2) - 455, y);
+                });
+                [430, -460].forEach(function (x) {
+                    ctx.fillText('+', x + (vm.width / 2), (i * 7) + 88)
+                })
             }
 
-            ctx.filter = 'blur(5px)';
-            for(let i = 0; i < 60; i++) {
-                ctx.fillRect(this.x,this.y + (15 * i) + this.timer - 200,this.width,5);
+            for (let i = 0; i < 1000; i++) {
+                ctx.globalAlpha = 0.05;
+                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 5);
+                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 10);
+                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 15);
+                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 120);
+                ctx.globalAlpha = 1;
             }
-            ctx.filter = 'none';
 
             ctx.globalAlpha = 1;
 
+            ctx.restore();
+
         };
         this.onTick = function () {
-            this.timer += 2;
-            if(this.timer === 60) this.timer = 0;
+            this.timer += 1;
+            if (this.timer === 60) this.timer = 0;
+        };
+        this.onResize = function () {
+            this.height = window.innerHeight;
+            this.width = window.innerWidth;
         };
     }
 }
@@ -126,8 +167,8 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            for (var i =0; i < 10; i++) {
-                socket.emit('fire-projectile', { x : this.x, y: this.y, rotationDegrees : this.rotationDegrees});
+            for (var i = 0; i < 10; i++) {
+                socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
             }
         };
         this.onTick = function (delta) {
@@ -146,7 +187,6 @@ class Enemy extends Actor {
 }
 
 
-
 window.addEventListener("load", function () {
 
     socket = io({upgrade: false, transports: ["websocket"]});
@@ -157,12 +197,12 @@ window.addEventListener("load", function () {
     addEntity(player);
     addEntity(background);
 
-    addEntity(new Button(300,400, 'Connect', function () {
-       socket.emit('join', roomsAvailable[0]);
+    addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {
+        socket.emit('join', roomsAvailable[0]);
     }));
 
-    addEntity(new Button(300,440, 'Our Creators'));
-    addEntity(new Button(300,480, 'Internal Documentation'));
+    addEntity(new TitleButton((a.width/2) - 200, 440, 'Our Creators', 'blame'));
+    addEntity(new TitleButton(a.width/2 - 200, 480, 'Internal Documentation', 'man'));
 
     forObj({
         'rooms-available': function (response) {
@@ -260,6 +300,12 @@ window.addEventListener("load", function () {
         mousePos.y = e.clientY - rect.top;
         entitiesCall('_sethover');
         entitiesCall('_mousemove');
+    };
+
+    onresize = function () {
+        a.height = window.innerHeight;
+        a.width = window.innerWidth;
+        entitiesCall('_resize');
     };
 
     requestAnimationFrame(mainLoop);

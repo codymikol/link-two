@@ -1,8 +1,8 @@
 "use strict";
 function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
 
-const map_height = 600;
-const map_width = 1000;
+const map_height = 5000;
+const map_width = 5000;
 const required_players = 1;
 
 class Entity {
@@ -35,6 +35,9 @@ class Entity {
         };
         this._tick = function (delta) {
             if (this.isOnScreen() && this.onTick) this.onTick(delta);
+        };
+        this._resize = function () {
+            if(this.onResize) this.onResize();
         };
         this.destroy = function () {
             delete entities[this.namespace || this.nonce];
