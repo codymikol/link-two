@@ -191,6 +191,36 @@ class Enemy extends Actor {
     }
 }
 
+class Surface extends Entity {
+    constructor(x,y,height,width) {
+        super(x,y,height,width,1);
+    }
+}
+
+class Floor extends Surface {
+    constructor(x,y,height,width) {
+        super(x,y,height,width);
+        this.render = function () {
+            ctx.globalAlpha = .5;
+            ctx.fillStyle = '#bcb9ad';
+            ctx.fillRect(this.x,this.y,this.width,this.height);
+            ctx.globalAlpha = 1;
+        }
+    }
+}
+
+class Wall extends Surface {
+    constructor(x,y,height,width) {
+        super(x,y,height,width);
+        this.render = function () {
+            // ctx.globalAlpha = .5;
+            ctx.fillStyle = 'black';
+            ctx.fillRect(this.x,this.y,this.width,this.height);
+            // ctx.globalAlpha = 1;
+        }
+    }
+}
+
 
 window.addEventListener("load", function () {
 
@@ -198,7 +228,16 @@ window.addEventListener("load", function () {
 
     player = new Player(10, 10);
 
+    //load order for screen 1
+    addEntity(new Background(1));
+    addEntity(new Floor(100,100,500,500));
+    addEntity(new Wall(100,80,20,500));
+    addEntity(new Wall(100,600,20,500));
+    addEntity(new Wall(100,100,500,20));
+    // addEntity(new Wall(600,100,20,500));
     addEntity(player);
+
+    //load order for screen 3
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
     addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {socket.emit('join', roomsAvailable[0]);}));
