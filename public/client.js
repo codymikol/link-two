@@ -91,7 +91,6 @@ class Background extends FullSize {
         vm.timer = 0;
         vm.render = function () {
             ctx.fillStyle = 'black';
-            console.log(vm.x)
             ctx.fillRect(0, 0, vm.width, vm.height);
             ctx.fillStyle = '#208C30';
             ctx.globalAlpha = 0.05;
