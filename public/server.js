@@ -38,8 +38,15 @@ class RoomList {
 
         this.serverTick = function () {
             this.rooms.forEach(function (room) {
-                room._roomTick();
+                if (room.isActive) {
+                    room._roomTick();
+                    var self = room;
+                    room.players.forEach(function(player) {
+                        player.socket.emit('update-chosen-room', self.asDTO(true))
+                    });
+                }
             });
+
         };
 
     }
@@ -52,7 +59,8 @@ class Room {
         this.roomName = 'Room #' + (index + 1);
         this.players = [];
         this.projectiles = [];
-        this.maxPlayers = 10
+        this.maxPlayers = 10;
+        this.isActive = false;
     }
 
     join(player) {
@@ -67,7 +75,7 @@ class Room {
     }
 
     startGame() {
-        //TODO: Start the game
+        this.isActive = true;
     }
 
     _roomTick() {
@@ -155,7 +163,7 @@ class Player {
 function daemon() {
     setInterval(function () {
         rooms.serverTick()
-    }, 15);
+    }, 30);
 }
 
 function init() {
@@ -187,11 +195,6 @@ module.exports = {
             selectedRoom = rooms.bestRoom();
             selectedRoom.join(player);
             socket.emit('joined-room', player.asDTO());
-
-            updater = setInterval(function () {
-                socket.emit('update-chosen-room', selectedRoom.asDTO(true));
-            }, 30);
-
         });
 
         socket.on('update-player', function (client_player) {
