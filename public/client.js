@@ -87,19 +87,18 @@ class FullSize extends Entity {
 class Background extends FullSize {
     constructor(screen) {
         super(screen);
-        this.timer = 0;
-        this.render = function () {
-
-            //Background
+        let vm = this;
+        vm.timer = 0;
+        vm.render = function () {
             ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, this.width, this.height);
+            console.log(vm.x)
+            ctx.fillRect(0, 0, vm.width, vm.height);
             ctx.fillStyle = '#208C30';
+            ctx.globalAlpha = 0.05;
             for (let i = 0; i < 1000; i++) {
-                ctx.globalAlpha = 0.05;
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 5);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 10);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 15);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 120);
+                [5,10,15,120].forEach(function (height) {
+                ctx.fillRect(0, 15 * i + vm.timer - 200, vm.width, height);
+                })
             }
             ctx.globalAlpha = 1;
         };
