@@ -46,7 +46,7 @@ class Button extends Entity {
 
 class TitleButton extends Button {
     constructor(x, y, text, sideText, onClick) {
-        super(x, y, text, onClick);
+        super(a.width/2 - 200, y, text, onClick);
         this.sideText = sideText;
         this.render = function () {
             ctx.globalAlpha = 0.6;
