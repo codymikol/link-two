@@ -1,6 +1,6 @@
 "use strict";
 function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
-
+let abs = Math.abs;
 const map_height = 5000;
 const map_width = 5000;
 const required_players = 1;
@@ -45,13 +45,8 @@ class Entity {
     }
 }
 
-function entitiesCollide(entityA, entityB) {
-    return entityACollidesWithB(entityA, entityB) || entityACollidesWithB(entityB, entityA);
-}
-
-function entityACollidesWithB(entityA, entityB) {
-    return ((entityA.x >= (entityB.x - entityB.width / 2) && entityA.x <= (entityB.x + entityB.width / 2))
-        && ((entityA.y >= (entityB.y - entityB.height / 2) && entityA.y <= (entityB.y + entityB.height / 2))));
+function entitiesCollide(a,b) {
+    return (abs(a.x - b.x) * 2 < (a.width + b.width)) && (abs(a.y - b.y) * 2 < (a.height + b.height));
 }
 
 function randomIntFromInterval(min, max) {
@@ -73,17 +68,13 @@ class Projectile extends Entity {
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
         };
-
         this.isOutOfBounds = function() {
             return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
         };
-
         this._serverTick = function () {
             this.wobbleRotation = 3;
             this.x += this.speed * Math.cos(this.rotationDegrees * Math.PI / 180);
             this.y += this.speed * Math.sin(this.rotationDegrees * Math.PI / 180);
         };
-
-
     }
 }

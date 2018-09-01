@@ -9,6 +9,7 @@ let socket,
     background,
     roomsAvailable,
     button,
+    surfaces = [];
     keyDown = {},
     entities = {},
     a = document.getElementById('a'),
@@ -45,7 +46,7 @@ class Button extends Entity {
 
 class TitleButton extends Button {
     constructor(x, y, text, sideText, onClick) {
-        super(x, y, text, onClick);
+        super(a.width/2 - 200, y, text, onClick);
         this.sideText = sideText;
         this.render = function () {
             ctx.globalAlpha = 0.6;
@@ -86,19 +87,18 @@ class FullSize extends Entity {
 class Background extends FullSize {
     constructor(screen) {
         super(screen);
-        this.timer = 0;
-        this.render = function () {
-
-            //Background
+        let vm = this;
+        vm.timer = 0;
+        vm.render = function () {
             ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, this.width, this.height);
+            console.log(vm.x)
+            ctx.fillRect(0, 0, vm.width, vm.height);
             ctx.fillStyle = '#208C30';
+            ctx.globalAlpha = 0.05;
             for (let i = 0; i < 1000; i++) {
-                ctx.globalAlpha = 0.05;
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 5);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 10);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 15);
-                ctx.fillRect(this.x, this.y + (15 * i) + this.timer - 200, this.width, 120);
+                [5,10,15,120].forEach(function (height) {
+                ctx.fillRect(0, 15 * i + vm.timer - 200, vm.width, height);
+                })
             }
             ctx.globalAlpha = 1;
         };
@@ -177,10 +177,24 @@ class Player extends Actor {
             }
         };
         this.onTick = function (delta) {
+
+            let vm = this;
+
+            let originalX = this.x;
+            let originalY = this.y;
+
             if (keyDown.w) this.y -= this.velocity * delta;
             if (keyDown.a) this.x -= this.velocity * delta;
             if (keyDown.s) this.y += this.velocity * delta;
             if (keyDown.d) this.x += this.velocity * delta;
+
+            if (Object.keys(entities).some(function (entityKey) {
+                if(!entities[entityKey].blocking) return false;
+                return entitiesCollide(entities[entityKey], vm);
+            })) {
+                this.x = originalX;
+                this.y = originalY;
+            }
         };
     }
 }
@@ -191,14 +205,52 @@ class Enemy extends Actor {
     }
 }
 
+class Surface extends Entity {
+    constructor(x,y,height,width) {
+        super(x,y,height,width,1);
+    }
+}
+
+class Floor extends Surface {
+    constructor(x,y,height,width) {
+        super(x,y,height,width);
+        this.render = function () {
+            ctx.globalAlpha = .5;
+            ctx.fillStyle = '#bcb9ad';
+            ctx.fillRect(this.x,this.y,this.width,this.height);
+            ctx.globalAlpha = 1;
+        }
+    }
+}
+
+class Wall extends Surface {
+    constructor(x,y,height,width) {
+        super(x,y,height,width);
+        this.blocking = true;
+        this.render = function () {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(this.x - this.width / 2,this.y - this.height / 2,this.width,this.height);
+        }
+    }
+}
+
 
 window.addEventListener("load", function () {
 
     socket = io({upgrade: false, transports: ["websocket"]});
 
-    player = new Player(10, 10);
+    player = new Player(250, 250);
 
+    //load order for screen 1
+    addEntity(new Background(1));
+    addEntity(new Floor(100,100,500,500));
+    addEntity(new Wall(350,100,20,500));
+    addEntity(new Wall(350,600,20,500));
+    addEntity(new Wall(100,350,500,20));
+    addEntity(new Wall(600,350,500,20));
     addEntity(player);
+
+    //load order for screen 3
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
     addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {socket.emit('join', roomsAvailable[0]);}));
@@ -266,8 +318,10 @@ window.addEventListener("load", function () {
     function draw() {
         ctx.clearRect(0, 0, a.width, a.height);
         ctx.font = "30px Arial";
+        entitiesCall('_render');
+        ctx.font = "30px Arial";
+        ctx.fillStyle = 'black';
         ctx.fillText("Entities on screen: " + Object.keys(entities).length, 10, 50);
-        entitiesCall('_render')
     }
 
     function mainLoop(timestamp) {
