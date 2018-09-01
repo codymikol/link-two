@@ -190,7 +190,7 @@ class Player extends Actor {
 
             if (Object.keys(entities).some(function (entityKey) {
                 if(!entities[entityKey].blocking) return false;
-                return entitiesCollideTwo(entities[entityKey], vm);
+                return entitiesCollide(entities[entityKey], vm);
             })) {
                 this.x = originalX;
                 this.y = originalY;
