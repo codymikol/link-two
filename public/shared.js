@@ -59,7 +59,8 @@ class Projectile extends Entity {
         this.nonce = nonce;
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
-        this.speed = randomIntFromInterval(2, 5);
+        this.wobbleRotation = (randomIntFromInterval(-8,8)) + this.rotationDegrees;
+        this.speed = randomIntFromInterval(8, 10);
         this.color = color;
         this.render = function () {
             ctx.beginPath();
@@ -72,9 +73,8 @@ class Projectile extends Entity {
             return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
         };
         this._serverTick = function () {
-            this.wobbleRotation = 3;
-            this.x += this.speed * Math.cos(this.rotationDegrees * Math.PI / 180);
-            this.y += this.speed * Math.sin(this.rotationDegrees * Math.PI / 180);
+            this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
+            this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
         };
     }
 }

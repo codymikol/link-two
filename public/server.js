@@ -36,17 +36,15 @@ class RoomList {
             return bestRoom;
         };
 
-        this.serverTick = function () {
-            this.rooms.forEach(function (room) {
-                if (room.isActive) {
-                    room._roomTick();
-                    var self = room;
-                    room.players.forEach(function(player) {
-                        player.socket.emit('update-chosen-room', self.asDTO(true))
-                    });
-                }
-            });
+        this.updateRoom = function (room) {
+            if (room.players.length > 0) {
+                room._roomTick();
+                io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true))
+            }
+        };
 
+        this.serverTick = function () {
+            this.rooms.forEach(this.updateRoom);
         };
 
     }
@@ -194,6 +192,7 @@ module.exports = {
         socket.on("join", function () {
             selectedRoom = rooms.bestRoom();
             selectedRoom.join(player);
+            socket.join('room_' + selectedRoom.nonce);
             socket.emit('joined-room', player.asDTO());
         });
 
