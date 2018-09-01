@@ -68,29 +68,13 @@ class Projectile extends Entity {
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
         };
-
-        this.onTick = function () {
-
-            let vm = this;
-
-          if (Object.keys(entities).some(function(entityKey){
-              if(!entities[entityKey].blocking) return false;
-              return entitiesCollide(vm, entities[entityKey])
-          })){
-              addEntity(new Floor(vm.x, vm.y, 30, 30));
-          }
-        };
-
         this.isOutOfBounds = function() {
             return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
         };
-
         this._serverTick = function () {
             this.wobbleRotation = 3;
             this.x += this.speed * Math.cos(this.rotationDegrees * Math.PI / 180);
             this.y += this.speed * Math.sin(this.rotationDegrees * Math.PI / 180);
         };
-
-
     }
 }
