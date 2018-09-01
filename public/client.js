@@ -244,10 +244,10 @@ window.addEventListener("load", function () {
     //load order for screen 1
     addEntity(new Background(1));
     addEntity(new Floor(100,100,500,500));
-    addEntity(new Wall(100,80,20,500));
-    addEntity(new Wall(100,600,20,500));
-    addEntity(new Wall(100,100,500,20));
-    addEntity(new Wall(580,100,500,20));
+    addEntity(new Wall(350,100,20,500));
+    addEntity(new Wall(350,600,20,500));
+    addEntity(new Wall(100,350,500,20));
+    addEntity(new Wall(600,350,500,20));
     addEntity(player);
 
     //load order for screen 3
