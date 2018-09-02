@@ -165,7 +165,7 @@ class Player {
 function daemon() {
     setInterval(function () {
         rooms.serverTick()
-    }, 30);
+    }, tick_rate);
 }
 
 function init() {

@@ -10,6 +10,7 @@ let abs = Math.abs;
 const map_height = 5000;
 const map_width = 5000;
 const required_players = 1;
+const tick_rate = 30;
 let serverTime = 0;
 
 class Entity {
@@ -64,8 +65,8 @@ class Projectile extends Entity {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
         super(x, y, 5, 5, 1);
         this.nonce = nonce;
-        this.startingX = x;
-        this.startingY = y;
+        this._startingX = x;
+        this._startingY = y;
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
         this.wobbleRotation = (randomIntFromInterval(-8, 8)) + this.rotationDegrees;
@@ -81,9 +82,13 @@ class Projectile extends Entity {
         this.isOutOfBounds = function () {
             return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
         };
+
+        this._getDeltaTime = function() {
+            return ((serverTime - this.fireTime) / tick_rate);
+        };
         this.onTick = function () {
-            this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
-            this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
+            this.x = this._startingX + (this.speed * Math.cos(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
+            this.y = this._startingY + (this.speed * Math.sin(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
         };
     }
 }
