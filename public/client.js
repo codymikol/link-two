@@ -252,7 +252,7 @@ window.addEventListener("load", function () {
     //load order for screen 3
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
-    addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {socket.emit('join', roomsAvailable[0]);}));
+    addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {socket.emit('join', roomsAvailable["1"]);}));
     addEntity(new TitleButton((a.width/2) - 200, 440, 'Our Creators', 'blame'));
     addEntity(new TitleButton(a.width/2 - 200, 480, 'Internal Documentation', 'man'));
 
