@@ -10,7 +10,7 @@ let socket,
     roomsAvailable,
     button,
     surfaces = [];
-    keyDown = {},
+keyDown = {},
     entities = {},
     a = document.getElementById('a'),
     ctx = a.getContext('2d');
@@ -46,7 +46,7 @@ class Button extends Entity {
 
 class TitleButton extends Button {
     constructor(x, y, text, sideText, onClick) {
-        super(a.width/2 - 200, y, text, onClick);
+        super(a.width / 2 - 200, y, text, onClick);
         this.sideText = sideText;
         this.render = function () {
             ctx.globalAlpha = 0.6;
@@ -58,7 +58,7 @@ class TitleButton extends Button {
             ctx.fillStyle = "black";
             ctx.fillText(this.text, this.x + 20, this.y + 20);
             ctx.globalAlpha = 1;
-            if(this.hovered) {
+            if (this.hovered) {
                 ctx.fillStyle = "#208C80";
                 ctx.textAlign = 'right';
                 ctx.fillText('> ' + this.sideText, this.x - 20, this.y + (this.height / 2) + 7);
@@ -66,14 +66,14 @@ class TitleButton extends Button {
             }
         };
         this.onResize = function () {
-            this.x = (a.width/2) - 200;
+            this.x = (a.width / 2) - 200;
         }
     }
 }
 
 class FullSize extends Entity {
     constructor(_screen) {
-        super(0,0,window.innerHeight,window.innerWidth, _screen);
+        super(0, 0, window.innerHeight, window.innerWidth, _screen);
         this.onResize = function () {
             this.height = window.innerHeight;
             this.width = window.innerWidth;
@@ -81,7 +81,8 @@ class FullSize extends Entity {
         this.onTick = function () {
             this.timer += 1;
             if (this.timer === 60) this.timer = 0;
-        };}
+        };
+    }
 }
 
 class Background extends FullSize {
@@ -95,8 +96,8 @@ class Background extends FullSize {
             ctx.fillStyle = '#208C30';
             ctx.globalAlpha = 0.05;
             for (let i = 0; i < 1000; i++) {
-                [5,10,15,120].forEach(function (height) {
-                ctx.fillRect(0, 15 * i + vm.timer - 200, vm.width, height);
+                [5, 10, 15, 120].forEach(function (height) {
+                    ctx.fillRect(0, 15 * i + vm.timer - 200, vm.width, height);
                 })
             }
             ctx.globalAlpha = 1;
@@ -105,7 +106,7 @@ class Background extends FullSize {
 }
 
 class TitleCard extends FullSize {
-    constructor(_screen){
+    constructor(_screen) {
         super(_screen);
         this.render = function () {
 
@@ -188,7 +189,7 @@ class Player extends Actor {
             if (keyDown.d) this.x += this.velocity * delta;
 
             if (Object.keys(entities).some(function (entityKey) {
-                if(!entities[entityKey].blocking) return false;
+                if (!entities[entityKey].blocking) return false;
                 return entitiesCollide(entities[entityKey], vm);
             })) {
                 this.x = originalX;
@@ -205,30 +206,30 @@ class Enemy extends Actor {
 }
 
 class Surface extends Entity {
-    constructor(x,y,height,width) {
-        super(x,y,height,width,1);
+    constructor(x, y, height, width) {
+        super(x, y, height, width, 1);
     }
 }
 
 class Floor extends Surface {
-    constructor(x,y,height,width) {
-        super(x,y,height,width);
+    constructor(x, y, height, width) {
+        super(x, y, height, width);
         this.render = function () {
             ctx.globalAlpha = .5;
             ctx.fillStyle = '#bcb9ad';
-            ctx.fillRect(this.x,this.y,this.width,this.height);
+            ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.globalAlpha = 1;
         }
     }
 }
 
 class Wall extends Surface {
-    constructor(x,y,height,width) {
-        super(x,y,height,width);
+    constructor(x, y, height, width) {
+        super(x, y, height, width);
         this.blocking = true;
         this.render = function () {
             ctx.fillStyle = 'black';
-            ctx.fillRect(this.x - this.width / 2,this.y - this.height / 2,this.width,this.height);
+            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
         }
     }
 }
@@ -242,19 +243,23 @@ window.addEventListener("load", function () {
 
     //load order for screen 1
     addEntity(new Background(1));
-    addEntity(new Floor(100,100,500,500));
-    addEntity(new Wall(350,100,20,500));
-    addEntity(new Wall(350,600,20,500));
-    addEntity(new Wall(100,350,500,20));
-    addEntity(new Wall(600,350,500,20));
+    addEntity(new Floor(100, 100, 500, 500));
+    addEntity(new Wall(350, 100, 20, 500));
+    addEntity(new Wall(350, 600, 20, 500));
+    addEntity(new Wall(100, 350, 500, 20));
+    addEntity(new Wall(600, 350, 500, 20));
     addEntity(player);
 
     //load order for screen 3
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
-    addEntity(new TitleButton(a.width/2 - 200, 400, 'Connect', 'ssh', function () {socket.emit('join', roomsAvailable["1"]);}));
-    addEntity(new TitleButton((a.width/2) - 200, 440, 'Our Creators', 'blame'));
-    addEntity(new TitleButton(a.width/2 - 200, 480, 'Internal Documentation', 'man'));
+    addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', function () {
+        if (roomsAvailable && roomsAvailable["1"]) {
+            socket.emit('join', roomsAvailable["1"]);
+        }
+    }));
+    addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame'));
+    addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man'));
 
     forObj({
         'rooms-available': function (response) {
@@ -272,9 +277,22 @@ window.addEventListener("load", function () {
         'update-rooms': function (_rooms) {
             rooms = _rooms;
         },
+        'projectile-fire': function (_projectile) {
+            let cached_projectile = entities['projectile-' + _projectile.nonce];
+            if (cached_projectile) {
+                cached_projectile.x = _projectile.x;
+                cached_projectile.y = _projectile.y;
+                cached_projectile.rotationDegrees = _projectile.rotationDegrees;
+                cached_projectile.wobble = _projectile.wobble;
+                cached_projectile.color = _projectile.color;
+                cached_projectile.wobbleRotation = _projectile.wobbleRotation;
+            } else {
+                addEntity(new Projectile(_projectile.nonce, _projectile.x, _projectile.y, _projectile.rotationDegrees, _projectile.fireTime, _projectile.playerNonce), 'projectile-' + _projectile.nonce)
+            }
+        },
         'update-chosen-room': function (room) {
+            serverTime = room.serverTime;
             room.players.forEach(function (server_player) {
-
                 if (server_player.nonce !== player.nonce) {
                     var cached_player = entities['enemy-' + server_player.nonce];
 
@@ -289,20 +307,6 @@ window.addEventListener("load", function () {
 
                 socket.emit('update-player', player);
 
-            });
-            room.projectiles.forEach(function (server_projectile) {
-
-                let cached_projectile = entities['projectile-' + server_projectile.nonce];
-                if (cached_projectile) {
-                    cached_projectile.x = server_projectile.x;
-                    cached_projectile.y = server_projectile.y;
-                    cached_projectile.rotationDegrees = server_projectile.rotationDegrees;
-                    cached_projectile.wobble = server_projectile.wobble;
-                    cached_projectile.color = server_projectile.color;
-                    cached_projectile.wobbleRotation = server_projectile.wobbleRotation;
-                } else {
-                    addEntity(new Projectile(server_projectile.nonce, server_projectile.x, server_projectile.y), 'projectile-' + server_projectile.nonce)
-                }
             });
         }
     }, function (fn, key) {
