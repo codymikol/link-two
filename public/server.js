@@ -52,9 +52,9 @@ class RoomList {
 
 class Room {
 
-    constructor(index) {
-        this.nonce = index;
-        this.roomName = 'Room #' + (index + 1);
+    constructor(nonce) {
+        this.nonce = nonce;
+        this.roomName = 'Room #' + (nonce+ 1);
         this.players = [];
         this.projectiles = [];
         this.maxPlayers = 10;
@@ -103,6 +103,7 @@ class Room {
     }
 
     hurtPlayer(player, index) {
+        console.log("Hurting player " + player.nonce + " Health : " + player.health);
         player.health--;
         if (player.health <= 0) {
             this.players.splice(index, 1);
