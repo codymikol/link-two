@@ -3,7 +3,6 @@
 let rooms;
 let playerNonce = 0;
 let projectileNonce = 0;
-
 class RoomList {
 
     constructor() {
@@ -44,6 +43,7 @@ class RoomList {
         };
 
         this.serverTick = function () {
+            serverTime = Date.now();
             this.rooms.forEach(this.updateRoom);
         };
 
@@ -68,6 +68,11 @@ class Room {
         }
     }
 
+    emitFireProjectile(projectile) {
+        this.addProjectile(projectile);
+        io.in('room_' + this.nonce).volatile.emit('projectile-fire', projectile);
+    }
+
     addProjectile(projectile) {
         this.projectiles.push(projectile);
     }
@@ -79,7 +84,7 @@ class Room {
     _roomTick() {
         let self = this;
         this.projectiles.forEach(function (projectile, index, projectiles) {
-            projectile._serverTick();
+            projectile.onTick();
             let hitPlayers = self.getPlayerColliding(projectile);
             if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 projectiles.splice(index, 1);
@@ -104,7 +109,6 @@ class Room {
         }
     }
 
-
     getPlayerColliding(projectile) {
         return this.players.filter(function (player) {
             return (projectile.playerNonce !== player.nonce && entitiesCollide(projectile, player));
@@ -120,10 +124,10 @@ class Room {
     asDTO(isFullDTO) {
         return {
             nonce: this.nonce,
+            serverTime: serverTime,
             players: isFullDTO ? this.players.map(function (player) {
                 return player.asDTO();
             }) : null,
-            projectiles: isFullDTO ? this.projectiles : null,
             playerSize: this.players.length,
             roomName: this.roomName
         };
@@ -161,7 +165,7 @@ class Player {
 function daemon() {
     setInterval(function () {
         rooms.serverTick()
-    }, 30);
+    }, tick_rate);
 }
 
 function init() {
@@ -208,10 +212,10 @@ module.exports = {
             if (isPlayerRoomValid(player, selectedRoom)) {
                 projectileNonce++;
                 projectile.nonce = projectileNonce;
-                selectedRoom.addProjectile(new Projectile(projectile.nonce
+                selectedRoom.emitFireProjectile(new Projectile(projectile.nonce
                     , player.x, player.y
                     , player.rotationDegrees
-                    , projectile.color
+                    , Date.now()
                     , player.nonce))
             }
         });

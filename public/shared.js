@@ -1,9 +1,17 @@
 "use strict";
-function forObj(obj, fn) {Object.keys(obj).forEach(function (key) {fn(obj[key], key);})}
+
+function forObj(obj, fn) {
+    Object.keys(obj).forEach(function (key) {
+        fn(obj[key], key);
+    })
+}
+
 let abs = Math.abs;
 const map_height = 5000;
 const map_width = 5000;
 const required_players = 1;
+const tick_rate = 30;
+let serverTime = 0;
 
 class Entity {
     constructor(x, y, height, width, _screen) {
@@ -37,7 +45,7 @@ class Entity {
             if (this.isOnScreen() && this.onTick) this.onTick(delta);
         };
         this._resize = function () {
-            if(this.onResize) this.onResize();
+            if (this.onResize) this.onResize();
         };
         this.destroy = function () {
             delete entities[this.namespace || this.nonce];
@@ -45,7 +53,7 @@ class Entity {
     }
 }
 
-function entitiesCollide(a,b) {
+function entitiesCollide(a, b) {
     return (abs(a.x - b.x) * 2 < (a.width + b.width)) && (abs(a.y - b.y) * 2 < (a.height + b.height));
 }
 
@@ -54,14 +62,16 @@ function randomIntFromInterval(min, max) {
 }
 
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, color, playerNonce) {
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
         super(x, y, 5, 5, 1);
         this.nonce = nonce;
+        this._startingX = x;
+        this._startingY = y;
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
-        this.wobbleRotation = (randomIntFromInterval(-8,8)) + this.rotationDegrees;
+        this.wobbleRotation = (randomIntFromInterval(-8, 8)) + this.rotationDegrees;
         this.speed = randomIntFromInterval(8, 10);
-        this.color = color;
+        this.fireTime = fireTime;
         this.render = function () {
             ctx.beginPath();
             ctx.fillStyle = this.color || 'purple';
@@ -69,12 +79,16 @@ class Projectile extends Entity {
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
         };
-        this.isOutOfBounds = function() {
+        this.isOutOfBounds = function () {
             return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
         };
-        this._serverTick = function () {
-            this.x += this.speed * Math.cos(this.wobbleRotation * Math.PI / 180);
-            this.y += this.speed * Math.sin(this.wobbleRotation * Math.PI / 180);
+
+        this._getDeltaTime = function() {
+            return ((serverTime - this.fireTime) / tick_rate);
+        };
+        this.onTick = function () {
+            this.x = this._startingX + (this.speed * Math.cos(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
+            this.y = this._startingY + (this.speed * Math.sin(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
         };
     }
 }
