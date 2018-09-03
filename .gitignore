@@ -4,6 +4,7 @@
 /dist.zip
 *.sqlite
 *.xml
+.DS_store
 _windows/*
 codestyles/*
 colors/*
