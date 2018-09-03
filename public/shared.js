@@ -72,19 +72,19 @@ class Environment {
     }
 
     environmentTick() {
-        let self = this;
-        Object.keys(this.projectiles).forEach(function (key) {
-            let projectile = self.projectiles[key];
-            projectile.onTick();
-            let hitPlayers = self.getPlayerColliding(projectile);
-            if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
-                self.projectiles.delete(key);
+        this.projectiles.forEach((value, key, projectiles) => {
+            value.onTick();
+            let hitPlayers = this.getPlayerColliding(value);
+            if (value.isOutOfBounds() || hitPlayers.length > 0) {
+                console.log("Cleaning up projectile " + key);
+                projectiles.delete(key);
             }
-            hitPlayers.forEach(function (player, index) {
-                self.hurtPlayer(player, index)
+            hitPlayers.forEach((player, index) => {
+                this.hurtPlayer(player, index)
             })
         });
     }
+
     hurtPlayer(player, index) {
         player.health--;
         console.log("Killing player" + index);
@@ -95,27 +95,51 @@ class Environment {
 
     addPlayer(player) {
         if (player && player.nonce) {
-            this.players[player.nonce] = player;
+            this.players.set(player.nonce, player);
         }
     }
 
     addProjectile(projectile) {
         if (projectile && projectile.nonce) {
-            this.projectiles[projectile.nonce] = projectile;
+            this.projectiles.set(projectile.nonce, projectile);
         }
     }
 
     addWall(wall) {
         if (wall && wall.nonce) {
-            this.walls[wall.nonce] = wall;
+            this.walls.set(wall.nonce, wall);
         }
     }
 
     getPlayerColliding(projectile) {
-        var self = this;
-        return Object.keys(this.players).filter(function (key) {
-            return (projectile.playerNonce !== self.players[key].nonce && entitiesCollide(projectile, self.players[key]));
+        return [...this.players].filter((key, value) => {
+            return (projectile.playerNonce !== key && entitiesCollide(projectile, value));
         });
+    }
+}
+
+
+class Actor extends Entity {
+    constructor(x, y, color) {
+        super(x, y, 20, 20, 1);
+        this.health = 100;
+        this.rotationDegrees = 0;
+        this.color = color;
+        this.velocity = .1;
+        this.render = function () {
+            ctx.fillStyle = this.color;
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotationDegrees * Math.PI / 180);
+            ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
+            ctx.fillStyle = 'salmon';
+            ctx.beginPath();
+            ctx.moveTo(-(this.width / 2), this.height / 2);
+            ctx.lineTo(-(this.width / 2), -(this.height / 2));
+            ctx.lineTo(this.width / 2, 0);
+            ctx.fill();
+            ctx.restore();
+        };
     }
 }
 
@@ -129,7 +153,7 @@ class Projectile extends Entity {
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
         this.wobbleRotation = (randomIntFromInterval(-8, 8)) + this.rotationDegrees;
-        this.speed = randomIntFromInterval(100, 105);
+        this.speed = randomIntFromInterval(3, 5);
         this.fireTime = fireTime;
         this.render = function () {
             ctx.beginPath();
@@ -153,22 +177,22 @@ class Projectile extends Entity {
 }
 
 class Contrail extends Entity {
-    constructor(x,y,height,width) {
-        super(x,y,height,width,1);
+    constructor(x, y, height, width) {
+        super(x, y, height, width, 1);
         this.halflife = 1;
         this.render = function () {
             ctx.globalAlpha = 1 / this.halflife;
             ctx.fillStyle = 'yellow';
             ctx.strokeStyle = 'yellow';
             ctx.beginPath();
-            ctx.arc(this.x,this.y,this.height * this.halflife / 2,0,2*Math.PI);
+            ctx.arc(this.x, this.y, this.height * this.halflife / 2, 0, 2 * Math.PI);
             ctx.stroke();
             ctx.fill();
             ctx.globalAlpha = 1;
         };
         this.onTick = function () {
             this.halflife++;
-            if(this.halflife === 10) this.destroy();
+            if (this.halflife === 10) this.destroy();
         }
     }
 }

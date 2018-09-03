@@ -142,33 +142,9 @@ class TitleCard extends FullSize {
     }
 }
 
-class Actor extends Entity {
-    constructor(x, y, color, map) {
-        super(x, y, 20, 20, 1, map);
-        this.health = 100;
-        this.rotationDegrees = 0;
-        this.color = color;
-        this.velocity = .1;
-        this.render = function () {
-            ctx.fillStyle = this.color;
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.rotationDegrees * Math.PI / 180);
-            ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
-            ctx.fillStyle = 'salmon';
-            ctx.beginPath();
-            ctx.moveTo(-(this.width / 2), this.height / 2);
-            ctx.lineTo(-(this.width / 2), -(this.height / 2));
-            ctx.lineTo(this.width / 2, 0);
-            ctx.fill();
-            ctx.restore();
-        };
-    }
-}
-
 class Player extends Actor {
-    constructor(x, y, map) {
-        super(x, y, 'green', map);
+    constructor(x, y, rotationDegrees, health, height, width, map) {
+        super(x, y, 'green', rotationDegrees, health, height, width, map);
         this.onMouseMove = function () {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
@@ -201,8 +177,8 @@ class Player extends Actor {
 }
 
 class Enemy extends Actor {
-    constructor(x, y, map) {
-        super(x, y, 'red', map);
+    constructor(x, y, rotationDegrees, health, height, width, map) {
+        super(x, y, 'red', rotationDegrees, health, height, width, map);
     }
 }
 
@@ -303,6 +279,7 @@ window.addEventListener("load", function () {
                         cached_player.y = server_player.y;
                         cached_player.rotationDegrees = server_player.rotationDegrees;
                     } else {
+                        console.log("Adding enemy" + server_player);
                         addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.nonce);
                     }
                 }
