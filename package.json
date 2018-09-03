@@ -6,26 +6,37 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha test"
+    "test": "mocha test",
+    "build": "gulp"
   },
   "keywords": [
     "js13kgames",
     "server"
   ],
   "engines": {
-    "node": "8.*"
+    "node": "*"
   },
   "dependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
     "archiver": "^2.1.1",
+    "babel": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
     "body-parser": "^1.18.3",
+    "del": "^3.0.0",
     "express": "^4.16.0",
     "express-session": "^1.15.6",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-uglify": "^3.0.1",
+    "gulp-zip": "^4.2.0",
     "mysql2": "^1.5.3",
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.38.0",
     "socket.io": "^2.1.0",
-    "sqlite3": "^4.0.1"
+    "sqlite3": "^4.0.1",
+    "uglify-js": "^3.4.9"
   },
   "devDependencies": {
     "mocha": "^5.2.0"
