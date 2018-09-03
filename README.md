@@ -1,99 +1,96 @@
-# js13kgames.com Game Server
 
-Game server for the [js13kGames Competition](http://js13kgames.com/).
+<img height="250" src="README_IMAGES/link-title.png"></img>
 
-## Install
+# What is all this nonsense?!
 
-[Download](https://github.com/js13kgames/js13kserver/archive/master.zip) the skeleton. Extract the files and install the third party libraries with `npm`. 
+This is our entry for the 2018 JS13K competition, competing in the
+server category.
 
-    npm install
+# About
 
-## Runinng
+LINK is a top down bullet-hell inspired multiplayer shooter.
 
-You can run the server locally with the following command:
+# Controls
 
-    npm start
+<table>
+<tr>
+<th>Control</th>
+<th>Key</td>
+</tr>
+<tr>
+<td>Up</td>
+<td>W</td>
+</tr>
+<tr>
+<td>Left</td>
+<td>A</td>
+</tr>
+<tr>
+<td>Down</td>
+<td>S</td>
+</tr>
+<tr>
+<td>Right</td>
+<td>D</td>
+</tr>
+<tr>
+<td>Shoot</td>
+<td>Click</td>
+</tr>
+<tr>
+<td>Pickup Weapon</td>
+<td>E</td>
+</tr>
+</table>
 
-You can reach the test server at [http://localhost:3000](http://localhost:3000)
+# Installation
 
-## Code structure
+clone this github repository
 
-All your code must be in the `public` folder. Put your server side code into the `server.js` file. The `shared.js` file is loaded at the begining of the `server.js` file. You can also use this code on the client side.
+` git clone https://github.com/codymikol/link-two `
 
-The `server.js` is a standard Node.js module. You can use the following structure to create new [Express](https://expressjs.com/) routes or [Socket.io](https://socket.io/) connection handler.
+Make sure yarn is installed on your computer https://yarnpkg.com/en/docs/install#mac-stable
 
-    module.exports = {
-        // Express route to /hello
-        hello => (req, res) { ... }
-        // Socket.io connection event handler
-        io => (socket) { ... }
-    }
+in the root of the project run yarn to install project dependencies
 
-## Persistent storage
+`cd link-two; yarn; `
 
-The server category entries can use 13kByte persistent storage. The key and value size also counts into the limit!
+Now you should be all set up to use the project.
 
-The storage uses SQL database to save the key/value pairs. By default it's SQLite but on Heroku you have to use the Postgres add-on!
+# Running the Project
 
-In the `server.js` file you can access the `storage` interface. The API documentation is inside the [lib](./lib/) folder.
+##### Run Project
 
-## Deploy to Heroku
+` yarn run start `
 
-All server category entries must be hosted on [Heroku](https://www.heroku.com/). You can either use free or paid plan.
+##### Build / Compress the project
 
-1. Push your files to your GitHub repository
-2. Create new WebApp on heroku
-3. Add Heroku Postgres add-on (optional)
-4. Connect your WebApp with the GitHub repository
-5. Deploy your code 
+` yarn run build `
 
-You can find more information about the platform on the [Heroku Dev Center](https://devcenter.heroku.com/) site.
+##### Test the project
 
-## Submit your entry
+` yarn run test `
 
-1. Zip all files in the `public` folder.
-2. Submit your entry on the [js13kgames.com](http://js13kgames.com) site.
-3. Add [contact@js13kgames.com](mailto:contact@js13kgames.com) games as collaborator to your Heroku WebApp.
+# Things to work on
 
-## Server category rules
+There are plenty of things we have yet to complete and the deadline is
+getting closer and closer.
+These are some of the things that need to get done before we can ship.
+Feel free to mark these off as they get tackled :)
 
-* Sandbox server
-  - You can find the official sandbox server at [https://github.com/js13kGames/js13kserver](https://github.com/js13kGames/js13kserver).
+- [ ] SQLite based Map Loader
+- [ ] Separate Weapon Types (Start with Pistol, Shotgun, Automatic Rifle)
+- [ ] Player Inventory For weapons
+- [ ] Weapon Pickups
+- [ ] Game Start - Round Iteration - Game End Server Logic
+- [ ] Player Rolling / Dodge
+- [ ] Waiting For Game Screen
+- [ ] Login System with hacky auth
+- [ ] Player Death Handling
+- [ ] Clientside Health indication
+- [ ] Render Held Weapons
+- [ ] HUD for reaoad / roll / health status
+- [ ] Post Round feedback screen
 
-* Package size still below 13 kB
-  - Game package will contain all the game code and assets, for the client and the server.
 
-* Sandboxed environment
-  - Your game will run in a node.js based sandbox environment. That means you will not really use node. You cannot require modules and your own modules shipped by your 13k pack.
 
-* Do not leak the sandbox
-  - This is not a hacking competition. This is a way to help the competition admins, the site persistence, and you. Do not touch the `procfile` and the skeleton code. 
-
-* Socket.io client lib
-  - You can use it. Simply add `<script src="/socket.io/socket.io.js"></script>` to your HTML and that will be loaded. No server configuration will be needed. The sandbox already did it.
-
-* Can I test the sandbox before submitting?
-  - Yes, you can and you must! Installing and getting it running is simple. Visit the project page at [https://github.com/js13kGames/js13kserver](https://github.com/js13kGames/js13kserver).
-
-* Is there any example? How do I develop my game using the sandbox server?
-  - There's a simple "Rock, Paper, Scissors" example in the public folder.
-
-* I have more questions!
-  - Feel free to send them to [server@js13kgames.com](mailto:server@js13kgames.com). 
-
-## FAQ
-
-* Can I minify the server side code?
-  - Yes, but you have to keep the readable code also.
-
-* Can I add more npm packages?
-  - Yes, but you cannot use them in your game code.
- 
-* What files count in the 13kb limit?
-  - All files in the `public` folder.
-
-* Can I deploy new code after I submited the entry?
-  - Yes, but you have to resubmit your entry on the site also.
-
-* Can I modify the `procfile` or the skeleton code?
-  - No
