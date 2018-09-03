@@ -10,8 +10,6 @@ class Room {
     constructor(nonce) {
         this.nonce = nonce;
         this.roomName = 'Room #' + (nonce + 1);
-        // this.players = [];
-        // this.projectiles = [];
         this.maxPlayers = 10;
         this.isActive = false;
         this.environment = new Environment(nonce);
@@ -58,16 +56,8 @@ class Room {
     }
 
     getPlayerDTO() {
-        var self = this;
-        var playerDTOs = [];
-        // console.log("debug");
-        // console.log(this.environment.players);
-        // this.environment.players.forEach(function(key){
-        //     var dtoPLayer = self.environment.players[key].asDTO();
-        //     console.log("loggin player");
-        //     console.log(dtoPLayer);
-        //     playerDTOs.add(dtoPLayer);
-        // });
+        let self = this;
+        let playerDTOs = [];
         Object.keys(this.environment.players).forEach(function (key) {
             let dtoPLayer = self.environment.players[key].asDTO();
             playerDTOs.push(dtoPLayer);
@@ -107,8 +97,7 @@ class Player {
 function serverTick() {
     rooms.forEach(function (room) {
         room._roomTick();
-        var roomDTO = room.asDTO(true);
-        io.in('room_' + room.nonce).volatile.emit('update-chosen-room', roomDTO)
+        io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true))
     })
 }
 
