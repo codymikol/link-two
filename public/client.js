@@ -255,7 +255,7 @@ window.addEventListener("load", function () {
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
     addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', function () {
-        console.log(roomsAvailable);
+        // todo better join room logic.
         if (roomsAvailable && roomsAvailable["0"]) {
             socket.emit('join', roomsAvailable["0"]);
         }
@@ -306,7 +306,6 @@ window.addEventListener("load", function () {
                         addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.nonce);
                     }
                 }
-
                 socket.emit('update-player', player);
 
             });

@@ -67,8 +67,8 @@ class Environment {
         this.nonce = nonce;
         this.players = new Map();
         this.projectiles = new Map();
-        this.walls = {};
-        this.floors = {};
+        this.walls = new Map();
+        this.floors = new Map();
     }
 
     environmentTick() {
@@ -79,7 +79,6 @@ class Environment {
             let hitPlayers = self.getPlayerColliding(projectile);
             if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
                 self.projectiles.delete(key);
-                // todo this should eventually be projectiles[key].destroy();
             }
             hitPlayers.forEach(function (player, index) {
                 self.hurtPlayer(player, index)
@@ -90,7 +89,6 @@ class Environment {
         player.health--;
         console.log("Killing player" + index);
         if (player.health <= 0) {
-
             this.players.delete(index);
         }
     }

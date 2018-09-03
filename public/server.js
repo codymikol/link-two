@@ -3,53 +3,53 @@
 let rooms = [];
 let playerNonce = 0;
 let projectileNonce = 0;
-
-class RoomList {
-
-    constructor() {
-
-        this.rooms = [];
-
-        this.add = function (room) {
-            this.rooms.push(room)
-        };
-        this.bynonce = function (nonce) {
-            return this.rooms.filter(function (room) {
-                return room.nonce === nonce;
-            })[0]
-        };
-        this.asDTO = function () {
-            return this.rooms.reduce(function (col, room) {
-                col[room.nonce] = room.asDTO();
-                return col;
-            }, {})
-        };
-
-        this.bestRoom = function () {
-            // let openRooms = this.rooms.filter(room => (room.environment.players.length < room.maxPlayers));
-            // let bestRoom = openRooms[0];
-            // for (let i = 0; i < openRooms.length; i++) {
-            //     if (openRooms[i].map.players.length > bestRoom.map.players.length) {
-            //         bestRoom = openRooms[i];
-            //     }
-            // }
-            return this.rooms[0];
-        };
-
-        this.updateRoom = function (room) {
-            if (room.environment.players.length > 0) {
-                room._roomTick();
-                io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true))
-            }
-        };
-
-        this.serverTick = function () {
-            serverTime = Date.now();
-            this.rooms.forEach(this.updateRoom);
-        };
-
-    }
-}
+//
+// class RoomList {
+//
+//     constructor() {
+//
+//         this.rooms = [];
+//
+//         this.add = function (room) {
+//             this.rooms.push(room)
+//         };
+//         this.bynonce = function (nonce) {
+//             return this.rooms.filter(function (room) {
+//                 return room.nonce === nonce;
+//             })[0]
+//         };
+//         this.asDTO = function () {
+//             return this.rooms.reduce(function (col, room) {
+//                 col[room.nonce] = room.asDTO();
+//                 return col;
+//             }, {})
+//         };
+//
+//         this.bestRoom = function () {
+//             // let openRooms = this.rooms.filter(room => (room.environment.players.length < room.maxPlayers));
+//             // let bestRoom = openRooms[0];
+//             // for (let i = 0; i < openRooms.length; i++) {
+//             //     if (openRooms[i].map.players.length > bestRoom.map.players.length) {
+//             //         bestRoom = openRooms[i];
+//             //     }
+//             // }
+//             return this.rooms[0];
+//         };
+//
+//         this.updateRoom = function (room) {
+//             if (room.environment.players.length > 0) {
+//                 room._roomTick();
+//                 io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true))
+//             }
+//         };
+//
+//         this.serverTick = function () {
+//             serverTime = Date.now();
+//             this.rooms.forEach(this.updateRoom);
+//         };
+//
+//     }
+// }
 
 class Room {
 
@@ -97,12 +97,28 @@ class Room {
         return {
             nonce: this.nonce,
             serverTime: serverTime,
-            players: isFullDTO ? this.environment.players.map(function (player) {
-                return player.asDTO();
-            }) : null,
+            players: isFullDTO ? this.getPlayerDTO() : null,
             playerSize: this.environment.players.length,
             roomName: this.roomName
         };
+    }
+
+    getPlayerDTO() {
+        var self = this;
+        var playerDTOs = [];
+        // console.log("debug");
+        // console.log(this.environment.players);
+        // this.environment.players.forEach(function(key){
+        //     var dtoPLayer = self.environment.players[key].asDTO();
+        //     console.log("loggin player");
+        //     console.log(dtoPLayer);
+        //     playerDTOs.add(dtoPLayer);
+        // });
+        Object.keys(this.environment.players).forEach(function (key) {
+            let dtoPLayer = self.environment.players[key].asDTO();
+            playerDTOs.push(dtoPLayer);
+        });
+        return playerDTOs;
     }
 
 }
@@ -137,6 +153,8 @@ class Player {
 function serverTick() {
     rooms.forEach(function (room) {
         room._roomTick();
+        var roomDTO = room.asDTO(true);
+        io.in('room_' + room.nonce).volatile.emit('update-chosen-room', roomDTO)
     })
 }
 
