@@ -14,8 +14,9 @@ const tick_rate = 30;
 let serverTime = 0;
 
 class Entity {
-    constructor(x, y, height, width, _screen) {
+    constructor(x, y, height, width, _screen, map) {
         this.nonce = null;
+        this.map = map;
         this.namespace = null;
         this.x = x;
         this.y = y;
@@ -61,9 +62,68 @@ function randomIntFromInterval(min, max) {
     return Math.random() * (max - min + 1) + min;
 }
 
+class Environment {
+    constructor(nonce) {
+        this.nonce = nonce;
+        this.players = new Map();
+        this.projectiles = new Map();
+        this.walls = {};
+        this.floors = {};
+    }
+
+    environmentTick() {
+        let self = this;
+        Object.keys(this.projectiles).forEach(function (key) {
+            let projectile = self.projectiles[key];
+            projectile.onTick();
+            let hitPlayers = self.getPlayerColliding(projectile);
+            if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
+                self.projectiles.delete(key);
+                // todo this should eventually be projectiles[key].destroy();
+            }
+            hitPlayers.forEach(function (player, index) {
+                self.hurtPlayer(player, index)
+            })
+        });
+    }
+    hurtPlayer(player, index) {
+        player.health--;
+        console.log("Killing player" + index);
+        if (player.health <= 0) {
+
+            this.players.delete(index);
+        }
+    }
+
+    addPlayer(player) {
+        if (player && player.nonce) {
+            this.players[player.nonce] = player;
+        }
+    }
+
+    addProjectile(projectile) {
+        if (projectile && projectile.nonce) {
+            this.projectiles[projectile.nonce] = projectile;
+        }
+    }
+
+    addWall(wall) {
+        if (wall && wall.nonce) {
+            this.walls[wall.nonce] = wall;
+        }
+    }
+
+    getPlayerColliding(projectile) {
+        var self = this;
+        return Object.keys(this.players).filter(function (key) {
+            return (projectile.playerNonce !== self.players[key].nonce && entitiesCollide(projectile, self.players[key]));
+        });
+    }
+}
+
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(x, y, 4, 4, 1);
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
+        super(x, y, 5, 5, 1, map);
         this.halflife = 15;
         this.nonce = nonce;
         this._startingX = x;
@@ -84,7 +144,7 @@ class Projectile extends Entity {
             return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
         };
 
-        this._getDeltaTime = function() {
+        this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
         };
         this.onTick = function () {

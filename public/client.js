@@ -11,7 +11,8 @@ let socket,
     button,
     surfaces = [];
 keyDown = {},
-    entities = {},
+    entities = {}, // todo deprecate.
+    map = {}, // todo replace entities with this.
     a = document.getElementById('a'),
     ctx = a.getContext('2d');
 
@@ -142,8 +143,8 @@ class TitleCard extends FullSize {
 }
 
 class Actor extends Entity {
-    constructor(x, y, color) {
-        super(x, y, 20, 20, 1);
+    constructor(x, y, color, map) {
+        super(x, y, 20, 20, 1, map);
         this.health = 100;
         this.rotationDegrees = 0;
         this.color = color;
@@ -166,8 +167,8 @@ class Actor extends Entity {
 }
 
 class Player extends Actor {
-    constructor(x, y) {
-        super(x, y, 'green');
+    constructor(x, y, map) {
+        super(x, y, 'green', map);
         this.onMouseMove = function () {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
@@ -200,20 +201,20 @@ class Player extends Actor {
 }
 
 class Enemy extends Actor {
-    constructor(x, y) {
-        super(x, y, 'red');
+    constructor(x, y, map) {
+        super(x, y, 'red', map);
     }
 }
 
 class Surface extends Entity {
-    constructor(x, y, height, width) {
-        super(x, y, height, width, 1);
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, 1, map);
     }
 }
 
 class Floor extends Surface {
-    constructor(x, y, height, width) {
-        super(x, y, height, width);
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, map);
         this.render = function () {
             ctx.globalAlpha = .5;
             ctx.fillStyle = '#bcb9ad';
@@ -224,8 +225,8 @@ class Floor extends Surface {
 }
 
 class Wall extends Surface {
-    constructor(x, y, height, width) {
-        super(x, y, height, width);
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, map);
         this.blocking = true;
         this.render = function () {
             ctx.fillStyle = 'black';
@@ -254,8 +255,9 @@ window.addEventListener("load", function () {
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
     addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', function () {
-        if (roomsAvailable && roomsAvailable["1"]) {
-            socket.emit('join', roomsAvailable["1"]);
+        console.log(roomsAvailable);
+        if (roomsAvailable && roomsAvailable["0"]) {
+            socket.emit('join', roomsAvailable["0"]);
         }
     }));
     addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame'));

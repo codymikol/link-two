@@ -1,8 +1,9 @@
 "use strict";
 
-let rooms;
+let rooms = [];
 let playerNonce = 0;
 let projectileNonce = 0;
+
 class RoomList {
 
     constructor() {
@@ -25,18 +26,18 @@ class RoomList {
         };
 
         this.bestRoom = function () {
-            let openRooms = this.rooms.filter(room => (room.players.length < room.maxPlayers));
-            let bestRoom = openRooms[0];
-            for (let i = 0; i < openRooms.length; i++) {
-                if (openRooms[i].playerSize > bestRoom.playerSize) {
-                    bestRoom = openRooms[i];
-                }
-            }
-            return bestRoom;
+            // let openRooms = this.rooms.filter(room => (room.environment.players.length < room.maxPlayers));
+            // let bestRoom = openRooms[0];
+            // for (let i = 0; i < openRooms.length; i++) {
+            //     if (openRooms[i].map.players.length > bestRoom.map.players.length) {
+            //         bestRoom = openRooms[i];
+            //     }
+            // }
+            return this.rooms[0];
         };
 
         this.updateRoom = function (room) {
-            if (room.players.length > 0) {
+            if (room.environment.players.length > 0) {
                 room._roomTick();
                 io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true))
             }
@@ -54,27 +55,24 @@ class Room {
 
     constructor(nonce) {
         this.nonce = nonce;
-        this.roomName = 'Room #' + (nonce+ 1);
-        this.players = [];
-        this.projectiles = [];
+        this.roomName = 'Room #' + (nonce + 1);
+        // this.players = [];
+        // this.projectiles = [];
         this.maxPlayers = 10;
         this.isActive = false;
+        this.environment = new Environment(nonce);
     }
 
-    join(player) {
-        this.players.push(player);
-        if (this.players.length === required_players) {
+    joinPlayer(player) {
+        this.environment.addPlayer(player);
+        if (this.environment.players.length === required_players) {
             this.startGame()
         }
     }
 
     emitFireProjectile(projectile) {
-        this.addProjectile(projectile);
+        this.environment.addProjectile(projectile);
         io.in('room_' + this.nonce).volatile.emit('projectile-fire', projectile);
-    }
-
-    addProjectile(projectile) {
-        this.projectiles.push(projectile);
     }
 
     startGame() {
@@ -82,42 +80,15 @@ class Room {
     }
 
     _roomTick() {
-        let self = this;
-        this.projectiles.forEach(function (projectile, index, projectiles) {
-            projectile.onTick();
-            let hitPlayers = self.getPlayerColliding(projectile);
-            if (projectile.isOutOfBounds() || hitPlayers.length > 0) {
-                projectiles.splice(index, 1);
-            }
-            hitPlayers.forEach(function (player, index) {
-                self.hurtPlayer(player, index)
-            })
-        });
-
+        this.environment.environmentTick();
     }
 
     isPlayerInRoom(nonce) {
-        return this.players.some(function (player) {
-            return player.nonce === nonce
-        })
-    }
-
-    hurtPlayer(player, index) {
-        console.log("Hurting player " + player.nonce + " Health : " + player.health);
-        player.health--;
-        if (player.health <= 0) {
-            this.players.splice(index, 1);
-        }
-    }
-
-    getPlayerColliding(projectile) {
-        return this.players.filter(function (player) {
-            return (projectile.playerNonce !== player.nonce && entitiesCollide(projectile, player));
-        });
+        return this.environment.players[nonce];
     }
 
     leave(player) {
-        this.players = this.players.filter(function (mPlayer) {
+        this.environment.players = this.environment.players.filter(function (mPlayer) {
             return player !== mPlayer;
         });
     }
@@ -126,10 +97,10 @@ class Room {
         return {
             nonce: this.nonce,
             serverTime: serverTime,
-            players: isFullDTO ? this.players.map(function (player) {
+            players: isFullDTO ? this.environment.players.map(function (player) {
                 return player.asDTO();
             }) : null,
-            playerSize: this.players.length,
+            playerSize: this.environment.players.length,
             roomName: this.roomName
         };
     }
@@ -163,16 +134,21 @@ class Player {
 
 }
 
+function serverTick() {
+    rooms.forEach(function (room) {
+        room._roomTick();
+    })
+}
+
 function daemon() {
     setInterval(function () {
-        rooms.serverTick()
+        serverTick()
     }, tick_rate);
 }
 
 function init() {
-    rooms = new RoomList();
-    for (let i = 0; i < 10; i++) {
-        rooms.add(new Room(i));
+    for (let i = 0; i < 1; i++) {
+        rooms.push(new Room(i));
     }
     daemon();
 }
@@ -192,11 +168,14 @@ module.exports = {
         let updater;
         let selectedRoom;
 
-        socket.emit("rooms-available", rooms.asDTO());
+        socket.emit("rooms-available", rooms.reduce(function (col, room) {
+            col[room.nonce] = room.asDTO();
+            return col;
+        }, {}));
 
         socket.on("join", function () {
-            selectedRoom = rooms.bestRoom();
-            selectedRoom.join(player);
+            selectedRoom = rooms[0];
+            selectedRoom.joinPlayer(player);
             socket.join('room_' + selectedRoom.nonce);
             socket.emit('joined-room', player.asDTO());
         });
@@ -217,7 +196,7 @@ module.exports = {
                     , player.x, player.y
                     , player.rotationDegrees
                     , Date.now()
-                    , player.nonce))
+                    , player.nonce));
             }
         });
 
