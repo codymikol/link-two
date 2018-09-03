@@ -142,7 +142,7 @@ class Player {
         this.x = 0;
         this.y = 0;
         this.rotationDegrees = 0;
-        this.health = 1000;
+        this.health = 10;
         this.height = 20;
         this.width = 20;
         this.socket = socket;

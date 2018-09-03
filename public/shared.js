@@ -63,18 +63,19 @@ function randomIntFromInterval(min, max) {
 
 class Projectile extends Entity {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(x, y, 5, 5, 1);
+        super(x, y, 4, 4, 1);
+        this.halflife = 15;
         this.nonce = nonce;
         this._startingX = x;
         this._startingY = y;
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
         this.wobbleRotation = (randomIntFromInterval(-8, 8)) + this.rotationDegrees;
-        this.speed = randomIntFromInterval(8, 10);
+        this.speed = randomIntFromInterval(100, 105);
         this.fireTime = fireTime;
         this.render = function () {
             ctx.beginPath();
-            ctx.fillStyle = this.color || 'purple';
+            ctx.fillStyle = this.color || 'orange';
             ctx.font = "12px Arial";
             ctx.fillRect(this.x, this.y, this.height, this.width);
             ctx.stroke();
@@ -90,5 +91,26 @@ class Projectile extends Entity {
             this.x = this._startingX + (this.speed * Math.cos(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
             this.y = this._startingY + (this.speed * Math.sin(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
         };
+    }
+}
+
+class Contrail extends Entity {
+    constructor(x,y,height,width) {
+        super(x,y,height,width,1);
+        this.halflife = 1;
+        this.render = function () {
+            ctx.globalAlpha = 1 / this.halflife;
+            ctx.fillStyle = 'yellow';
+            ctx.strokeStyle = 'yellow';
+            ctx.beginPath();
+            ctx.arc(this.x,this.y,this.height * this.halflife / 2,0,2*Math.PI);
+            ctx.stroke();
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        };
+        this.onTick = function () {
+            this.halflife++;
+            if(this.halflife === 10) this.destroy();
+        }
     }
 }
