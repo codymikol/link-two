@@ -182,35 +182,26 @@ class Enemy extends Actor {
     }
 }
 
-class Surface extends Entity {
-    constructor(x, y, height, width, map) {
-        super(x, y, height, width, 1, map);
-    }
-}
-
-class Floor extends Surface {
-    constructor(x, y, height, width, map) {
-        super(x, y, height, width, map);
+class Contrail extends Entity {
+    constructor(x, y, height, width) {
+        super(x, y, height, width, 1);
+        this.halflife = 1;
         this.render = function () {
-            ctx.globalAlpha = .5;
-            ctx.fillStyle = '#bcb9ad';
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.globalAlpha = 1 / this.halflife;
+            ctx.fillStyle = 'yellow';
+            ctx.strokeStyle = 'yellow';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.height * this.halflife / 2, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.fill();
             ctx.globalAlpha = 1;
+        };
+        this.onTick = function () {
+            this.halflife++;
+            if (this.halflife === 10) this.destroy();
         }
     }
 }
-
-class Wall extends Surface {
-    constructor(x, y, height, width, map) {
-        super(x, y, height, width, map);
-        this.blocking = true;
-        this.render = function () {
-            ctx.fillStyle = 'black';
-            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
-        }
-    }
-}
-
 
 window.addEventListener("load", function () {
 
@@ -220,11 +211,8 @@ window.addEventListener("load", function () {
 
     //load order for screen 1
     addEntity(new Background(1));
-    addEntity(new Floor(100, 100, 500, 500));
-    addEntity(new Wall(350, 100, 20, 500));
-    addEntity(new Wall(350, 600, 20, 500));
-    addEntity(new Wall(100, 350, 500, 20));
-    addEntity(new Wall(600, 350, 500, 20));
+    addEntity(new Floor(0, 0, 850, 800));
+
     addEntity(player);
 
     //load order for screen 3
@@ -252,12 +240,23 @@ window.addEventListener("load", function () {
         },
         'enemy-left': function (enemy) {
         },
+        'environment-walls' : function(_walls) {
+            console.log(_walls);
+            _walls.forEach((wall) => {
+                addEntity(new Wall(wall.nonce, wall.x, wall.y, wall.height, wall.width));
+            });
+            addEntity(new Wall(350, 100, 20, 500));
+        },
         'update-rooms': function (_rooms) {
             rooms = _rooms;
         },
+        'actor-death': function (_death) {
+            _death.forEach(function (death) {
+                delete entities['enemy-' + death.nonce];
+                // todo handle the event death.nonce is you.
+            })
+        },
         'projectile-collision': function (_collision) {
-            console.log("deleting projectile recieved ");
-            console.log(_collision);
             _collision.forEach(function (proj) {
                 delete entities['projectile-' + proj.nonce];
             })

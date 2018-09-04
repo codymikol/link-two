@@ -10,7 +10,7 @@ let abs = Math.abs;
 const map_height = 5000;
 const map_width = 5000;
 const required_players = 1;
-const tick_rate = 30;
+const tick_rate = 25;
 let serverTime = 0;
 
 class Entity {
@@ -67,22 +67,27 @@ class Environment {
         this.nonce = nonce;
         this.actors = new Map();
         this.projectiles = new Map();
-        this.destroyedProjectiles = [];
+        this.eventQueue = new Map();
         this.walls = new Map();
         this.floors = new Map();
+    }
+
+    addEventQueue(eventName, val) {
+        if (!this.eventQueue.has(eventName)) {
+            this.eventQueue.set(eventName, []);
+        }
+        this.eventQueue.get(eventName).push(val);
     }
 
     environmentTick() {
         this.projectiles.forEach((value, key) => {
             value.onTick();
             let hitPlayers = this.getPlayerColliding(value);
-            let destroyProjectile = value.isOutOfBounds() || hitPlayers.length > 0;
-
-            if (hitPlayers.length > 0) {
-                this.destroyedProjectiles.push({playerNonce: hitPlayers[0].nonce, nonce: value.nonce});
-            }
+            let wallColliding = this.getWallColliding(value);
+            let destroyProjectile = hitPlayers.length > 0 || wallColliding.length > 0;
 
             if (destroyProjectile) {
+                this.addEventQueue("projectile-collision", {nonce: value.nonce});
                 this.projectiles.delete(key);
             }
             hitPlayers.forEach((player, index) => {
@@ -94,6 +99,7 @@ class Environment {
     hurtPlayer(player) {
         player.health--;
         if (player.health <= 0) {
+            this.addEventQueue("actor-death", {nonce: player.nonce});
             this.actors.delete(player.nonce);
         }
     }
@@ -124,6 +130,16 @@ class Environment {
             }
         });
         return playersColliding;
+    }
+
+    getWallColliding(projectile) {
+        let wallColliding = [];
+        this.walls.forEach((val, key) => {
+            if (entitiesCollide(val, projectile)) {
+                wallColliding.push(val);
+            }
+        });
+        return wallColliding;
     }
 }
 
@@ -184,24 +200,32 @@ class Projectile extends Entity {
         };
     }
 }
+class Surface extends Entity {
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, 1, map);
+    }
+}
 
-class Contrail extends Entity {
-    constructor(x, y, height, width) {
-        super(x, y, height, width, 1);
-        this.halflife = 1;
+class Floor extends Surface {
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, map);
         this.render = function () {
-            ctx.globalAlpha = 1 / this.halflife;
-            ctx.fillStyle = 'yellow';
-            ctx.strokeStyle = 'yellow';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.height * this.halflife / 2, 0, 2 * Math.PI);
-            ctx.stroke();
-            ctx.fill();
+            ctx.globalAlpha = .5;
+            ctx.fillStyle = '#bcb9ad';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.globalAlpha = 1;
-        };
-        this.onTick = function () {
-            this.halflife++;
-            if (this.halflife === 10) this.destroy();
+        }
+    }
+}
+
+class Wall extends Surface {
+    constructor(nonce, x, y, height, width, map) {
+        super(x, y, height, width, map);
+        this.nonce = nonce;
+        this.blocking = true;
+        this.render = function () {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
         }
     }
 }
