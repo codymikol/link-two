@@ -47,7 +47,7 @@ class Room {
         return {
             nonce: this.nonce,
             serverTime: serverTime,
-            players: isFullDTO ? [...this.environment.actors.values()] : null,
+            actors: isFullDTO ? [...this.environment.actors.values()] : null,
             playerSize: this.environment.actors.length,
             roomName: this.roomName
         };
