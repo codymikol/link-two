@@ -20,6 +20,7 @@ const environmentMaps = new Map()
         .set(3, new Wall(getWallNonce(), 800, 350, 1000, 20))
         .set(4, new Wall(getWallNonce(), 350, 350, 250, 20))
     );
+
 class Room {
 
     constructor(nonce) {
