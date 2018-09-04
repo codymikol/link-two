@@ -255,9 +255,12 @@ window.addEventListener("load", function () {
         'update-rooms': function (_rooms) {
             rooms = _rooms;
         },
+        'player-death': function (_death) {
+            _death.forEach(function (death) {
+                delete entities['enemy-' + death.nonce];
+            })
+        },
         'projectile-collision': function (_collision) {
-            console.log("deleting projectile recieved ");
-            console.log(_collision);
             _collision.forEach(function (proj) {
                 delete entities['projectile-' + proj.nonce];
             })

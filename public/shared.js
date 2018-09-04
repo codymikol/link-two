@@ -67,9 +67,16 @@ class Environment {
         this.nonce = nonce;
         this.actors = new Map();
         this.projectiles = new Map();
-        this.destroyedProjectiles = [];
+        this.eventQueue = new Map();
         this.walls = new Map();
         this.floors = new Map();
+    }
+
+    addEventQueue(eventName, val) {
+        if (!this.eventQueue.has(eventName)) {
+            this.eventQueue.set(eventName, []);
+        }
+        this.eventQueue.get(eventName).push(val);
     }
 
     environmentTick() {
@@ -79,7 +86,7 @@ class Environment {
             let destroyProjectile = value.isOutOfBounds() || hitPlayers.length > 0;
 
             if (hitPlayers.length > 0) {
-                this.destroyedProjectiles.push({playerNonce: hitPlayers[0].nonce, nonce: value.nonce});
+                this.addEventQueue("projectile-collision", {playerNonce: hitPlayers[0].nonce, nonce: value.nonce});
             }
 
             if (destroyProjectile) {
@@ -94,6 +101,7 @@ class Environment {
     hurtPlayer(player) {
         player.health--;
         if (player.health <= 0) {
+            this.addEventQueue("player-death", {nonce: player.nonce});
             this.actors.delete(player.nonce);
         }
     }
