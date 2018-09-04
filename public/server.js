@@ -4,7 +4,22 @@ let rooms = [];
 let playerSockets = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
+let wallNonce = 0;
 
+function getWallNonce() {
+    wallNonce++;
+    return wallNonce;
+}
+
+// todo read in from sqllite database.
+const environmentMaps = new Map()
+    .set(0, new Environment().walls
+        .set(0, new Wall(getWallNonce(), 100, 0, 20, 1425))
+        .set(1, new Wall(getWallNonce(), 100, 850, 20, 1425))
+        .set(2, new Wall(getWallNonce(), 0, 350, 1000, 20))
+        .set(3, new Wall(getWallNonce(), 800, 350, 1000, 20))
+        .set(4, new Wall(getWallNonce(), 350, 350, 250, 20))
+    );
 class Room {
 
     constructor(nonce) {
@@ -74,7 +89,10 @@ function daemon() {
 
 function init() {
     for (let i = 0; i < 1; i++) {
-        rooms.push(new Room(i));
+        var room = new Room(i);
+        room.environment.walls = environmentMaps.get(0);
+        console.log(room);
+        rooms.push(room);
     }
     daemon();
 }
@@ -109,6 +127,7 @@ module.exports = {
             selectedRoom.joinPlayer(actor);
             socket.join('room_' + selectedRoom.nonce);
             socket.emit('joined-room', actor);
+            socket.emit('environment-walls', [...selectedRoom.environment.walls.values()])
         });
 
         socket.on('update-player', function (client_player) {

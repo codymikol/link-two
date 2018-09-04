@@ -192,24 +192,32 @@ class Projectile extends Entity {
         };
     }
 }
+class Surface extends Entity {
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, 1, map);
+    }
+}
 
-class Contrail extends Entity {
-    constructor(x, y, height, width) {
-        super(x, y, height, width, 1);
-        this.halflife = 1;
+class Floor extends Surface {
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, map);
         this.render = function () {
-            ctx.globalAlpha = 1 / this.halflife;
-            ctx.fillStyle = 'yellow';
-            ctx.strokeStyle = 'yellow';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.height * this.halflife / 2, 0, 2 * Math.PI);
-            ctx.stroke();
-            ctx.fill();
+            ctx.globalAlpha = .5;
+            ctx.fillStyle = '#bcb9ad';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.globalAlpha = 1;
-        };
-        this.onTick = function () {
-            this.halflife++;
-            if (this.halflife === 10) this.destroy();
+        }
+    }
+}
+
+class Wall extends Surface {
+    constructor(nonce, x, y, height, width, map) {
+        super(x, y, height, width, map);
+        this.nonce = nonce;
+        this.blocking = true;
+        this.render = function () {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
         }
     }
 }
