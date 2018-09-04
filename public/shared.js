@@ -72,15 +72,14 @@ class Environment {
     }
 
     environmentTick() {
-        this.projectiles.forEach((value, key, projectiles) => {
+        this.projectiles.forEach((value, key) => {
             value.onTick();
             let hitPlayers = this.getPlayerColliding(value);
             if (value.isOutOfBounds() || hitPlayers.length > 0) {
-                console.log("Cleaning up projectile " + key);
-                projectiles.delete(key);
+                this.projectiles.delete(key);
             }
             hitPlayers.forEach((player, index) => {
-                this.hurtPlayer(player, index)
+               this.hurtPlayer(player, index)
             })
         });
     }
@@ -112,9 +111,13 @@ class Environment {
     }
 
     getPlayerColliding(projectile) {
-        return [...this.players].filter((key, value) => {
-            return (projectile.playerNonce !== key && entitiesCollide(projectile, value));
+        let playersColliding = [];
+        this.players.forEach((val, key) => {
+           if (projectile.playerNonce !== key && entitiesCollide(val, projectile)) {
+               playersColliding.push(val);
+           }
         });
+        return playersColliding;
     }
 }
 
@@ -153,7 +156,7 @@ class Projectile extends Entity {
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
         this.wobbleRotation = (randomIntFromInterval(-8, 8)) + this.rotationDegrees;
-        this.speed = randomIntFromInterval(3, 5);
+        this.speed = randomIntFromInterval(5, 8);
         this.fireTime = fireTime;
         this.render = function () {
             ctx.beginPath();
