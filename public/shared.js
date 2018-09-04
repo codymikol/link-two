@@ -84,11 +84,10 @@ class Environment {
         });
     }
 
-    hurtPlayer(player, index) {
+    hurtPlayer(player) {
         player.health--;
-        console.log("Killing player" + index);
         if (player.health <= 0) {
-            this.players.delete(index);
+            this.players.delete(player.nonce);
         }
     }
 
