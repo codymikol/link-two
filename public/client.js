@@ -278,7 +278,7 @@ window.addEventListener("load", function () {
         },
         'update-chosen-room': function (room) {
             serverTime = room.serverTime;
-            room.players.forEach(function (server_player) {
+            room.actors.forEach(function (server_player) {
                 if (server_player.nonce !== player.nonce) {
                     var cached_player = entities['enemy-' + server_player.nonce];
 

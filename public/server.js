@@ -17,7 +17,7 @@ class Room {
 
     joinPlayer(player) {
         this.environment.addPlayer(player);
-        if (this.environment.players.length === required_players) {
+        if (this.environment.actors.length === required_players) {
             this.startGame()
         }
     }
@@ -36,19 +36,19 @@ class Room {
     }
 
     isPlayerInRoom(nonce) {
-        return this.environment.players.has(nonce);
+        return this.environment.actors.has(nonce);
     }
 
     leave(playerNonce) {
-        this.environment.players.delete(playerNonce);
+        this.environment.actors.delete(playerNonce);
     }
 
     asDTO(isFullDTO) {
         return {
             nonce: this.nonce,
             serverTime: serverTime,
-            players: isFullDTO ? [...this.environment.players.values()] : null,
-            playerSize: this.environment.players.length,
+            players: isFullDTO ? [...this.environment.actors.values()] : null,
+            playerSize: this.environment.actors.length,
             roomName: this.roomName
         };
     }
@@ -114,7 +114,7 @@ module.exports = {
 
         socket.on('update-player', function (client_player) {
             if (isPlayerRoomValid(currentPlayerNonce, selectedRoom)) {
-                let thePlayer = selectedRoom.environment.players.get(currentPlayerNonce);
+                let thePlayer = selectedRoom.environment.actors.get(currentPlayerNonce);
                 thePlayer.x = client_player.x;
                 thePlayer.y = client_player.y;
                 thePlayer.rotationDegrees = client_player.rotationDegrees;
@@ -123,7 +123,7 @@ module.exports = {
 
         socket.on('fire-projectile', function (projectile) {
             if (isPlayerRoomValid(currentPlayerNonce, selectedRoom)) {
-                let thePlayer = selectedRoom.environment.players.get(currentPlayerNonce);
+                let thePlayer = selectedRoom.environment.actors.get(currentPlayerNonce);
                 projectileNonce++;
                 projectile.nonce = projectileNonce;
                 selectedRoom.emitFireProjectile(new Projectile(projectile.nonce

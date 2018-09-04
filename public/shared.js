@@ -65,7 +65,7 @@ function randomIntFromInterval(min, max) {
 class Environment {
     constructor(nonce) {
         this.nonce = nonce;
-        this.players = new Map();
+        this.actors = new Map();
         this.projectiles = new Map();
         this.destroyedProjectiles = [];
         this.walls = new Map();
@@ -94,13 +94,13 @@ class Environment {
     hurtPlayer(player) {
         player.health--;
         if (player.health <= 0) {
-            this.players.delete(player.nonce);
+            this.actors.delete(player.nonce);
         }
     }
 
     addPlayer(player) {
         if (player && player.nonce) {
-            this.players.set(player.nonce, player);
+            this.actors.set(player.nonce, player);
         }
     }
 
@@ -118,7 +118,7 @@ class Environment {
 
     getPlayerColliding(projectile) {
         let playersColliding = [];
-        this.players.forEach((val, key) => {
+        this.actors.forEach((val, key) => {
             if (projectile.playerNonce !== key && entitiesCollide(val, projectile)) {
                 playersColliding.push(val);
             }
