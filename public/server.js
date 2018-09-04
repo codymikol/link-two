@@ -1,6 +1,7 @@
 "use strict";
 
 let rooms = [];
+let playerSockets = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
 
@@ -38,8 +39,8 @@ class Room {
         return this.environment.players.has(nonce);
     }
 
-    leave(player) {
-        this.environment.players.delete(player.nonce);
+    leave(playerNonce) {
+        this.environment.players.delete(playerNonce);
     }
 
     asDTO(isFullDTO) {
@@ -53,29 +54,29 @@ class Room {
     }
 }
 
-class Player {
-
-    constructor(socket) {
-        this.nonce = playerNonce;
-        this.x = 0;
-        this.y = 0;
-        this.rotationDegrees = 0;
-        this.health = 10;
-        this.height = 20;
-        this.width = 20;
-        this.socket = socket;
-        this.name = 'cody mikol';
-
-    }
-
-    asActor() {
-        var actor = new Actor(this.x, this.y, null);
-        actor.nonce = this.nonce;
-        actor.health = this.health;
-        return actor;
-    }
-
-}
+// class Player {
+//
+//     constructor(socket) {
+//         this.nonce = playerNonce;
+//         this.x = 0;
+//         this.y = 0;
+//         this.rotationDegrees = 0;
+//         this.health = 10;
+//         this.height = 20;
+//         this.width = 20;
+//         this.socket = socket;
+//         this.name = 'cody mikol';
+//
+//     }
+//
+//     asActor() {
+//         var actor = new Actor(this.x, this.y, null);
+//         actor.nonce = this.nonce;
+//         actor.health = this.health;
+//         return actor;
+//     }
+//
+// }
 
 function serverTick() {
     serverTime = Date.now();
@@ -99,10 +100,9 @@ function init() {
 }
 
 
-function isPlayerRoomValid(player, room) {
-    return player && room && room.isPlayerInRoom(player.nonce);
+function isPlayerRoomValid(playerNonce, room) {
+    return playerNonce && room && room.isPlayerInRoom(playerNonce);
 }
-
 
 
 init();
@@ -112,7 +112,8 @@ module.exports = {
     io: (socket) => {
 
         playerNonce++;
-        const player = new Player(socket);
+        const currentPlayerNonce = playerNonce;
+        playerSockets.set(currentPlayerNonce, socket);
         let updater;
         let selectedRoom;
 
@@ -123,14 +124,16 @@ module.exports = {
 
         socket.on("join", function () {
             selectedRoom = rooms[0];
-            selectedRoom.joinPlayer(player.asActor());
+            var actor = new Actor(0, 0, null);
+            actor.nonce = currentPlayerNonce;
+            selectedRoom.joinPlayer(actor);
             socket.join('room_' + selectedRoom.nonce);
-            socket.emit('joined-room', player.asActor());
+            socket.emit('joined-room', actor);
         });
 
         socket.on('update-player', function (client_player) {
-            if (isPlayerRoomValid(player, selectedRoom)) {
-                let thePlayer = selectedRoom.environment.players.get(player.nonce);
+            if (isPlayerRoomValid(currentPlayerNonce, selectedRoom)) {
+                let thePlayer = selectedRoom.environment.players.get(currentPlayerNonce);
                 thePlayer.x = client_player.x;
                 thePlayer.y = client_player.y;
                 thePlayer.rotationDegrees = client_player.rotationDegrees;
@@ -138,8 +141,8 @@ module.exports = {
         });
 
         socket.on('fire-projectile', function (projectile) {
-            if (isPlayerRoomValid(player, selectedRoom)) {
-                let thePlayer = selectedRoom.environment.players.get(player.nonce);
+            if (isPlayerRoomValid(currentPlayerNonce, selectedRoom)) {
+                let thePlayer = selectedRoom.environment.players.get(currentPlayerNonce);
                 projectileNonce++;
                 projectile.nonce = projectileNonce;
                 selectedRoom.emitFireProjectile(new Projectile(projectile.nonce
@@ -151,7 +154,7 @@ module.exports = {
         });
 
         socket.on("disconnect", () => {
-            if (selectedRoom) selectedRoom.leave(player);
+            if (selectedRoom) selectedRoom.leave(currentPlayerNonce);
             if (updater) clearInterval(updater);
         });
 
