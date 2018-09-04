@@ -14,8 +14,9 @@ const tick_rate = 30;
 let serverTime = 0;
 
 class Entity {
-    constructor(x, y, height, width, _screen) {
+    constructor(x, y, height, width, _screen, map) {
         this.nonce = null;
+        this.map = map;
         this.namespace = null;
         this.x = x;
         this.y = y;
@@ -61,9 +62,99 @@ function randomIntFromInterval(min, max) {
     return Math.random() * (max - min + 1) + min;
 }
 
+class Environment {
+    constructor(nonce) {
+        this.nonce = nonce;
+        this.actors = new Map();
+        this.projectiles = new Map();
+        this.destroyedProjectiles = [];
+        this.walls = new Map();
+        this.floors = new Map();
+    }
+
+    environmentTick() {
+        this.projectiles.forEach((value, key) => {
+            value.onTick();
+            let hitPlayers = this.getPlayerColliding(value);
+            let destroyProjectile = value.isOutOfBounds() || hitPlayers.length > 0;
+
+            if (hitPlayers.length > 0) {
+                this.destroyedProjectiles.push({playerNonce: hitPlayers[0].nonce, nonce: value.nonce});
+            }
+
+            if (destroyProjectile) {
+                this.projectiles.delete(key);
+            }
+            hitPlayers.forEach((player, index) => {
+                this.hurtPlayer(player, index)
+            })
+        });
+    }
+
+    hurtPlayer(player) {
+        player.health--;
+        if (player.health <= 0) {
+            this.actors.delete(player.nonce);
+        }
+    }
+
+    addPlayer(player) {
+        if (player && player.nonce) {
+            this.actors.set(player.nonce, player);
+        }
+    }
+
+    addProjectile(projectile) {
+        if (projectile && projectile.nonce) {
+            this.projectiles.set(projectile.nonce, projectile);
+        }
+    }
+
+    addWall(wall) {
+        if (wall && wall.nonce) {
+            this.walls.set(wall.nonce, wall);
+        }
+    }
+
+    getPlayerColliding(projectile) {
+        let playersColliding = [];
+        this.actors.forEach((val, key) => {
+            if (projectile.playerNonce !== key && entitiesCollide(val, projectile)) {
+                playersColliding.push(val);
+            }
+        });
+        return playersColliding;
+    }
+}
+
+
+class Actor extends Entity {
+    constructor(x, y, color) {
+        super(x, y, 20, 20, 1);
+        this.health = 100;
+        this.rotationDegrees = 0;
+        this.color = color;
+        this.velocity = .1;
+        this.render = function () {
+            ctx.fillStyle = this.color;
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotationDegrees * Math.PI / 180);
+            ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
+            ctx.fillStyle = 'salmon';
+            ctx.beginPath();
+            ctx.moveTo(-(this.width / 2), this.height / 2);
+            ctx.lineTo(-(this.width / 2), -(this.height / 2));
+            ctx.lineTo(this.width / 2, 0);
+            ctx.fill();
+            ctx.restore();
+        };
+    }
+}
+
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(x, y, 4, 4, 1);
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
+        super(x, y, 5, 5, 1, map);
         this.halflife = 15;
         this.nonce = nonce;
         this._startingX = x;
@@ -71,7 +162,7 @@ class Projectile extends Entity {
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
         this.wobbleRotation = (randomIntFromInterval(-8, 8)) + this.rotationDegrees;
-        this.speed = randomIntFromInterval(100, 105);
+        this.speed = randomIntFromInterval(5, 8);
         this.fireTime = fireTime;
         this.render = function () {
             ctx.beginPath();
@@ -84,7 +175,7 @@ class Projectile extends Entity {
             return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
         };
 
-        this._getDeltaTime = function() {
+        this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
         };
         this.onTick = function () {
@@ -95,22 +186,22 @@ class Projectile extends Entity {
 }
 
 class Contrail extends Entity {
-    constructor(x,y,height,width) {
-        super(x,y,height,width,1);
+    constructor(x, y, height, width) {
+        super(x, y, height, width, 1);
         this.halflife = 1;
         this.render = function () {
             ctx.globalAlpha = 1 / this.halflife;
             ctx.fillStyle = 'yellow';
             ctx.strokeStyle = 'yellow';
             ctx.beginPath();
-            ctx.arc(this.x,this.y,this.height * this.halflife / 2,0,2*Math.PI);
+            ctx.arc(this.x, this.y, this.height * this.halflife / 2, 0, 2 * Math.PI);
             ctx.stroke();
             ctx.fill();
             ctx.globalAlpha = 1;
         };
         this.onTick = function () {
             this.halflife++;
-            if(this.halflife === 10) this.destroy();
+            if (this.halflife === 10) this.destroy();
         }
     }
 }

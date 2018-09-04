@@ -12,6 +12,7 @@ let socket,
     surfaces = [];
 keyDown = {},
     entities = {},
+    map = {},
     a = document.getElementById('a'),
     ctx = a.getContext('2d');
 
@@ -141,33 +142,9 @@ class TitleCard extends FullSize {
     }
 }
 
-class Actor extends Entity {
-    constructor(x, y, color) {
-        super(x, y, 20, 20, 1);
-        this.health = 100;
-        this.rotationDegrees = 0;
-        this.color = color;
-        this.velocity = .1;
-        this.render = function () {
-            ctx.fillStyle = this.color;
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.rotationDegrees * Math.PI / 180);
-            ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
-            ctx.fillStyle = 'salmon';
-            ctx.beginPath();
-            ctx.moveTo(-(this.width / 2), this.height / 2);
-            ctx.lineTo(-(this.width / 2), -(this.height / 2));
-            ctx.lineTo(this.width / 2, 0);
-            ctx.fill();
-            ctx.restore();
-        };
-    }
-}
-
 class Player extends Actor {
-    constructor(x, y) {
-        super(x, y, 'green');
+    constructor(x, y, rotationDegrees, health, height, width, map) {
+        super(x, y, 'green', rotationDegrees, health, height, width, map);
         this.onMouseMove = function () {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
@@ -200,20 +177,20 @@ class Player extends Actor {
 }
 
 class Enemy extends Actor {
-    constructor(x, y) {
-        super(x, y, 'red');
+    constructor(x, y, rotationDegrees, health, height, width, map) {
+        super(x, y, 'red', rotationDegrees, health, height, width, map);
     }
 }
 
 class Surface extends Entity {
-    constructor(x, y, height, width) {
-        super(x, y, height, width, 1);
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, 1, map);
     }
 }
 
 class Floor extends Surface {
-    constructor(x, y, height, width) {
-        super(x, y, height, width);
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, map);
         this.render = function () {
             ctx.globalAlpha = .5;
             ctx.fillStyle = '#bcb9ad';
@@ -224,8 +201,8 @@ class Floor extends Surface {
 }
 
 class Wall extends Surface {
-    constructor(x, y, height, width) {
-        super(x, y, height, width);
+    constructor(x, y, height, width, map) {
+        super(x, y, height, width, map);
         this.blocking = true;
         this.render = function () {
             ctx.fillStyle = 'black';
@@ -254,8 +231,9 @@ window.addEventListener("load", function () {
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
     addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', function () {
-        if (roomsAvailable && roomsAvailable["1"]) {
-            socket.emit('join', roomsAvailable["1"]);
+        // todo better join room logic.
+        if (roomsAvailable && roomsAvailable["0"]) {
+            socket.emit('join', roomsAvailable["0"]);
         }
     }));
     addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame'));
@@ -277,6 +255,14 @@ window.addEventListener("load", function () {
         'update-rooms': function (_rooms) {
             rooms = _rooms;
         },
+        'projectile-collision': function (_collision) {
+            console.log("deleting projectile recieved ");
+            console.log(_collision);
+            _collision.forEach(function (proj) {
+                delete entities['projectile-' + proj.nonce];
+            })
+
+        },
         'projectile-fire': function (_projectile) {
             let cached_projectile = entities['projectile-' + _projectile.nonce];
             if (cached_projectile) {
@@ -292,7 +278,7 @@ window.addEventListener("load", function () {
         },
         'update-chosen-room': function (room) {
             serverTime = room.serverTime;
-            room.players.forEach(function (server_player) {
+            room.actors.forEach(function (server_player) {
                 if (server_player.nonce !== player.nonce) {
                     var cached_player = entities['enemy-' + server_player.nonce];
 
@@ -301,10 +287,10 @@ window.addEventListener("load", function () {
                         cached_player.y = server_player.y;
                         cached_player.rotationDegrees = server_player.rotationDegrees;
                     } else {
+                        console.log("Adding enemy" + server_player);
                         addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.nonce);
                     }
                 }
-
                 socket.emit('update-player', player);
 
             });
