@@ -101,7 +101,7 @@ class Environment {
     hurtPlayer(player) {
         player.health--;
         if (player.health <= 0) {
-            this.addEventQueue("player-death", {nonce: player.nonce});
+            this.addEventQueue("actor-death", {nonce: player.nonce});
             this.actors.delete(player.nonce);
         }
     }

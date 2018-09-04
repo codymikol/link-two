@@ -255,9 +255,10 @@ window.addEventListener("load", function () {
         'update-rooms': function (_rooms) {
             rooms = _rooms;
         },
-        'player-death': function (_death) {
+        'actor-death': function (_death) {
             _death.forEach(function (death) {
                 delete entities['enemy-' + death.nonce];
+                // todo handle the event death.nonce is you.
             })
         },
         'projectile-collision': function (_collision) {
