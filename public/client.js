@@ -11,8 +11,8 @@ let socket,
     button,
     surfaces = [];
 keyDown = {},
-    entities = {}, // todo deprecate.
-    map = {}, // todo replace entities with this.
+    entities = {},
+    map = {},
     a = document.getElementById('a'),
     ctx = a.getContext('2d');
 
@@ -254,6 +254,14 @@ window.addEventListener("load", function () {
         },
         'update-rooms': function (_rooms) {
             rooms = _rooms;
+        },
+        'projectile-collision': function (_collision) {
+            console.log("deleting projectile recieved ");
+            console.log(_collision);
+            _collision.forEach(function (proj) {
+                delete entities['projectile-' + proj.nonce];
+            })
+
         },
         'projectile-fire': function (_projectile) {
             let cached_projectile = entities['projectile-' + _projectile.nonce];

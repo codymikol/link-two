@@ -47,7 +47,7 @@ class Room {
         return {
             nonce: this.nonce,
             serverTime: serverTime,
-            players : isFullDTO ? [...this.environment.players.values()] : null,
+            players: isFullDTO ? [...this.environment.players.values()] : null,
             playerSize: this.environment.players.length,
             roomName: this.roomName
         };
@@ -58,7 +58,12 @@ function serverTick() {
     serverTime = Date.now();
     rooms.forEach(function (room) {
         room._roomTick();
-        io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true))
+        io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true));
+        console.log(room.environment.destroyedProjectiles)
+        if (room.environment.destroyedProjectiles.length > 0) {
+            io.in('room_' + room.nonce).emit('projectile-collision', room.environment.destroyedProjectiles);
+            room.environment.destroyedProjectiles = [];
+        }
     })
 }
 

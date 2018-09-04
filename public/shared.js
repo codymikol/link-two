@@ -67,6 +67,7 @@ class Environment {
         this.nonce = nonce;
         this.players = new Map();
         this.projectiles = new Map();
+        this.destroyedProjectiles = [];
         this.walls = new Map();
         this.floors = new Map();
     }
@@ -75,11 +76,17 @@ class Environment {
         this.projectiles.forEach((value, key) => {
             value.onTick();
             let hitPlayers = this.getPlayerColliding(value);
-            if (value.isOutOfBounds() || hitPlayers.length > 0) {
+            let destroyProjectile = value.isOutOfBounds() || hitPlayers.length > 0;
+
+            if (hitPlayers.length > 0) {
+                this.destroyedProjectiles.push({playerNonce: hitPlayers[0].nonce, nonce: value.nonce});
+            }
+
+            if (destroyProjectile) {
                 this.projectiles.delete(key);
             }
             hitPlayers.forEach((player, index) => {
-               this.hurtPlayer(player, index)
+                this.hurtPlayer(player, index)
             })
         });
     }
@@ -112,9 +119,9 @@ class Environment {
     getPlayerColliding(projectile) {
         let playersColliding = [];
         this.players.forEach((val, key) => {
-           if (projectile.playerNonce !== key && entitiesCollide(val, projectile)) {
-               playersColliding.push(val);
-           }
+            if (projectile.playerNonce !== key && entitiesCollide(val, projectile)) {
+                playersColliding.push(val);
+            }
         });
         return playersColliding;
     }
