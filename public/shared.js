@@ -10,7 +10,7 @@ let abs = Math.abs;
 const map_height = 5000;
 const map_width = 5000;
 const required_players = 1;
-const tick_rate = 30;
+const tick_rate = 25;
 let serverTime = 0;
 
 class Entity {
@@ -83,13 +83,11 @@ class Environment {
         this.projectiles.forEach((value, key) => {
             value.onTick();
             let hitPlayers = this.getPlayerColliding(value);
-            let destroyProjectile = value.isOutOfBounds() || hitPlayers.length > 0;
-
-            if (hitPlayers.length > 0) {
-                this.addEventQueue("projectile-collision", {playerNonce: hitPlayers[0].nonce, nonce: value.nonce});
-            }
+            let wallColliding = this.getWallColliding(value);
+            let destroyProjectile = hitPlayers.length > 0 || wallColliding.length > 0;
 
             if (destroyProjectile) {
+                this.addEventQueue("projectile-collision", {nonce: value.nonce});
                 this.projectiles.delete(key);
             }
             hitPlayers.forEach((player, index) => {
@@ -132,6 +130,16 @@ class Environment {
             }
         });
         return playersColliding;
+    }
+
+    getWallColliding(projectile) {
+        let wallColliding = [];
+        this.walls.forEach((val, key) => {
+            if (entitiesCollide(val, projectile)) {
+                wallColliding.push(val);
+            }
+        });
+        return wallColliding;
     }
 }
 
