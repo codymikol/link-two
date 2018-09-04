@@ -54,30 +54,6 @@ class Room {
     }
 }
 
-// class Player {
-//
-//     constructor(socket) {
-//         this.nonce = playerNonce;
-//         this.x = 0;
-//         this.y = 0;
-//         this.rotationDegrees = 0;
-//         this.health = 10;
-//         this.height = 20;
-//         this.width = 20;
-//         this.socket = socket;
-//         this.name = 'cody mikol';
-//
-//     }
-//
-//     asActor() {
-//         var actor = new Actor(this.x, this.y, null);
-//         actor.nonce = this.nonce;
-//         actor.health = this.health;
-//         return actor;
-//     }
-//
-// }
-
 function serverTick() {
     serverTime = Date.now();
     rooms.forEach(function (room) {
