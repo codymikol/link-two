@@ -59,7 +59,6 @@ function serverTick() {
     rooms.forEach(function (room) {
         room._roomTick();
         io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true));
-        console.log(room.environment.destroyedProjectiles)
         if (room.environment.destroyedProjectiles.length > 0) {
             io.in('room_' + room.nonce).emit('projectile-collision', room.environment.destroyedProjectiles);
             room.environment.destroyedProjectiles = [];
