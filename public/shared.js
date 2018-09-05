@@ -6,6 +6,10 @@ function forObj(obj, fn) {
     })
 }
 
+function copyProps(src, dest) {
+    Object.keys(src).forEach((key) => dest[key] = src[key]);
+}
+
 let abs = Math.abs;
 const map_height = 5000;
 const map_width = 5000;
