@@ -260,33 +260,26 @@ window.addEventListener("load", function () {
             _collision.forEach(function (proj) {
                 delete entities['projectile-' + proj.nonce];
             })
-
         },
         'projectile-fire': function (_projectile) {
             let cached_projectile = entities['projectile-' + _projectile.nonce];
             if (cached_projectile) {
-                cached_projectile.x = _projectile.x;
-                cached_projectile.y = _projectile.y;
-                cached_projectile.rotationDegrees = _projectile.rotationDegrees;
-                cached_projectile.wobble = _projectile.wobble;
-                cached_projectile.color = _projectile.color;
-                cached_projectile.wobbleRotation = _projectile.wobbleRotation;
+                copyProps(_projectile, cached_projectile);
             } else {
-                addEntity(new Projectile(_projectile.nonce, _projectile.x, _projectile.y, _projectile.rotationDegrees, _projectile.fireTime, _projectile.playerNonce), 'projectile-' + _projectile.nonce)
+                let newProjectile = new Projectile(_projectile.nonce, _projectile.x, _projectile.y, _projectile.rotationDegrees, _projectile.fireTime, _projectile.playerNonce);
+                copyProps(_projectile, newProjectile);
+                addEntity(newProjectile, 'projectile-' + _projectile.nonce)
             }
         },
         'update-chosen-room': function (room) {
             serverTime = room.serverTime;
             room.actors.forEach(function (server_player) {
                 if (server_player.nonce !== player.nonce) {
-                    var cached_player = entities['enemy-' + server_player.nonce];
-
+                    let cached_player = entities['enemy-' + server_player.nonce];
                     if (cached_player) {
-                        cached_player.x = server_player.x;
-                        cached_player.y = server_player.y;
-                        cached_player.rotationDegrees = server_player.rotationDegrees;
+                        //TODO: Better Handle this color
+                        copyProps(server_player, cached_player);
                     } else {
-                        console.log("Adding enemy" + server_player);
                         addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.nonce);
                     }
                 }

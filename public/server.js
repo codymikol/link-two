@@ -123,7 +123,7 @@ module.exports = {
 
         socket.on("join", function () {
             selectedRoom = rooms[0];
-            var actor = new Actor(0, 0, null);
+            var actor = new Actor(0, 0, 'red');
             actor.nonce = currentPlayerNonce;
             selectedRoom.joinPlayer(actor);
             socket.join('room_' + selectedRoom.nonce);

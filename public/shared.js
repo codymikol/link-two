@@ -6,6 +6,10 @@ function forObj(obj, fn) {
     })
 }
 
+function copyProps(src, dest) {
+    Object.keys(src).forEach((key) => dest[key] = src[key]);
+}
+
 let abs = Math.abs;
 const map_height = 5000;
 const map_width = 5000;
@@ -193,6 +197,9 @@ class Projectile extends Entity {
 
         this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
+        };
+        this.onClientTick = function() {
+
         };
         this.onTick = function () {
             this.x = this._startingX + (this.speed * Math.cos(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
