@@ -2,6 +2,7 @@
 /.idea
 /.vscode
 /dist.zip
+/public/dist
 *.sqlite
 *.xml
 .DS_store
