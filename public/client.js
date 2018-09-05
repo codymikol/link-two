@@ -277,7 +277,6 @@ window.addEventListener("load", function () {
                 if (server_player.nonce !== player.nonce) {
                     let cached_player = entities['enemy-' + server_player.nonce];
                     if (cached_player) {
-                        //TODO: Better Handle this color
                         copyProps(server_player, cached_player);
                     } else {
                         addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.nonce);

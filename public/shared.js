@@ -198,9 +198,6 @@ class Projectile extends Entity {
         this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
         };
-        this.onClientTick = function() {
-
-        };
         this.onTick = function () {
             this.x = this._startingX + (this.speed * Math.cos(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
             this.y = this._startingY + (this.speed * Math.sin(this.wobbleRotation * Math.PI / 180) * this._getDeltaTime());
