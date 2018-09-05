@@ -123,23 +123,12 @@ class Environment {
     }
 
     getPlayerColliding(projectile) {
-        let playersColliding = [];
-        this.actors.forEach((val, key) => {
-            if (projectile.playerNonce !== key && entitiesCollide(val, projectile)) {
-                playersColliding.push(val);
-            }
-        });
-        return playersColliding;
+        return Array.from(this.actors.values())
+            .filter((actor) => entitiesCollide(actor, projectile) && (actor.nonce !== projectile.playerNonce));
     }
 
     getWallColliding(projectile) {
-        let wallColliding = [];
-        this.walls.forEach((val, key) => {
-            if (entitiesCollide(val, projectile)) {
-                wallColliding.push(val);
-            }
-        });
-        return wallColliding;
+        return Array.from(this.walls.values()).filter((wall) => entitiesCollide(wall, projectile));
     }
 }
 
