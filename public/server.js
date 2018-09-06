@@ -4,6 +4,7 @@ let rooms = [];
 let playerNonce = 0;
 let projectileNonce = 0;
 let wallNonce = 0;
+let maxRooms = 10;
 
 function getWallNonce() {
     wallNonce++;
@@ -26,7 +27,7 @@ class Room extends Entity {
         super(0,0,0,0,0,0);
         this.nonce = nonce;
         this.roomName = 'Room #' + (nonce + 1);
-        this.maxPlayers = 10;
+        this.maxPlayers = 4;
         this.isActive = false;
         this.environment = new Environment(nonce);
     }
@@ -89,7 +90,7 @@ function daemon() {
 }
 
 function init() {
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < maxRooms; i++) {
         var room = new Room(i);
         room.environment.walls = environmentMaps.get(0);
         console.log(room);
@@ -104,6 +105,17 @@ function isPlayerRoomValid(playerNonce, room) {
 }
 
 
+function getBestRoom() {
+    let openRooms = rooms.filter(room => (room.environment.actors.size < room.maxPlayers));
+    let bestRoom = openRooms[0];
+    for (let i = 0; i < openRooms.length; i++) {
+        if (openRooms[i].environment.actors.size > bestRoom.environment.actors.size) {
+            bestRoom = openRooms[i];
+        }
+    }
+    return bestRoom;
+}
+
 init();
 
 module.exports = {
@@ -115,7 +127,7 @@ module.exports = {
         let selectedRoom;
 
         socket.on("join", function () {
-            selectedRoom = rooms[0];
+            selectedRoom = getBestRoom();
             var actor = new Actor(0, 0, 'red');
             actor.nonce = currentPlayerNonce;
             selectedRoom.joinPlayer(actor);
