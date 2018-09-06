@@ -1,15 +1,10 @@
 let socket,
-    rooms,
     maxFPS = 60,
     lastFrameTimeMs = 0,
     screen = 3,
     entityNonce = 0,
     mousePos = {},
     player,
-    background,
-    roomsAvailable,
-    button,
-    surfaces = [],
     keyDown = {},
     entities = {},
     map = {},
@@ -24,9 +19,7 @@ function mouseInBounds(x, y, height, width) {
 }
 
 function entitiesCall(method, arg) {
-    forObj(entities, function (entity) {
-        entity[method](arg);
-    })
+    forObj(entities, (entity) => entity[method](arg))
 }
 
 function addEntity(entity, namespace) {
@@ -97,9 +90,7 @@ class Background extends FullSize {
             ctx.fillStyle = '#208C30';
             ctx.globalAlpha = 0.05;
             for (let i = 0; i < 1000; i++) {
-                [5, 10, 15, 120].forEach(function (height) {
-                    ctx.fillRect(0, 15 * i + vm.timer - 200, vm.width, height);
-                })
+                [5, 10, 15, 120].forEach((height) => ctx.fillRect(0, 15 * i + vm.timer - 200, vm.width, height))
             }
             ctx.globalAlpha = 1;
         };
@@ -149,8 +140,10 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            for (var i = 0; i < 10; i++) {
-                socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
+            if(!this.isDead) {
+                for (var i = 0; i < 10; i++) {
+                    socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
+                }
             }
         };
         this.onTick = function (delta) {
@@ -205,7 +198,7 @@ class Contrail extends Entity {
 
 window.addEventListener("load", function () {
 
-    socket = io({upgrade: false, transports: ["websocket"]});
+    socket = io({upgrade: true, transports: ["websocket"]});
 
     player = new Player(250, 250);
 
@@ -218,27 +211,14 @@ window.addEventListener("load", function () {
     //load order for screen 3
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
-    addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', function () {
-        // todo better join room logic.
-        if (roomsAvailable && roomsAvailable["0"]) {
-            socket.emit('join', roomsAvailable["0"]);
-        }
-    }));
+    addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join')));
     addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame'));
     addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man'));
 
     forObj({
-        'rooms-available': function (response) {
-            roomsAvailable = response;
-        },
         'joined-room': function (server_player) {
             player.nonce = server_player.nonce;
             screen = 1;
-        },
-        'enemy-joined': function (enemy) {
-            addEntity(new Enemy(enemy.x, enemy.y, enemy.nonce))
-        },
-        'enemy-left': function (enemy) {
         },
         'environment-walls' : function(_walls) {
             console.log(_walls);
@@ -246,15 +226,6 @@ window.addEventListener("load", function () {
                 addEntity(new Wall(wall.nonce, wall.x, wall.y, wall.height, wall.width));
             });
             addEntity(new Wall(350, 100, 20, 500));
-        },
-        'update-rooms': function (_rooms) {
-            rooms = _rooms;
-        },
-        'actor-death': function (_death) {
-            _death.forEach(function (death) {
-                delete entities['enemy-' + death.nonce];
-                // todo handle the event death.nonce is you.
-            })
         },
         'projectile-collision': function (_collision) {
             _collision.forEach(function (proj) {
@@ -281,9 +252,11 @@ window.addEventListener("load", function () {
                     } else {
                         addEntity(new Enemy(server_player.x, server_player.y), 'enemy-' + server_player.nonce);
                     }
+                } else {
+                    player.isDead = server_player.isDead;
+                    player.health = server_player.health;
                 }
                 socket.emit('update-player', player);
-
             });
         }
     }, function (fn, key) {

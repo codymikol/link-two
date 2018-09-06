@@ -1,7 +1,6 @@
 "use strict";
 
 let rooms = [];
-let playerSockets = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
 let wallNonce = 0;
@@ -21,9 +20,10 @@ const environmentMaps = new Map()
         .set(4, new Wall(getWallNonce(), 350, 350, 250, 20))
     );
 
-class Room {
+class Room extends Entity {
 
     constructor(nonce) {
+        super(0,0,0,0,0,0);
         this.nonce = nonce;
         this.roomName = 'Room #' + (nonce + 1);
         this.maxPlayers = 10;
@@ -112,14 +112,7 @@ module.exports = {
 
         playerNonce++;
         const currentPlayerNonce = playerNonce;
-        playerSockets.set(currentPlayerNonce, socket);
-        let updater;
         let selectedRoom;
-
-        socket.emit("rooms-available", rooms.reduce(function (col, room) {
-            col[room.nonce] = room.asDTO();
-            return col;
-        }, {}));
 
         socket.on("join", function () {
             selectedRoom = rooms[0];
@@ -153,10 +146,7 @@ module.exports = {
             }
         });
 
-        socket.on("disconnect", () => {
-            if (selectedRoom) selectedRoom.leave(currentPlayerNonce);
-            if (updater) clearInterval(updater);
-        });
+        socket.on("disconnect", () => {if (selectedRoom) selectedRoom.leave(currentPlayerNonce)});
 
     },
 };

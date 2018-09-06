@@ -94,18 +94,10 @@ class Environment {
                 this.addEventQueue("projectile-collision", {nonce: value.nonce});
                 this.projectiles.delete(key);
             }
-            hitPlayers.forEach((player, index) => {
-                this.hurtPlayer(player, index)
-            })
-        });
-    }
 
-    hurtPlayer(player) {
-        player.health--;
-        if (player.health <= 0) {
-            this.addEventQueue("actor-death", {nonce: player.nonce});
-            this.actors.delete(player.nonce);
-        }
+            hitPlayers.forEach((player) => player.takeDamage(1))
+
+        });
     }
 
     addPlayer(player) {
@@ -128,7 +120,7 @@ class Environment {
 
     getPlayerColliding(projectile) {
         return Array.from(this.actors.values())
-            .filter((actor) => entitiesCollide(actor, projectile) && (actor.nonce !== projectile.playerNonce));
+            .filter((actor) => !actor.isDead && (actor.nonce !== projectile.playerNonce) && entitiesCollide(actor, projectile));
     }
 
     getWallColliding(projectile) {
@@ -141,23 +133,30 @@ class Actor extends Entity {
     constructor(x, y, color) {
         super(x, y, 20, 20, 1);
         this.health = 100;
+        this.isDead = false;
         this.rotationDegrees = 0;
         this.color = color;
         this.velocity = .1;
         this.render = function () {
-            ctx.fillStyle = this.color;
+            ctx.globalAlpha = (this.isDead) ? .3 : 1;
+            ctx.fillStyle = (this.isDead) ? 'white' : this.color;
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotationDegrees * Math.PI / 180);
             ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
-            ctx.fillStyle = 'salmon';
+            ctx.fillStyle = (this.isDead) ? 'grey' : 'salmon';
             ctx.beginPath();
             ctx.moveTo(-(this.width / 2), this.height / 2);
             ctx.lineTo(-(this.width / 2), -(this.height / 2));
             ctx.lineTo(this.width / 2, 0);
             ctx.fill();
             ctx.restore();
+            ctx.globalAlpha = 1;
         };
+    }
+    takeDamage(damageAmount){
+        this.health -= damageAmount;
+        this.isDead = this.health <= 0;
     }
 }
 
