@@ -1,36 +1,26 @@
 "use strict";
 
 let rooms = [];
-let playerNonce = 0;
-let projectileNonce = 0;
-let wallNonce = 0;
-let maxRooms = 10;
-
-function getWallNonce() {
-    wallNonce++;
-    return wallNonce;
-}
 
 // todo read in from sqllite database.
 const environmentMaps = new Map()
     .set(0, new Environment().walls
-        .set(0, new Wall(getWallNonce(), 100, 0, 20, 1425))
-        .set(1, new Wall(getWallNonce(), 100, 850, 20, 1425))
-        .set(2, new Wall(getWallNonce(), 0, 350, 1000, 20))
-        .set(3, new Wall(getWallNonce(), 800, 350, 1000, 20))
-        .set(4, new Wall(getWallNonce(), 350, 350, 250, 20))
+        .set(0, new Wall(nonce++, 100, 0, 20, 1425))
+        .set(1, new Wall(nonce++, 100, 850, 20, 1425))
+        .set(2, new Wall(nonce++, 0, 350, 1000, 20))
+        .set(3, new Wall(nonce++, 800, 350, 1000, 20))
+        .set(4, new Wall(nonce++, 350, 350, 250, 20))
     );
 
-class Room extends Entity {
+class Room {
 
-    constructor(nonce) {
-        super(0,0,0,0,0,0);
-        this.nonce = nonce;
-        this.roomName = 'Room #' + (nonce + 1);
+    constructor(roomNonce) {
+        this.nonce = roomNonce;
         this.maxPlayers = 4;
-        this.isActive = false;
-        this.environment = new Environment(nonce);
+        this.environment = new Environment(roomNonce);
     }
+
+    emit(key, value) {io.in('room_' + this.nonce).emit(key, value)}
 
     joinPlayer(player) {
         this.environment.addPlayer(player);
@@ -41,43 +31,41 @@ class Room extends Entity {
 
     emitFireProjectile(projectile) {
         this.environment.addProjectile(projectile);
-        io.in('room_' + this.nonce).volatile.emit('projectile-fire', projectile);
+        this.emit('projectile-fire', projectile);
     }
 
     startGame() {
-        this.isActive = true;
+        //todo
     }
 
     _roomTick() {
         this.environment.environmentTick();
     }
 
-    isPlayerInRoom(nonce) {
-        return this.environment.actors.has(nonce);
+    isPlayerInRoom(playerNonce) {
+        return this.environment.actors.has(playerNonce);
     }
 
     leave(playerNonce) {
         this.environment.actors.delete(playerNonce);
     }
 
-    asDTO(isFullDTO) {
+    asDTO() {
         return {
             nonce: this.nonce,
             serverTime: serverTime,
-            actors: isFullDTO ? [...this.environment.actors.values()] : null,
-            playerSize: this.environment.actors.length,
-            roomName: this.roomName
+            actors: [...this.environment.actors.values()],
         };
     }
 }
 
 function serverTick() {
     serverTime = Date.now();
-    rooms.forEach(function (room) {
+    rooms.forEach((room) => {
         room._roomTick();
-        io.in('room_' + room.nonce).volatile.emit('update-chosen-room', room.asDTO(true));
+        room.emit('update-chosen-room', room.asDTO());
         room.environment.eventQueue.forEach((value, key) => {
-            io.in('room_' + room.nonce).emit(key, value);
+            room.emit(key, value);
             room.environment.eventQueue.delete(key);
         });
     })
@@ -90,7 +78,7 @@ function daemon() {
 }
 
 function init() {
-    for (let i = 0; i < maxRooms; i++) {
+    for (let i = 0; i < 10; i++) {
         var room = new Room(i);
         room.environment.walls = environmentMaps.get(0);
         console.log(room);
@@ -122,8 +110,7 @@ module.exports = {
 
     io: (socket) => {
 
-        playerNonce++;
-        const currentPlayerNonce = playerNonce;
+        const currentPlayerNonce = nonce++;
         let selectedRoom;
 
         socket.on("join", function () {
@@ -148,8 +135,7 @@ module.exports = {
         socket.on('fire-projectile', function (projectile) {
             if (isPlayerRoomValid(currentPlayerNonce, selectedRoom)) {
                 let thePlayer = selectedRoom.environment.actors.get(currentPlayerNonce);
-                projectileNonce++;
-                projectile.nonce = projectileNonce;
+                projectile.nonce = nonce++;
                 selectedRoom.emitFireProjectile(new Projectile(projectile.nonce
                     , thePlayer.x, thePlayer.y
                     , thePlayer.rotationDegrees

@@ -10,7 +10,17 @@ function copyProps(src, dest) {
     Object.keys(src).forEach((key) => dest[key] = src[key]);
 }
 
+function asCentered(entity) {
+    return {
+        x: entity.x + entity.width /2,
+        y: entity.y + entity.height /2,
+        height:entity.height,
+        width: entity.width
+    }
+}
+
 let abs = Math.abs;
+let nonce = 0;
 const map_height = 5000;
 const map_width = 5000;
 const required_players = 1;
@@ -32,7 +42,7 @@ class Entity {
         };
         this._screen = _screen;
         this._sethover = function () {
-            this.hovered = this.isOnScreen() && mouseInBounds(this.x, this.y, this.height, this.width)
+            this.hovered = this.isOnScreen() && entitiesCollide(asCentered(this), {x:mousePos.x, y:mousePos.y,height:1,width:1})
         };
         this._anyclick = function () {
             if (this.isOnScreen() && this.onAnyClick) this.onAnyClick();
@@ -67,8 +77,8 @@ function randomIntFromInterval(min, max) {
 }
 
 class Environment {
-    constructor(nonce) {
-        this.nonce = nonce;
+    constructor(roomNonce) {
+        this.nonce = roomNonce;
         this.actors = new Map();
         this.projectiles = new Map();
         this.eventQueue = new Map();
@@ -161,10 +171,10 @@ class Actor extends Entity {
 }
 
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
+    constructor(projectileNonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
         super(x, y, 5, 5, 1, map);
         this.halflife = 15;
-        this.nonce = nonce;
+        this.nonce = projectileNonce;
         this._startingX = x;
         this._startingY = y;
         this.playerNonce = playerNonce;
@@ -211,9 +221,9 @@ class Floor extends Surface {
 }
 
 class Wall extends Surface {
-    constructor(nonce, x, y, height, width, map) {
+    constructor(wallNonce, x, y, height, width, map) {
         super(x, y, height, width, map);
-        this.nonce = nonce;
+        this.nonce = wallNonce;
         this.blocking = true;
         this.render = function () {
             ctx.fillStyle = 'black';

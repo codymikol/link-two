@@ -2,7 +2,6 @@ let socket,
     maxFPS = 60,
     lastFrameTimeMs = 0,
     screen = 3,
-    entityNonce = 0,
     mousePos = {},
     player,
     keyDown = {},
@@ -14,19 +13,14 @@ let socket,
 a.width = window.innerWidth;
 a.height = window.innerHeight;
 
-function mouseInBounds(x, y, height, width) {
-    return mousePos.x > x && mousePos.x < x + width && mousePos.y > y && mousePos.y < y + height;
-}
-
 function entitiesCall(method, arg) {
     forObj(entities, (entity) => entity[method](arg))
 }
 
 function addEntity(entity, namespace) {
-    entity.nonce = entityNonce;
+    entity.nonce = nonce++;
     entity.namespace = namespace;
-    entities[namespace || entityNonce] = entity;
-    entityNonce++;
+    entities[namespace || entity.nonce] = entity;
     return entity;
 }
 
