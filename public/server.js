@@ -14,11 +14,13 @@ function getWallNonce() {
 // todo read in from sqllite database.
 const environmentMaps = new Map()
     .set(0, new Environment().walls
-        .set(0, new Wall(getWallNonce(), 100, 0, 20, 1425))
-        .set(1, new Wall(getWallNonce(), 100, 850, 20, 1425))
+        .set(0, new Wall(getWallNonce(), 100, 0, 20, 3600))
+        .set(1, new Wall(getWallNonce(), 100, 850, 20, 3600))
         .set(2, new Wall(getWallNonce(), 0, 350, 1000, 20))
-        .set(3, new Wall(getWallNonce(), 800, 350, 1000, 20))
-        .set(4, new Wall(getWallNonce(), 350, 350, 250, 20))
+        .set(3, new Wall(getWallNonce(), 1895, 350, 1000, 20))
+        .set(4, new Wall(getWallNonce(), 520, 350, 350, 20))
+        .set(5, new Wall(getWallNonce(), 850, 650, 20, 550))
+        .set(6, new Wall(getWallNonce(), 1180, 350, 350, 20))
     );
 
 class Room extends Entity {

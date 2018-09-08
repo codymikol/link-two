@@ -204,7 +204,7 @@ window.addEventListener("load", function () {
 
     //load order for screen 1
     addEntity(new Background(1));
-    addEntity(new Floor(0, 0, 850, 800));
+    addEntity(new Floor(0, 0, 850, 1900));
 
     addEntity(player);
 
