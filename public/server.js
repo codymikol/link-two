@@ -11,20 +11,36 @@ function getWallNonce() {
     return wallNonce;
 }
 
-// todo read in from sqllite database.
 const environmentMaps = new Map()
     .set(0, new Environment().walls
-        .set(0, new Wall(getWallNonce(), 100, 0, 20, 1425))
-        .set(1, new Wall(getWallNonce(), 100, 850, 20, 1425))
+        .set(0, new Wall(getWallNonce(), 100, 0, 20, 3600))
+        .set(1, new Wall(getWallNonce(), 100, 850, 20, 3600))
         .set(2, new Wall(getWallNonce(), 0, 350, 1000, 20))
-        .set(3, new Wall(getWallNonce(), 800, 350, 1000, 20))
-        .set(4, new Wall(getWallNonce(), 350, 350, 250, 20))
+        .set(3, new Wall(getWallNonce(), 1895, 350, 1000, 20))
+        .set(4, new Wall(getWallNonce(), 520, 350, 350, 20))
+        .set(5, new Wall(getWallNonce(), 850, 650, 20, 550))
+        .set(6, new Wall(getWallNonce(), 1180, 350, 350, 20))
+    )
+    .set(1, new Environment().walls
+        .set(0, new Wall(getWallNonce(), 100, 0, 20, 3600))
+        .set(1, new Wall(getWallNonce(), 100, 850, 20, 3600))
+        .set(2, new Wall(getWallNonce(), 0, 350, 1000, 20))
+        .set(3, new Wall(getWallNonce(), 1895, 350, 1000, 20))
+        .set(4, new Wall(getWallNonce(), 700, 300, 580, 20))
+        .set(5, new Wall(getWallNonce(), 1200, 550, 580, 20))
+        // .set(6, new Wall(getWallNonce(), 1180, 350, 350, 20))
+    )
+    .set(2, new Environment().walls
+            .set(0, new Wall(getWallNonce(), 100, 0, 20, 3600))
+            .set(1, new Wall(getWallNonce(), 100, 850, 20, 3600))
+            .set(2, new Wall(getWallNonce(), 0, 350, 1000, 20))
+            .set(3, new Wall(getWallNonce(), 1895, 350, 1000, 20))
     );
 
 class Room extends Entity {
 
     constructor(nonce) {
-        super(0,0,0,0,0,0);
+        super(0, 0, 0, 0, 0, 0);
         this.nonce = nonce;
         this.roomName = 'Room #' + (nonce + 1);
         this.maxPlayers = 4;
@@ -92,8 +108,7 @@ function daemon() {
 function init() {
     for (let i = 0; i < maxRooms; i++) {
         var room = new Room(i);
-        room.environment.walls = environmentMaps.get(0);
-        console.log(room);
+        room.environment.walls = environmentMaps.get(Math.floor(randomIntFromInterval(1, 3) - 1));
         rooms.push(room);
     }
     daemon();
@@ -158,7 +173,9 @@ module.exports = {
             }
         });
 
-        socket.on("disconnect", () => {if (selectedRoom) selectedRoom.leave(currentPlayerNonce)});
+        socket.on("disconnect", () => {
+            if (selectedRoom) selectedRoom.leave(currentPlayerNonce)
+        });
 
     },
 };
