@@ -40,6 +40,7 @@ class Room extends Entity {
         this.requiredPlayers = 2;
         this.nonce = nonce;
         this.environment = new Environment(nonce);
+        this.environment.walls = environmentMaps.get(Math.floor(randomIntFromInterval(1, 3) - 1));
     }
 
     emit(key, value) {
@@ -114,13 +115,7 @@ function getBestRoom() {
             return (room.players > col.players) ? room : col;
         }, undefined);
 
-    //TODO Move this walls shiet outta here!
-
-    let bestRoom = (best) ? best : rooms[rooms.push(new Room(playerNonce++)) - 1];
-
-    bestRoom.environment.walls = environmentMaps.get(Math.floor(randomIntFromInterval(1, 3) - 1));
-
-    return bestRoom;
+    return (best) ? best : rooms[rooms.push(new Room(playerNonce++)) - 1];
 
 }
 
