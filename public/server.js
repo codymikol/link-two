@@ -4,7 +4,6 @@ let rooms = [];
 let playerNonce = 0;
 let projectileNonce = 0;
 let wallNonce = 0;
-let maxRooms = 10;
 
 function getWallNonce() {
     wallNonce++;
@@ -105,12 +104,17 @@ function daemon() {
     }, tick_rate);
 }
 
-function init() {
-    for (let i = 0; i < maxRooms; i++) {
+function checkRooms() {
+    let i;
+    for (i = 0; i < rooms.length; i++) {
+        if (rooms[i].environment.actors.size < rooms[i].maxPlayers) {
+            return;
+        }
+    }
         var room = new Room(i);
         room.environment.walls = environmentMaps.get(Math.floor(randomIntFromInterval(1, 3) - 1));
         rooms.push(room);
-    }
+
     daemon();
 }
 
@@ -131,7 +135,8 @@ function getBestRoom() {
     return bestRoom;
 }
 
-init();
+daemon();
+
 
 module.exports = {
 
@@ -142,6 +147,7 @@ module.exports = {
         let selectedRoom;
 
         socket.on("join", function () {
+            checkRooms();
             selectedRoom = getBestRoom();
             var actor = new Actor(0, 0, 'red');
             actor.nonce = currentPlayerNonce;
