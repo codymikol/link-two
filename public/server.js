@@ -4,32 +4,6 @@ let rooms = [];
 let playerNonce = 0;
 let projectileNonce = 0;
 let wallNonce = 0;
-let maxRooms = 10;
-
-const environmentMaps = new Map()
-    .set(0, new Environment().walls
-        .set(0, new Wall(wallNonce++, 100, 0, 20, 3600))
-        .set(1, new Wall(wallNonce++, 100, 850, 20, 3600))
-        .set(2, new Wall(wallNonce++, 0, 350, 1000, 20))
-        .set(3, new Wall(wallNonce++, 1895, 350, 1000, 20))
-        .set(4, new Wall(wallNonce++, 520, 350, 350, 20))
-        .set(5, new Wall(wallNonce++, 850, 650, 20, 550))
-        .set(6, new Wall(wallNonce++, 1180, 350, 350, 20))
-    )
-    .set(1, new Environment().walls
-            .set(0, new Wall(wallNonce++, 100, 0, 20, 3600))
-            .set(1, new Wall(wallNonce++, 100, 850, 20, 3600))
-            .set(2, new Wall(wallNonce++, 0, 350, 1000, 20))
-            .set(3, new Wall(wallNonce++, 1895, 350, 1000, 20))
-            .set(4, new Wall(wallNonce++, 700, 300, 580, 20))
-            .set(5, new Wall(wallNonce++, 1200, 550, 580, 20))
-    )
-    .set(2, new Environment().walls
-        .set(0, new Wall(wallNonce++, 100, 0, 20, 3600))
-        .set(1, new Wall(wallNonce++, 100, 850, 20, 3600))
-        .set(2, new Wall(wallNonce++, 0, 350, 1000, 20))
-        .set(3, new Wall(wallNonce++, 1895, 350, 1000, 20))
-    );
 
 class Room extends Entity {
 
@@ -39,8 +13,7 @@ class Room extends Entity {
         this.round = null;
         this.requiredPlayers = 2;
         this.nonce = nonce;
-        this.environment = new Environment(nonce);
-        this.environment.walls = environmentMaps.get(Math.floor(randomIntFromInterval(1, 3) - 1));
+        this.environment = new Environment(this);
     }
 
     emit(key, value) {

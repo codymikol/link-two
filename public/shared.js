@@ -17,6 +17,32 @@ const required_players = 1;
 const tick_rate = 25;
 let serverTime = 0;
 
+const wallTestList = [
+    [
+        {type: 'Wall', args: [100, 0, 20, 3600]},
+        {type: 'Wall', args: [100, 850, 20, 3600]},
+        {type: 'Wall', args: [0, 350, 1000, 20]},
+        {type: 'Wall', args: [1895, 350, 1000, 20]},
+        {type: 'Wall', args: [520, 350, 350, 20]},
+        {type: 'Wall', args: [850, 650, 20, 550]},
+        {type: 'Wall', args: [1180, 350, 350, 20]},
+    ],
+    [
+        {type: 'Wall', args: [100, 0, 20, 3600]},
+        {type: 'Wall', args: [100, 850, 20, 3600]},
+        {type: 'Wall', args: [0, 350, 1000, 20]},
+        {type: 'Wall', args: [1895, 350, 1000, 20]},
+        {type: 'Wall', args: [700, 300, 580, 20]},
+        {type: 'Wall', args: [1200, 550, 580, 20]},
+    ],
+    [
+        {type: 'Wall', args: [100, 0, 20, 3600]},
+        {type: 'Wall', args: [100, 850, 20, 3600]},
+        {type: 'Wall', args: [0, 350, 1000, 20]},
+        {type: 'Wall', args: [1895, 350, 1000, 20]},
+    ]
+];
+
 class Entity {
     constructor(x, y, height, width, _screen, map) {
         this.nonce = null;
@@ -67,13 +93,25 @@ function randomIntFromInterval(min, max) {
 }
 
 class Environment {
-    constructor(nonce) {
-        this.nonce = nonce;
+    constructor(room) {
+        this.room = room;
+        this.nonce = room.nonce;
         this.actors = new Map();
         this.projectiles = new Map();
         this.eventQueue = new Map();
-        this.walls = new Map();
+        this.walls = this.buildWalls();
         this.floors = new Map();
+    }
+
+    //TODO: This should be nonspecific to entities
+    buildWalls() {
+
+        return wallTestList[Math.floor(randomIntFromInterval(0,wallTestList.length-1))]
+            .reduce(function (col, currentWall) {
+                col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
+                return col;
+            }, new Map())
+
     }
 
     addEventQueue(eventName, val) {
