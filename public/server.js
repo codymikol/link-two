@@ -54,6 +54,7 @@ class Room extends Entity {
     leave(playerNonce) {
         this.emit('destroy', 'enemy-' + playerNonce);
         this.environment.actors.delete(playerNonce);
+        if (this.environment.actors.size < 2) delete this.countdown;
     }
 
     startGame() {
