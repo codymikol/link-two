@@ -8,11 +8,35 @@ let socket,
     keyDown = {},
     entities = {},
     map = {},
+    joinedRoom,
     a = document.getElementById('a'),
     ctx = a.getContext('2d');
 
 a.width = window.innerWidth;
 a.height = window.innerHeight;
+
+function resetCTX() {
+    ctx.globalAlpha = 1;
+    ctx.font = '30px Arial Black';
+    ctx.textAlign = 'start';
+    ctx.fillStyle = 'black';
+}
+
+function text(text, x, y, color = '#208C30', fontSize = 30, alpha = 1, align = 'start') {
+    ctx.globalAlpha = 0.6;
+    ctx.font = fontSize + 'px Arial Black';
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.fillText(text, x, y);
+    resetCTX();
+}
+
+function square(x, y, width, height, color = 'red', alpha = 1) {
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
+    resetCTX();
+}
 
 function mouseInBounds(x, y, height, width) {
     return mousePos.x > x && mousePos.x < x + width && mousePos.y > y && mousePos.y < y + height;
@@ -37,6 +61,38 @@ class Button extends Entity {
         this.onClick = onClick;
     }
 }
+
+
+//Made a handy dandy little bugger for figuring out where text should be :D:D:D:D:D
+//We can delet this later, plz dont remove ;)
+
+// class DebugText extends Entity {
+//     constructor(_screen, texty) {
+//         super(100, 100, 0, 0, _screen,);
+//
+//         this.text = texty;
+//         this.size = 24;
+//         this.alpha = 1;
+//         this.velocity = .01;
+//
+//         let vm = this;
+//
+//         this.render = function () {
+//             text(texty, vm.x, vm.y, 'red', vm.size, vm.alpha)
+//         };
+//
+//         this.onTick = function (delta) {
+//             if (keyDown.w) this.y -= this.velocity * delta * 10;
+//             if (keyDown.a) this.x -= this.velocity * delta * 10;
+//             if (keyDown.s) this.y += this.velocity * delta * 10;
+//             if (keyDown.d) this.x += this.velocity * delta * 10;
+//             if (keyDown.e) this.size += this.velocity * delta;
+//             if (keyDown.q) this.size -= this.velocity * delta;
+//             if (keyDown.p) console.log(`text(${vm.text},${vm.x},${vm.y},\'red\',${vm.size},1`)
+//         }
+//
+//     }
+// }
 
 class TitleButton extends Button {
     constructor(x, y, text, sideText, onClick) {
@@ -68,6 +124,7 @@ class TitleButton extends Button {
 class FullSize extends Entity {
     constructor(_screen) {
         super(0, 0, window.innerHeight, window.innerWidth, _screen);
+        this.timer = 0;
         this.onResize = function () {
             this.height = window.innerHeight;
             this.width = window.innerWidth;
@@ -84,6 +141,7 @@ class Background extends FullSize {
         super(screen);
         let vm = this;
         vm.timer = 0;
+        this.is = 'BACKGROUND';
         vm.render = function () {
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, vm.width, vm.height);
@@ -100,9 +158,8 @@ class Background extends FullSize {
 class TitleCard extends FullSize {
     constructor(_screen) {
         super(_screen);
+        let vm = this;
         this.render = function () {
-
-            let vm = this;
 
             let linkOffset = 280;
             let carrotOffset = 440;
@@ -133,6 +190,77 @@ class TitleCard extends FullSize {
     }
 }
 
+var debugTool = 455;
+
+class LobbyGUI extends FullSize {
+    constructor(_screen) {
+        super(_screen);
+        let vm = this;
+        this.render = function () {
+
+            let countdown = (joinedRoom) ? joinedRoom.countdown : ' :( ';
+
+            let dots = '   ';
+            if (this.timer >= 15) dots = '.  ';
+            if (this.timer >= 30) dots = '.. ';
+            if (this.timer >= 45) dots = '...';
+
+            let message = (joinedRoom && joinedRoom.countdown)
+                ? 'Competitors found, starting game in ' + Math.floor(joinedRoom.countdown / tick_rate)
+                : 'Connection is scarce, you must compete for this privilege, awaiting competition' + dots;
+
+
+            text(message, vm.width / 2, 369, '#208C30', 16, 1, 'center');
+
+            for (let i = 0; i < 36; i++) {
+                [410, 520, 630, 740, 850].forEach(function (y) {
+                    text('=', (i * 25) + (vm.width / 2) - 455, y);
+                });
+            }
+            for (let i = 0; i < 76; i++) {
+                [430, -460].forEach(function (x) {
+                    text('+', x + (vm.width / 2), (i * 7) + 320, undefined, 24);
+                })
+            }
+
+            [410, 520, 630, 740].forEach(function (y) {
+                square(vm.width / 2 - 435, y + 3, 80, 80, 'white', 0.2)
+            });
+
+            //Gottem with that prototypical magic 8D
+            player.render.call({
+                x: vm.width / 2 - 395,
+                y: 455,
+                isDead: false,
+                color: 'green',
+                rotationDegrees: 0,
+                width: 20,
+                height: 20
+            });
+
+            text(`Competitor: ${player.name}`, vm.width / 2 - 325,  465, undefined, 30);
+
+            //GETTEM AYEAYE!!!
+            Object.keys(entities).filter(function (entityKey) {
+                return entityKey.includes('enemy-');
+            }).forEach(function (enemyKey, index) {
+                let enemy = entities[enemyKey];
+                enemy.render.call({
+                    x: vm.width / 2 - 395,
+                    y: 455 + 110 * (index + 1),
+                    isDead: false,
+                    color: 'red',
+                    rotationDegrees: 0,
+                    width: 20,
+                    height: 20
+                });
+                text(`Competitor: ${enemy.name}`, vm.width / 2 - 325,  465 + 110 * (index + 1), undefined, 30)
+            });
+
+        }
+    }
+}
+
 class Player extends Actor {
     constructor(x, y, rotationDegrees, health, height, width, map) {
         super(x, y, 'green', rotationDegrees, health, height, width, map);
@@ -140,7 +268,7 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            if(!this.isDead) {
+            if (!this.isDead) {
                 for (var i = 0; i < 10; i++) {
                     socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
                 }
@@ -208,6 +336,11 @@ window.addEventListener("load", function () {
 
     addEntity(player);
 
+    //load order for lobby
+    addEntity(new Background(2));
+    addEntity(new TitleCard(2));
+    addEntity(new LobbyGUI(2));
+
     //load order for screen 3
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
@@ -218,10 +351,13 @@ window.addEventListener("load", function () {
     forObj({
         'joined-room': function (server_player) {
             player.nonce = server_player.nonce;
-            screen = 1;
+            screen = 2;
         },
-        'environment-walls' : function(_walls) {
-            console.log(_walls);
+        'game-start': () => screen = 1,
+        'destroy': function (entityKey) {
+            delete entities[entityKey];
+        },
+        'environment-walls': function (_walls) {
             _walls.forEach((wall) => {
                 addEntity(new Wall(wall.nonce, wall.x, wall.y, wall.height, wall.width));
             });
@@ -243,6 +379,7 @@ window.addEventListener("load", function () {
             }
         },
         'update-chosen-room': function (room) {
+            joinedRoom = room;
             serverTime = room.serverTime;
             room.actors.forEach(function (server_player) {
                 if (server_player.nonce !== player.nonce) {
@@ -256,8 +393,8 @@ window.addEventListener("load", function () {
                     player.isDead = server_player.isDead;
                     player.health = server_player.health;
                 }
-                socket.emit('update-player', player);
             });
+            socket.emit('update-player', player);
         }
     }, function (fn, key) {
         socket.on(key, fn)

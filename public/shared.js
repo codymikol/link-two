@@ -133,6 +133,7 @@ class Actor extends Entity {
     constructor(x, y, color) {
         super(x, y, 20, 20, 1);
         this.health = 100;
+        this.name = 'Cody Charles Mikol';
         this.isDead = false;
         this.rotationDegrees = 0;
         this.color = color;
