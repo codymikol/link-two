@@ -96,11 +96,9 @@ class Environment {
     constructor(room) {
         this.room = room;
         this.nonce = room.nonce;
-        this.actors = new Map();
         this.projectiles = new Map();
         this.eventQueue = new Map();
         this.walls = this.buildWalls();
-        this.floors = new Map();
     }
 
     //TODO: This should be nonspecific to entities
@@ -122,26 +120,32 @@ class Environment {
     }
 
     environmentTick() {
-        this.projectiles.forEach((value, key) => {
-            value.onTick();
-            let hitPlayers = this.getPlayerColliding(value);
-            let wallColliding = this.getWallColliding(value);
+        this.projectiles.forEach((projectile, key) => {
+
+            let projectileOwner = this.room.actors.get(projectile.playerNonce);
+
+            projectile.onTick();
+
+            let hitPlayers = this.getPlayerColliding(projectile);
+            //TODO: Assume the client knows that wall colisions result in projectile destruction so we can remove this from network calls...
+            let wallColliding = this.getWallColliding(projectile);
+
             let destroyProjectile = hitPlayers.length > 0 || wallColliding.length > 0;
 
+            if(hitPlayers.length > 0) projectileOwner.stats.awardHit();
+            if (wallColliding.length > 0) projectileOwner.stats.awardMiss();
+
             if (destroyProjectile) {
-                this.addEventQueue("projectile-collision", {nonce: value.nonce});
+                this.addEventQueue("projectile-collision", {nonce: projectile.nonce});
                 this.projectiles.delete(key);
             }
 
-            hitPlayers.forEach((player) => player.takeDamage(1))
+            hitPlayers.forEach((player) => {
+                player.takeDamage(1);
+                if(player.isDead) projectileOwner.stats.awardKill();
+            })
 
         });
-    }
-
-    addPlayer(player) {
-        if (player && player.nonce) {
-            this.actors.set(player.nonce, player);
-        }
     }
 
     addProjectile(projectile) {
@@ -157,7 +161,7 @@ class Environment {
     }
 
     getPlayerColliding(projectile) {
-        return Array.from(this.actors.values())
+        return Array.from(this.room.actors.values())
             .filter((actor) => !actor.isDead && (actor.nonce !== projectile.playerNonce) && entitiesCollide(actor, projectile));
     }
 
@@ -196,6 +200,12 @@ class Actor extends Entity {
     takeDamage(damageAmount){
         this.health -= damageAmount;
         this.isDead = this.health <= 0;
+        if(this.isDead) this.stats.awardDeath();
+    }
+
+    reset() {
+        this.health = 100;
+        this.isDead = false;
     }
 }
 

@@ -1,6 +1,6 @@
 "use strict";
 
-let rooms = [];
+let rooms = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
 let wallNonce = 0;
@@ -9,8 +9,10 @@ class Room extends Entity {
 
     constructor(nonce) {
         super(0, 0, 0, 0, 0, 0);
+        this.actors = new Map();
         this.phase = 'LOBBY';
-        this.round = null;
+        this.round = 0;
+        this.roundStartCountdown = 0;
         this.requiredPlayers = 2;
         this.nonce = nonce;
         this.environment = new Environment(this);
@@ -21,19 +23,51 @@ class Room extends Entity {
     }
 
     join(player) {
-        this.environment.addPlayer(player);
-        if (this.environment.actors.size >= 2) this.countdown = 30 * tick_rate;
+        player.stats = new Stats(player);
+        this.actors.set(player.nonce, player);
+        if (this.actors.size >= 2) this.countdown = 5 * tick_rate;
     }
 
     leave(playerNonce) {
         this.emit('destroy', 'enemy-' + playerNonce);
-        this.environment.actors.delete(playerNonce);
-        if (this.environment.actors.size < this.requiredPlayers) delete this.countdown;
+        this.actors.delete(playerNonce);
+        if (this.actors.size < this.requiredPlayers) delete this.countdown;
     }
 
     startGame() {
         this.phase = 'GAME';
-        this.emit('game-start');
+        this.startRound();
+    }
+
+    endGame() {
+        this.emit('game-end', Array.from(this.actors.values()).map((actor) => actor.stats.getGameStats()));
+        rooms.delete(this.nonce);
+    }
+
+    startRound() {
+        this.actors.forEach((actor) => actor.stats.resetRoundStats());
+        this.round++;
+        this.environment = new Environment(this);
+        this.emit('round-start');
+        this.phase = 'GAME';
+        //TODO: Tell the client what the entities for this round are
+    }
+
+    endRound() {
+        this.roundStartCountdown = 200;
+        this.phase = 'ROUND_STATS';
+        this.actors.forEach((actor) => actor.reset());
+        this.emit('round-end', Array.from(this.actors.values()).map((actor) => actor.stats.getRoundStats()));
+    }
+
+    checkRoundComplete() {
+        let remainingPlayers = Array.from(this.actors.values()).filter((actor) => !actor.isDead);
+
+        if(remainingPlayers.length === 1) {
+            remainingPlayers[0].stats.awardRoundWin();
+            this.endRound();
+        }
+
     }
 
     emitFireProjectile(projectile) {
@@ -42,14 +76,22 @@ class Room extends Entity {
     }
 
     _roomTick() {
-
         switch (this.phase) {
             case 'LOBBY':
-                if(this.environment.actors.size >= 2) this.countdown--;
-                if(this.countdown === 0) this.startGame();
+                if (this.actors.size >= 2) this.countdown--;
+                if (this.countdown === 0) this.startGame();
+                break;
+            case 'ROUND_STATS':
+                this.roundStartCountdown--;
+                if (this.round === 5) {
+                    this.endGame();
+                    return;
+                }
+                if (this.roundStartCountdown === 0) this.startRound();
                 break;
             case 'GAME':
                 this.environment.environmentTick();
+                this.checkRoundComplete();
                 break;
         }
 
@@ -60,8 +102,8 @@ class Room extends Entity {
             nonce: this.nonce,
             serverTime: serverTime,
             countdown: this.countdown,
-            actors: [...this.environment.actors.values()],
-            playerSize: this.environment.actors.length,
+            actors: [...this.actors.values()],
+            playerSize: this.actors.length,
             roomName: this.roomName
         };
     }
@@ -69,6 +111,7 @@ class Room extends Entity {
 
 class Stats {
     constructor(player) {
+        this.playerNonce = player.nonce;
         this.roundHits = 0;
         this.roundMisses = 0;
         this.roundKills = 0;
@@ -114,15 +157,22 @@ class Stats {
 
     getRoundStats() {
         return {
+            nonce: this.playerNonce,
             roundHits: this.roundHits,
             roundMisses: this.roundMisses,
             roundKills: this.roundKills,
-            roundWon: this.roundWon
+            roundWon: this.roundWon,
+            totalWins: this.totalWins,
+            totalHits: this.totalHits,
+            totalMisses: this.totalMisses,
+            totalKills: this.totalKills,
+            totalDeaths: this.totalDeaths
         }
     }
 
     getGameStats() {
         return {
+            nonce: this.playerNonce,
             totalWins: this.totalWins,
             totalHits: this.totalHits,
             totalMisses: this.totalMisses,
@@ -147,14 +197,20 @@ function serverTick() {
 
 function getBestRoom() {
 
-    let best = rooms
-        .filter(room => room.phase === 'LOBBY' && room.environment.actors.size < 4)
+    let best = Array.from(rooms.values())
+        .filter(room => room.phase === 'LOBBY' && room.actors.size < 4)
         .reduce((col, room) => {
-            if (!col) return room;
-            return (room.players > col.players) ? room : col;
+            if (!col) return rooms.get(room.nonce);
+            return (room.players > col.players) ? rooms.get(room) : col;
         }, undefined);
 
-    return (best) ? best : rooms[rooms.push(new Room(playerNonce++)) - 1];
+    if (best) {
+        return best;
+    } else {
+        playerNonce++;
+        rooms.set(playerNonce, new Room(playerNonce));
+        return rooms.get(playerNonce);
+    }
 
 }
 
@@ -181,26 +237,25 @@ module.exports = {
             selectedRoom.join(actor);
             socket.join('room_' + selectedRoom.nonce);
             socket.emit('joined-room', actor);
-            console.log([...selectedRoom.environment.walls.values()])
             socket.emit('environment-walls', [...selectedRoom.environment.walls.values()])
         });
 
         socket.on('update-player', function (client_player) {
-                let thePlayer = selectedRoom.environment.actors.get(currentPlayerNonce);
-                thePlayer.x = client_player.x;
-                thePlayer.y = client_player.y;
-                thePlayer.rotationDegrees = client_player.rotationDegrees;
+            let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
+            thePlayer.x = client_player.x;
+            thePlayer.y = client_player.y;
+            thePlayer.rotationDegrees = client_player.rotationDegrees;
         });
 
         socket.on('fire-projectile', function (projectile) {
-                let thePlayer = selectedRoom.environment.actors.get(currentPlayerNonce);
-                projectileNonce++;
-                projectile.nonce = projectileNonce;
-                selectedRoom.emitFireProjectile(new Projectile(projectile.nonce
-                    , thePlayer.x, thePlayer.y
-                    , thePlayer.rotationDegrees
-                    , Date.now()
-                    , thePlayer.nonce));
+            let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
+            projectileNonce++;
+            projectile.nonce = projectileNonce;
+            selectedRoom.emitFireProjectile(new Projectile(projectile.nonce
+                , thePlayer.x, thePlayer.y
+                , thePlayer.rotationDegrees
+                , Date.now()
+                , thePlayer.nonce));
         });
 
         socket.on("disconnect", () => {
