@@ -17,6 +17,32 @@ const required_players = 1;
 const tick_rate = 25;
 let serverTime = 0;
 
+const wallTestList = [
+    [
+        {type: 'Wall', args: [100, 0, 20, 3600]},
+        {type: 'Wall', args: [100, 850, 20, 3600]},
+        {type: 'Wall', args: [0, 350, 1000, 20]},
+        {type: 'Wall', args: [1895, 350, 1000, 20]},
+        {type: 'Wall', args: [520, 350, 350, 20]},
+        {type: 'Wall', args: [850, 650, 20, 550]},
+        {type: 'Wall', args: [1180, 350, 350, 20]},
+    ],
+    [
+        {type: 'Wall', args: [100, 0, 20, 3600]},
+        {type: 'Wall', args: [100, 850, 20, 3600]},
+        {type: 'Wall', args: [0, 350, 1000, 20]},
+        {type: 'Wall', args: [1895, 350, 1000, 20]},
+        {type: 'Wall', args: [700, 300, 580, 20]},
+        {type: 'Wall', args: [1200, 550, 580, 20]},
+    ],
+    [
+        {type: 'Wall', args: [100, 0, 20, 3600]},
+        {type: 'Wall', args: [100, 850, 20, 3600]},
+        {type: 'Wall', args: [0, 350, 1000, 20]},
+        {type: 'Wall', args: [1895, 350, 1000, 20]},
+    ]
+];
+
 class Entity {
     constructor(x, y, height, width, _screen, map) {
         this.nonce = null;
@@ -67,13 +93,23 @@ function randomIntFromInterval(min, max) {
 }
 
 class Environment {
-    constructor(nonce) {
-        this.nonce = nonce;
-        this.actors = new Map();
+    constructor(room) {
+        this.room = room;
+        this.nonce = room.nonce;
         this.projectiles = new Map();
         this.eventQueue = new Map();
-        this.walls = new Map();
-        this.floors = new Map();
+        this.walls = this.buildWalls();
+    }
+
+    //TODO: This should be nonspecific to entities
+    buildWalls() {
+
+        return wallTestList[Math.floor(randomIntFromInterval(0,wallTestList.length-1))]
+            .reduce(function (col, currentWall) {
+                col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
+                return col;
+            }, new Map())
+
     }
 
     addEventQueue(eventName, val) {
@@ -84,26 +120,32 @@ class Environment {
     }
 
     environmentTick() {
-        this.projectiles.forEach((value, key) => {
-            value.onTick();
-            let hitPlayers = this.getPlayerColliding(value);
-            let wallColliding = this.getWallColliding(value);
+        this.projectiles.forEach((projectile, key) => {
+
+            let projectileOwner = this.room.actors.get(projectile.playerNonce);
+
+            projectile.onTick();
+
+            let hitPlayers = this.getPlayerColliding(projectile);
+            //TODO: Assume the client knows that wall colisions result in projectile destruction so we can remove this from network calls...
+            let wallColliding = this.getWallColliding(projectile);
+
             let destroyProjectile = hitPlayers.length > 0 || wallColliding.length > 0;
 
+            if(hitPlayers.length > 0) projectileOwner.stats.awardHit();
+            if (wallColliding.length > 0) projectileOwner.stats.awardMiss();
+
             if (destroyProjectile) {
-                this.addEventQueue("projectile-collision", {nonce: value.nonce});
+                this.addEventQueue("projectile-collision", {nonce: projectile.nonce});
                 this.projectiles.delete(key);
             }
 
-            hitPlayers.forEach((player) => player.takeDamage(1))
+            hitPlayers.forEach((player) => {
+                player.takeDamage(1);
+                if(player.isDead) projectileOwner.stats.awardKill();
+            })
 
         });
-    }
-
-    addPlayer(player) {
-        if (player && player.nonce) {
-            this.actors.set(player.nonce, player);
-        }
     }
 
     addProjectile(projectile) {
@@ -119,7 +161,7 @@ class Environment {
     }
 
     getPlayerColliding(projectile) {
-        return Array.from(this.actors.values())
+        return Array.from(this.room.actors.values())
             .filter((actor) => !actor.isDead && (actor.nonce !== projectile.playerNonce) && entitiesCollide(actor, projectile));
     }
 
@@ -158,6 +200,12 @@ class Actor extends Entity {
     takeDamage(damageAmount){
         this.health -= damageAmount;
         this.isDead = this.health <= 0;
+        if(this.isDead) this.stats.awardDeath();
+    }
+
+    reset() {
+        this.health = 100;
+        this.isDead = false;
     }
 }
 

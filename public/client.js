@@ -7,6 +7,7 @@ let socket,
     player,
     keyDown = {},
     entities = {},
+    roundStats = [],
     map = {},
     joinedRoom,
     a = document.getElementById('a'),
@@ -44,6 +45,10 @@ function mouseInBounds(x, y, height, width) {
 
 function entitiesCall(method, arg) {
     forObj(entities, (entity) => entity[method](arg))
+}
+
+function getEnemies() {
+    return Object.keys(entities).filter(key => key.includes('enemy-')).map(key => entities[key])
 }
 
 function addEntity(entity, namespace) {
@@ -192,8 +197,8 @@ class TitleCard extends FullSize {
 
 var debugTool = 455;
 
-class LobbyGUI extends FullSize {
-    constructor(_screen) {
+class PlayerListGUI extends FullSize {
+    constructor(_screen, messageOverride) {
         super(_screen);
         let vm = this;
         this.render = function () {
@@ -209,6 +214,7 @@ class LobbyGUI extends FullSize {
                 ? 'Competitors found, starting game in ' + Math.floor(joinedRoom.countdown / tick_rate)
                 : 'Connection is scarce, you must compete for this privilege, awaiting competition' + dots;
 
+            if(messageOverride) message = messageOverride;
 
             text(message, vm.width / 2, 369, '#208C30', 16, 1, 'center');
 
@@ -227,7 +233,6 @@ class LobbyGUI extends FullSize {
                 square(vm.width / 2 - 435, y + 3, 80, 80, 'white', 0.2)
             });
 
-            //Gottem with that prototypical magic 8D
             player.render.call({
                 x: vm.width / 2 - 395,
                 y: 455,
@@ -238,9 +243,6 @@ class LobbyGUI extends FullSize {
                 height: 20
             });
 
-            text(`Competitor: ${player.name}`, vm.width / 2 - 325,  465, undefined, 30);
-
-            //GETTEM AYEAYE!!!
             Object.keys(entities).filter(function (entityKey) {
                 return entityKey.includes('enemy-');
             }).forEach(function (enemyKey, index) {
@@ -254,10 +256,62 @@ class LobbyGUI extends FullSize {
                     width: 20,
                     height: 20
                 });
-                text(`Competitor: ${enemy.name}`, vm.width / 2 - 325,  465 + 110 * (index + 1), undefined, 30)
             });
-
         }
+    }
+}
+
+class LobbyTextOverlay extends FullSize {
+    constructor(_screen) {
+        super(_screen);
+        this.render = function () {
+            let vm = this;
+            text(`Competitor: ${player.name}`, vm.width / 2 - 325,  465, undefined, 30);
+            getEnemies().forEach((enemy, index) => text(`Competitor: ${enemy.name}`, vm.width / 2 - 325, 465 + 110 * (index + 1), undefined, 30))
+        };
+    }
+}
+
+class StatsTextOverlay extends FullSize {
+    constructor(_screen) {
+        super(_screen);
+        this.render = function () {
+            let vm = this;
+
+            //TODO: Yeah this could be cleaned up, but I'm so so so so tired......
+
+            let playerStats = roundStats.filter(stat => stat.nonce === player.nonce)[0];
+
+            if(!playerStats) playerStats = {roundWon:true, roundKills:3, roundHits:456, roundMisses:557, totalKills:3, totalDeaths:9, totalHits:1234, totalMisses:342349, totalWins:4};
+
+            text(`${player.name} - ${playerStats.totalWins} Points`, vm.width / 2 - 170,  425, undefined, 16);
+
+            text(`Disposition: ${(playerStats.roundWon) ? 'ALIVE' : 'DEAD'}` , vm.width / 2 - 340,  440, undefined, 14);
+            text(`Shot Accuracy: ${Math.floor(playerStats.roundHits / playerStats.roundMisses *100)}% ${playerStats.roundHits}/${playerStats.roundMisses}` , vm.width / 2 - 340,  460, undefined, 14);
+            text(`Kills: ${playerStats.roundKills}`, vm.width / 2 - 340,  480, undefined, 14);
+
+            text(`Total Kills: ${playerStats.totalKills}` , vm.width / 2 + 100,  440, undefined, 14);
+            text(`Total Accuracy: ${Math.floor(playerStats.totalHits / playerStats.totalMisses *100)}% ${playerStats.totalHits}/${playerStats.totalMisses}` , vm.width / 2 + 100,  460, undefined, 14);
+            text(`Total Deaths: ${playerStats.roundKills}`, vm.width / 2 + 100,  480, undefined, 14);
+
+            getEnemies().forEach((enemy, index) => {
+
+                let enemyStats = roundStats.filter(stat => stat.nonce === enemy.nonce)[0];
+
+                let yOffset = 110;
+
+                text(`${enemy.name} - ${enemyStats.totalWins} Points`, vm.width / 2 - 170,  425 + yOffset * (index + 1), undefined, 16);
+
+                text(`Disposition: ${(enemyStats.roundWon) ? 'ALIVE' : 'DEAD'}` , vm.width / 2 - 340,  440 + yOffset * (index + 1), undefined, 14);
+                text(`Shot Accuracy: ${Math.floor(enemyStats.roundHits / enemyStats.roundMisses *100)}% ${enemyStats.roundHits}/${enemyStats.roundMisses}` , vm.width / 2 - 340,  460 + yOffset * (index + 1), undefined, 14);
+                text(`Kills: ${enemyStats.roundKills}`, vm.width / 2 - 340,  480 + yOffset * (index + 1), undefined, 14);
+
+                text(`Total Kills: ${enemyStats.totalKills}` , vm.width / 2 + 100,  440 + yOffset * (index + 1), undefined, 14);
+                text(`Total Accuracy: ${Math.floor(enemyStats.totalHits / enemyStats.totalMisses *100)}% ${enemyStats.totalHits}/${enemyStats.totalMisses}` , vm.width / 2 + 100,  460 + yOffset * (index + 1), undefined, 14);
+                text(`Total Deaths: ${enemyStats.roundKills}`, vm.width / 2 + 100,  480 + yOffset * (index + 1), undefined, 14);
+
+            })
+        };
     }
 }
 
@@ -330,32 +384,45 @@ window.addEventListener("load", function () {
 
     player = new Player(250, 250);
 
-    //load order for screen 1
+    //load order for screen 1 - Game Screen
     addEntity(new Background(1));
     addEntity(new Floor(0, 0, 850, 1900));
 
     addEntity(player);
 
-    //load order for lobby
+    //load order for screen 2 - Matchmaking Lobby
     addEntity(new Background(2));
     addEntity(new TitleCard(2));
-    addEntity(new LobbyGUI(2));
+    addEntity(new PlayerListGUI(2));
+    addEntity(new LobbyTextOverlay(2));
 
-    //load order for screen 3
+    //load order for screen 3 - Title screen
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
     addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join')));
     addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame'));
     addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man'));
 
+    //load order for screen 4 - Post Round Stats
+    addEntity(new Background(4));
+    addEntity(new TitleCard(4));
+    addEntity(new PlayerListGUI(4, 'Post round stats, the next round will begin shortly'));
+    addEntity(new StatsTextOverlay(4));
+
     forObj({
         'joined-room': function (server_player) {
             player.nonce = server_player.nonce;
             screen = 2;
         },
-        'game-start': () => screen = 1,
-        'destroy': function (entityKey) {
-            delete entities[entityKey];
+        'round-start': () => screen = 1,
+        'round-end': (postRoundStats) => {
+            roundStats = postRoundStats;
+            screen = 4
+        },
+        'game-end': () => screen = 5,
+        'destroy': (entityKeyOrList) => {
+            if (Array.isArray(entityKeyOrList)) entityKeyOrList.forEach((entityKey) => delete entities[entityKey]);
+            else delete entities[entityKeyOrList];
         },
         'environment-walls': function (_walls) {
             _walls.forEach((wall) => {
