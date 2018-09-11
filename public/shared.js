@@ -201,7 +201,7 @@ class Projectile extends Entity {
         this.fireTime = fireTime;
         this.render = function () {
             let vm = this;
-            square(vm.x,vm.y,vm.height,vm.width,vm.color || 'orange', 1)
+            square(vm.x,vm.y,vm.width,vm.height,vm.color || 'orange', 1)
         };
         this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
