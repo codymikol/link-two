@@ -3,7 +3,12 @@
 let rooms = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
-const map_1 = "[{\"type\":\"Wall\",\"args\":[120,0,20,3600]},{\"type\":\"Wall\",\"args\":[120,850,20,3600]},{\"type\":\"Wall\",\"args\":[20,350,1000,20]},{\"type\":\"Wall\",\"args\":[1300,350,1000,20]},{\"type\":\"Wall\",\"args\":[520,350,350,20]},{\"type\":\"Starting\",\"args\":[280,180,800,280,1540,190,850,740]}]";
+
+// first is the top wall
+// second is the bottom wall
+// third is the left most wall.
+// fourth is the
+const map_1 = "[{\"type\":\"Wall\",\"args\":[660,20,20,1280]},{\"type\":\"Wall\",\"args\":[660,850,20,1280]},{\"type\":\"Wall\",\"args\":[20,400,850,20]},{\"type\":\"Wall\",\"args\":[1300,350,1000,20]},{\"type\":\"Wall\",\"args\":[520,350,350,20]},{\"type\":\"Starting\",\"args\":[280,180,800,280,1540,190,850,740]}]";
 
 class Room extends Entity {
 
@@ -57,6 +62,7 @@ class Room extends Entity {
     }
 
     endRound() {
+        // todo uncomment and change for debugging purposes.
         this.roundStartCountdown = 200;
         this.phase = 'ROUND_STATS';
         this.actors.forEach((actor) => actor.reset());
