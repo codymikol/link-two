@@ -150,10 +150,10 @@ class Environment {
 
 
 class Actor extends Entity {
-    constructor(x, y, color) {
+    constructor(x, y, color, name) {
         super(x, y, 20, 20, 1);
         this.health = 100;
-        this.name = 'Cody Charles Mikol';
+        this.name = name;
         this.isDead = false;
         this.rotationDegrees = 0;
         this.color = color;
