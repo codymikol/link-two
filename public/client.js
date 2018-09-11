@@ -268,8 +268,8 @@ class StatsTextOverlay extends FullSize {
 }
 
 class Player extends Actor {
-    constructor(x, y, rotationDegrees, health, height, width, map) {
-        super(x, y, 'green', rotationDegrees, health, height, width, map);
+    constructor(x, y, rotationDegrees, health, height, width) {
+        super(x, y, 'green', rotationDegrees, health, height, width);
         this.onMouseMove = function () {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
@@ -304,8 +304,8 @@ class Player extends Actor {
 }
 
 class Enemy extends Actor {
-    constructor(x, y, rotationDegrees, health, height, width, map) {
-        super(x, y, 'red', rotationDegrees, health, height, width, map);
+    constructor(x, y, rotationDegrees, health, height, width) {
+        super(x, y, 'red', rotationDegrees, health, height, width);
     }
 }
 

@@ -22,9 +22,8 @@ const wallTestList = [
 ];
 
 class Entity {
-    constructor(x, y, height, width, _screen, map) {
+    constructor(x, y, height, width, _screen) {
         this.nonce = null;
-        this.map = map;
         this.namespace = null;
         this.x = x;
         this.y = y;
@@ -188,8 +187,8 @@ class Actor extends Entity {
 }
 
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, wobble, speedFloor, speedCeiling) {
-        super(x, y, 5, 5, 1, map);
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, wobble, speedFloor, speedCeiling) {
+        super(x, y, 5, 5, 1);
         this.halflife = 15;
         this.nonce = nonce;
         this._startingX = x;
@@ -214,38 +213,45 @@ class Projectile extends Entity {
 }
 
 class PistolProjectile extends Projectile {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, 8, 5, 8);
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 5, 8);
     }
 }
 
 class ShotgunProjectile extends Projectile {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, 8, 5, 8);
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 5, 8);
     }
 }
 
 class MachineGunProjectile extends Projectile {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, 8, 5, 8);
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 5, 8);
     }
 }
 
 class SmgProjectile extends Projectile {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, 8, 5, 8);
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 5, 8);
     }
 }
 
 class Surface extends Entity {
-    constructor(x, y, height, width, map) {
-        super(x, y, height, width, 1, map);
+    constructor(x, y, height, width) {
+        super(x, y, height, width, 1);
     }
 }
 
+class GroundWeapon extends Entity {
+    constructor() {
+        super(x,y,height,width, 1)
+    }
+
+}
+
 class Floor extends Surface {
-    constructor(x, y, height, width, map) {
-        super(x, y, height, width, map);
+    constructor(x, y, height, width) {
+        super(x, y, height, width);
         this.render = function () {
             ctx.globalAlpha = .5;
             ctx.fillStyle = '#bcb9ad';
@@ -256,8 +262,8 @@ class Floor extends Surface {
 }
 
 class Wall extends Surface {
-    constructor(nonce, x, y, height, width, map) {
-        super(x, y, height, width, map);
+    constructor(nonce, x, y, height, width) {
+        super(x, y, height, width);
         this.nonce = nonce;
         this.blocking = true;
         this.render = function () {

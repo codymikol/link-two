@@ -7,7 +7,7 @@ let projectileNonce = 0;
 class Room extends Entity {
 
     constructor(nonce) {
-        super(0, 0, 0, 0, 0, 0);
+        super(0, 0, 0, 0, 0);
         this.actors = new Map();
         this.phase = 'LOBBY';
         this.round = 0;
