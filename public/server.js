@@ -265,7 +265,7 @@ module.exports = {
             let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
             projectileNonce++;
             projectile.nonce = projectileNonce;
-            selectedRoom.emitFireProjectile(new Projectile(projectile.nonce
+            selectedRoom.emitFireProjectile(new ShotgunProjectile(projectile.nonce
                 , thePlayer.x, thePlayer.y
                 , thePlayer.rotationDegrees
                 , Date.now()
