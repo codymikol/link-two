@@ -236,8 +236,6 @@ class StatsTextOverlay extends FullSize {
 
             let playerStats = roundStats.filter(stat => stat.nonce === player.nonce)[0];
 
-            if(!playerStats) playerStats = {roundWon:true, roundKills:3, roundHits:456, roundMisses:557, totalKills:3, totalDeaths:9, totalHits:1234, totalMisses:342349, totalWins:4};
-
             text(`${player.name} - ${playerStats.totalWins} Points`, vm.width / 2 - 170,  425, undefined, 16);
 
             text(`Disposition: ${(playerStats.roundWon) ? 'ALIVE' : 'DEAD'}` , vm.width / 2 - 340,  440, undefined, 14);
