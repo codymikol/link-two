@@ -8,6 +8,7 @@ let socket,
     keyDown = {},
     entities = {},
     roundStats = [],
+    environmentKeys = [],
     map = {},
     joinedRoom,
     a = document.getElementById('a'),
@@ -414,7 +415,14 @@ window.addEventListener("load", function () {
             player.nonce = server_player.nonce;
             screen = 2;
         },
-        'round-start': () => screen = 1,
+        'round-start': (environmentEntities) => {
+            environmentKeys.forEach((key) => delete entities[key]);
+            environmentKeys = [];
+            environmentEntities.forEach((entity) =>{
+                environmentKeys.push(addEntity(new Wall(entity.nonce, entity.x, entity.y, entity.height, entity.width, 1)).nonce);
+            });
+            screen = 1
+        },
         'round-end': (postRoundStats) => {
             roundStats = postRoundStats;
             screen = 4
@@ -424,13 +432,7 @@ window.addEventListener("load", function () {
             if (Array.isArray(entityKeyOrList)) entityKeyOrList.forEach((entityKey) => delete entities[entityKey]);
             else delete entities[entityKeyOrList];
         },
-        'environment-walls': function (_walls) {
-            _walls.forEach((wall) => {
-                addEntity(new Wall(wall.nonce, wall.x, wall.y, wall.height, wall.width));
-            });
-            addEntity(new Wall(350, 100, 20, 500));
-        },
-        'projectile-collision': function (_collision) {
+       'projectile-collision': function (_collision) {
             _collision.forEach(function (proj) {
                 delete entities['projectile-' + proj.nonce];
             })

@@ -47,7 +47,7 @@ class Room extends Entity {
         this.actors.forEach((actor) => actor.stats.resetRoundStats());
         this.round++;
         this.environment = new Environment(this);
-        this.emit('round-start');
+        this.emit('round-start', Array.from(this.environment.walls.values()));
         this.phase = 'GAME';
         //TODO: Tell the client what the entities for this round are
     }
