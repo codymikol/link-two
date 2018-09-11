@@ -82,17 +82,30 @@ class Environment {
         this.projectiles = new Map();
         this.eventQueue = new Map();
         this.walls = this.buildWalls();
+
+        let startingPosition = wallTestList[0].filter(function (currentObj) {
+            return currentObj.type === 'Starting';
+        })[0];
+
+        var positionIndex = 0;
+        this.room.actors.forEach(function (actor, index) {
+            actor.x = startingPosition.args[positionIndex];
+            actor.y = startingPosition.args[positionIndex + 1];
+            positionIndex += 2;
+        });
     }
 
     //TODO: This should be nonspecific to entities
     buildWalls() {
-
-        return wallTestList[Math.floor(randomIntFromInterval(0, wallTestList.length - 1))]
-            .reduce(function (col, currentWall) {
+        // let mapIndex = Math.floor(randomIntFromInterval(0,wallTestList.length-1))
+        let mapIndex = 0;
+        return wallTestList[mapIndex]
+            .filter(function (currentWall) {
+                return currentWall.type !== 'Starting';
+            }).reduce(function (col, currentWall) {
                 col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
                 return col;
-            }, new Map())
-
+            }, new Map());
     }
 
     addEventQueue(eventName, val) {

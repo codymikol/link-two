@@ -338,7 +338,7 @@ window.addEventListener("load", function () {
 
     socket = io({upgrade: true, transports: ["websocket"]});
 
-    player = new Player(250, 250);
+    player = new Player();
 
     //load order for screen 1 - Game Screen
     addEntity(new Background(1));
@@ -374,9 +374,20 @@ window.addEventListener("load", function () {
         'round-start': (environmentEntities) => {
             environmentKeys.forEach((key) => delete entities[key]);
             environmentKeys = [];
-            environmentEntities.forEach((entity) =>{
+            environmentEntities.walls.forEach((entity) => {
                 environmentKeys.push(addEntity(new Wall(entity.nonce, entity.x, entity.y, entity.height, entity.width, 1)).nonce);
             });
+            environmentEntities.actors
+                .forEach(function (actor) {
+                    if (actor.nonce === player.nonce) {
+                        player.x = actor.x;
+                        player.y = actor.y;
+                    } else {
+                        let cached_player = entities['enemy-' + actor.nonce];
+                        cached_player.x = actor.x;
+                        cached_player.y = actor.y;
+                    };
+                });
             screen = 1
         },
         'round-end': (postRoundStats) => {

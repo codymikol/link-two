@@ -3,6 +3,7 @@
 let rooms = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
+const map_1 = "[{\"type\":\"Wall\",\"args\":[120,0,20,3600]},{\"type\":\"Wall\",\"args\":[120,850,20,3600]},{\"type\":\"Wall\",\"args\":[20,350,1000,20]},{\"type\":\"Wall\",\"args\":[1300,350,1000,20]},{\"type\":\"Wall\",\"args\":[520,350,350,20]},{\"type\":\"Starting\",\"args\":[280,180,800,280,1540,190,850,740]}]";
 
 class Room extends Entity {
 
@@ -47,7 +48,10 @@ class Room extends Entity {
         this.actors.forEach((actor) => actor.stats.resetRoundStats());
         this.round++;
         this.environment = new Environment(this);
-        this.emit('round-start', Array.from(this.environment.walls.values()));
+        this.emit('round-start', {
+            actors: Array.from(this.actors.values()),
+            walls: Array.from(this.environment.walls.values())
+        });
         this.phase = 'GAME';
         //TODO: Tell the client what the entities for this round are
     }
@@ -214,11 +218,19 @@ function getBestRoom() {
 }
 
 function loadMaps() {
+    mapLoader();
     for (let i = 0; i < map_count; i++) {
         storage.get('map_' + (i + 1)).then(result => {
             wallTestList[i] = result;
         });
     }
+
+
+}
+
+// TODO!! remove me !!
+function mapLoader() {
+    storage.set("map_1", map_1, false);
 }
 
 function init() {
@@ -255,9 +267,11 @@ module.exports = {
 
         socket.on('update-player', function (client_player) {
             let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
-            thePlayer.x = client_player.x;
-            thePlayer.y = client_player.y;
-            thePlayer.rotationDegrees = client_player.rotationDegrees;
+            if (client_player.x && client_player.y) {
+                thePlayer.x = client_player.x;
+                thePlayer.y = client_player.y;
+                thePlayer.rotationDegrees = client_player.rotationDegrees;
+            }
         });
 
         socket.on('fire-projectile', function (projectile) {
