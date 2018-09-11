@@ -188,7 +188,7 @@ class Actor extends Entity {
 }
 
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, wobble, speedFloor, speedCeiling) {
         super(x, y, 5, 5, 1, map);
         this.halflife = 15;
         this.nonce = nonce;
@@ -196,20 +196,13 @@ class Projectile extends Entity {
         this._startingY = y;
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
-        this.wobbleRotation = (randomIntFromInterval(-8, 8)) + this.rotationDegrees;
-        this.speed = randomIntFromInterval(5, 8);
+        this.wobbleRotation = (randomIntFromInterval(-wobble, wobble)) + this.rotationDegrees;
+        this.speed = randomIntFromInterval(speedFloor, speedCeiling);
         this.fireTime = fireTime;
         this.render = function () {
-            ctx.beginPath();
-            ctx.fillStyle = this.color || 'orange';
-            ctx.font = "12px Arial";
-            ctx.fillRect(this.x, this.y, this.height, this.width);
-            ctx.stroke();
+            let vm = this;
+            square(vm.x,vm.y,vm.height,vm.width,vm.color || 'orange', 1)
         };
-        this.isOutOfBounds = function () {
-            return this.x > map_width || this.x < 0 || this.y > map_height || this.y < 0;
-        };
-
         this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
         };
@@ -219,6 +212,31 @@ class Projectile extends Entity {
         };
     }
 }
+
+class PistolProjectile extends Projectile {
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, 8, 5, 8);
+    }
+}
+
+class ShotgunProjectile extends Projectile {
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, 8, 5, 8);
+    }
+}
+
+class MachineGunProjectile extends Projectile {
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, 8, 5, 8);
+    }
+}
+
+class SmgProjectile extends Projectile {
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, map) {
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, map, 8, 5, 8);
+    }
+}
+
 class Surface extends Entity {
     constructor(x, y, height, width, map) {
         super(x, y, height, width, 1, map);

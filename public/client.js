@@ -396,7 +396,7 @@ window.addEventListener("load", function () {
             if (cached_projectile) {
                 copyProps(_projectile, cached_projectile);
             } else {
-                let newProjectile = new Projectile(_projectile.nonce, _projectile.x, _projectile.y, _projectile.rotationDegrees, _projectile.fireTime, _projectile.playerNonce);
+                let newProjectile = new ShotgunProjectile(_projectile.nonce, _projectile.x, _projectile.y, _projectile.rotationDegrees, _projectile.fireTime, _projectile.playerNonce);
                 copyProps(_projectile, newProjectile);
                 addEntity(newProjectile, 'projectile-' + _projectile.nonce)
             }
