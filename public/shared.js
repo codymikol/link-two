@@ -11,36 +11,14 @@ function copyProps(src, dest) {
 }
 
 let abs = Math.abs;
+let wallNonce = 0;
 const map_height = 5000;
 const map_width = 5000;
-const required_players = 1;
+const map_count = 3;
 const tick_rate = 25;
 let serverTime = 0;
 
 const wallTestList = [
-    [
-        {type: 'Wall', args: [100, 0, 20, 3600]},
-        {type: 'Wall', args: [100, 850, 20, 3600]},
-        {type: 'Wall', args: [0, 350, 1000, 20]},
-        {type: 'Wall', args: [1895, 350, 1000, 20]},
-        {type: 'Wall', args: [520, 350, 350, 20]},
-        {type: 'Wall', args: [850, 650, 20, 550]},
-        {type: 'Wall', args: [1180, 350, 350, 20]},
-    ],
-    [
-        {type: 'Wall', args: [100, 0, 20, 3600]},
-        {type: 'Wall', args: [100, 850, 20, 3600]},
-        {type: 'Wall', args: [0, 350, 1000, 20]},
-        {type: 'Wall', args: [1895, 350, 1000, 20]},
-        {type: 'Wall', args: [700, 300, 580, 20]},
-        {type: 'Wall', args: [1200, 550, 580, 20]},
-    ],
-    [
-        {type: 'Wall', args: [100, 0, 20, 3600]},
-        {type: 'Wall', args: [100, 850, 20, 3600]},
-        {type: 'Wall', args: [0, 350, 1000, 20]},
-        {type: 'Wall', args: [1895, 350, 1000, 20]},
-    ]
 ];
 
 class Entity {
