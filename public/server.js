@@ -3,7 +3,6 @@
 let rooms = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
-let wallNonce = 0;
 
 class Room extends Entity {
 
@@ -63,7 +62,7 @@ class Room extends Entity {
     checkRoundComplete() {
         let remainingPlayers = Array.from(this.actors.values()).filter((actor) => !actor.isDead);
 
-        if(remainingPlayers.length === 1) {
+        if (remainingPlayers.length === 1) {
             remainingPlayers[0].stats.awardRoundWin();
             this.endRound();
         }
@@ -214,7 +213,16 @@ function getBestRoom() {
 
 }
 
+function loadMaps() {
+    for (let i = 0; i < map_count; i++) {
+        storage.get('map_' + (i + 1)).then(result => {
+            wallTestList[i] = result;
+        });
+    }
+}
+
 function init() {
+    loadMaps();
     setInterval(function () {
         serverTick()
     }, tick_rate);
