@@ -67,58 +67,15 @@ class Button extends Entity {
     }
 }
 
-
-//Made a handy dandy little bugger for figuring out where text should be :D:D:D:D:D
-//We can delet this later, plz dont remove ;)
-
-// class DebugText extends Entity {
-//     constructor(_screen, texty) {
-//         super(100, 100, 0, 0, _screen,);
-//
-//         this.text = texty;
-//         this.size = 24;
-//         this.alpha = 1;
-//         this.velocity = .01;
-//
-//         let vm = this;
-//
-//         this.render = function () {
-//             text(texty, vm.x, vm.y, 'red', vm.size, vm.alpha)
-//         };
-//
-//         this.onTick = function (delta) {
-//             if (keyDown.w) this.y -= this.velocity * delta * 10;
-//             if (keyDown.a) this.x -= this.velocity * delta * 10;
-//             if (keyDown.s) this.y += this.velocity * delta * 10;
-//             if (keyDown.d) this.x += this.velocity * delta * 10;
-//             if (keyDown.e) this.size += this.velocity * delta;
-//             if (keyDown.q) this.size -= this.velocity * delta;
-//             if (keyDown.p) console.log(`text(${vm.text},${vm.x},${vm.y},\'red\',${vm.size},1`)
-//         }
-//
-//     }
-// }
-
 class TitleButton extends Button {
-    constructor(x, y, text, sideText, onClick) {
-        super(a.width / 2 - 200, y, text, onClick);
+    constructor(x, y, txt, sideText, onClick) {
+        super(a.width / 2 - 200, y, txt, onClick);
         this.sideText = sideText;
         this.render = function () {
-            ctx.globalAlpha = 0.6;
-            ctx.beginPath();
-            ctx.fillStyle = this.hovered ? "#208C80" : "#208C30";
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-            ctx.stroke();
-            ctx.font = "20px Arial Black";
-            ctx.fillStyle = "black";
-            ctx.fillText(this.text, this.x + 20, this.y + 20);
-            ctx.globalAlpha = 1;
-            if (this.hovered) {
-                ctx.fillStyle = "#208C80";
-                ctx.textAlign = 'right';
-                ctx.fillText('> ' + this.sideText, this.x - 20, this.y + (this.height / 2) + 7);
-                ctx.textAlign = 'start'
-            }
+            let vm = this;
+            square(vm.x, vm.y, vm.width, vm.height, this.hovered ? '#208C80' : '#208C30', 0.6);
+            text(vm.text, vm.x+20,vm.y+20,'black',20,0.6);
+            if (this.hovered) text('> ' + vm.sideText, vm.x-10,vm.y + (this.height/2) + 7,'#208C80',20,1,'right');
         };
         this.onResize = function () {
             this.x = (a.width / 2) - 200;
@@ -145,17 +102,13 @@ class Background extends FullSize {
     constructor(screen) {
         super(screen);
         let vm = this;
-        vm.timer = 0;
-        this.is = 'BACKGROUND';
         vm.render = function () {
-            ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, vm.width, vm.height);
+            square(0,0,vm.width,vm.height,'black');
             ctx.fillStyle = '#208C30';
             ctx.globalAlpha = 0.05;
             for (let i = 0; i < 1000; i++) {
                 [5, 10, 15, 120].forEach((height) => ctx.fillRect(0, 15 * i + vm.timer - 200, vm.width, height))
             }
-            ctx.globalAlpha = 1;
         };
     }
 }
