@@ -236,7 +236,7 @@ module.exports = {
 
         playerNonce++;
         const currentPlayerNonce = playerNonce;
-        let displayName = "Anonymous-" + currentPlayerNonce;
+        let displayName = "Player-" + currentPlayerNonce;
         let selectedRoom;
 
         socket.on("join", function () {
