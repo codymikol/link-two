@@ -241,7 +241,6 @@ module.exports = {
 
         socket.on("join", function () {
             selectedRoom = getBestRoom();
-            console.log(displayName);
             var actor = new Actor(0, 0, 'red', displayName);
             actor.nonce = currentPlayerNonce;
             selectedRoom.join(actor);
