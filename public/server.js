@@ -236,16 +236,22 @@ module.exports = {
 
         playerNonce++;
         const currentPlayerNonce = playerNonce;
+        let displayName = "Player-" + currentPlayerNonce;
         let selectedRoom;
 
         socket.on("join", function () {
             selectedRoom = getBestRoom();
-            var actor = new Actor(0, 0, 'red');
+            console.log(displayName);
+            var actor = new Actor(0, 0, 'red', displayName);
             actor.nonce = currentPlayerNonce;
             selectedRoom.join(actor);
             socket.join('room_' + selectedRoom.nonce);
             socket.emit('joined-room', actor);
             socket.emit('environment-walls', [...selectedRoom.environment.walls.values()])
+        });
+
+        socket.on('update-name', function (name) {
+            displayName = name;
         });
 
         socket.on('update-player', function (client_player) {

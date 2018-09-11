@@ -412,6 +412,7 @@ window.addEventListener("load", function () {
     forObj({
         'joined-room': function (server_player) {
             player.nonce = server_player.nonce;
+            player.name = server_player.name;
             screen = 2;
         },
         'round-start': () => screen = 1,
