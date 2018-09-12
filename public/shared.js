@@ -81,18 +81,34 @@ class Environment {
         this.nonce = room.nonce;
         this.projectiles = new Map();
         this.eventQueue = new Map();
-        this.walls = this.buildWalls();
+        // let mapIndex = Math.floor(randomIntFromInterval(0,wallTestList.length-1))
+        let mapIndex = 0;
+        this.walls = this.buildWalls(mapIndex);
+        this.assignStartingPositions(mapIndex)
     }
 
     //TODO: This should be nonspecific to entities
-    buildWalls() {
-
-        return wallTestList[Math.floor(randomIntFromInterval(0, wallTestList.length - 1))]
-            .reduce(function (col, currentWall) {
+    buildWalls(mapIndex) {
+        return wallTestList[mapIndex]
+            .filter(function (currentWall) {
+                return currentWall.type === 'Wall';
+            }).reduce(function (col, currentWall) {
                 col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
                 return col;
-            }, new Map())
+            }, new Map());
+    }
 
+    assignStartingPositions(mapIndex) {
+        let startingPosition = wallTestList[mapIndex].filter(function (currentObj) {
+            return currentObj.type === 'Starting';
+        })[0];
+
+        var positionIndex = 0;
+        this.room.actors.forEach(function (actor, index) {
+            actor.x = startingPosition.args[positionIndex];
+            actor.y = startingPosition.args[positionIndex + 1];
+            positionIndex += 2;
+        });
     }
 
     addEventQueue(eventName, val) {
@@ -371,7 +387,7 @@ class Floor extends Surface {
         this.render = function () {
             ctx.globalAlpha = .5;
             ctx.fillStyle = '#bcb9ad';
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
             ctx.globalAlpha = 1;
         }
     }

@@ -4,6 +4,8 @@ let rooms = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
 
+const map_1 = "[{\"type\":\"Starting\",\"args\":[50,40,50,800,1050,800,1050,40]},{\"type\":\"Floor\",\"args\":[550,420,790,1040]},{\"type\":\"Wall\",\"args\":[30,420,820,20]},{\"type\":\"Wall\",\"args\":[550,820,20,1035]},{\"type\":\"Wall\",\"args\":[1075,420,820,20]},{\"type\":\"Wall\",\"args\":[552,15,20,1065]},{\"type\":\"Wall\",\"args\":[150,400,20,250]},{\"type\":\"Wall\",\"args\":[945,400,20,240]},{\"type\":\"Wall\",\"args\":[540,680,260,20]},{\"type\":\"Wall\",\"args\":[540,150,260,20]},{\"type\":\"Wall\",\"args\":[120,165,130,20]},{\"type\":\"Wall\",\"args\":[975,165,130,20]},{\"type\":\"Wall\",\"args\":[920,100,20,130]},{\"type\":\"Wall\",\"args\":[175,100,20,130]},{\"type\":\"Wall\",\"args\":[120,680,130,20]},{\"type\":\"Wall\",\"args\":[975,680,130,20]},{\"type\":\"Wall\",\"args\":[180,735,20,140]},{\"type\":\"Wall\",\"args\":[915,735,20,140]},{\"type\":\"GroundShotgun\",\"args\":[150,136]},{\"type\":\"GroundShotgun\",\"args\":[945,130]},{\"type\":\"GroundShotgun\",\"args\":[945,700]},{\"type\":\"GroundShotgun\",\"args\":[150,705]},{\"type\":\"MachineGun\",\"args\":[536,400]}]";
+
 class Room extends Entity {
 
     constructor(nonce) {
@@ -47,12 +49,16 @@ class Room extends Entity {
         this.actors.forEach((actor) => actor.stats.resetRoundStats());
         this.round++;
         this.environment = new Environment(this);
-        this.emit('round-start', Array.from(this.environment.walls.values()));
+        this.emit('round-start', {
+            actors: Array.from(this.actors.values()),
+            walls: Array.from(this.environment.walls.values())
+        });
         this.phase = 'GAME';
         //TODO: Tell the client what the entities for this round are
     }
 
     endRound() {
+        // todo uncomment and change for debugging purposes.
         this.roundStartCountdown = 200;
         this.phase = 'ROUND_STATS';
         this.actors.forEach((actor) => actor.reset());
@@ -214,11 +220,19 @@ function getBestRoom() {
 }
 
 function loadMaps() {
+    mapLoader();
     for (let i = 0; i < map_count; i++) {
         storage.get('map_' + (i + 1)).then(result => {
             wallTestList[i] = result;
         });
     }
+
+
+}
+
+// TODO!! remove me !!
+function mapLoader() {
+    storage.set("map_1", map_1, false);
 }
 
 function init() {
@@ -241,7 +255,6 @@ module.exports = {
 
         socket.on("join", function () {
             selectedRoom = getBestRoom();
-            console.log(displayName);
             var actor = new Actor(0, 0, 'red', displayName);
             actor.nonce = currentPlayerNonce;
             selectedRoom.join(actor);
@@ -256,9 +269,11 @@ module.exports = {
 
         socket.on('update-player', function (client_player) {
             let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
-            thePlayer.x = client_player.x;
-            thePlayer.y = client_player.y;
-            thePlayer.rotationDegrees = client_player.rotationDegrees;
+            if (client_player.x && client_player.y) {
+                thePlayer.x = client_player.x;
+                thePlayer.y = client_player.y;
+                thePlayer.rotationDegrees = client_player.rotationDegrees;
+            }
         });
 
         socket.on('fire-projectile', function (projectile) {
