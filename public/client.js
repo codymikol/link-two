@@ -275,9 +275,7 @@ class Player extends Actor {
         };
         this.onAnyClick = function () {
             if (!this.isDead) {
-                for (var i = 0; i < 10; i++) {
-                    socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
-                }
+                socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
             }
         };
         this.onTick = function (delta) {
@@ -457,15 +455,17 @@ window.addEventListener("load", function () {
                 delete entities['projectile-' + proj.nonce];
             })
         },
-        'projectile-fire': function (_projectile) {
-            let cached_projectile = entities['projectile-' + _projectile.nonce];
-            if (cached_projectile) {
-                copyProps(_projectile, cached_projectile);
-            } else {
-                let newProjectile = new ShotgunProjectile(_projectile.nonce, _projectile.x, _projectile.y, _projectile.rotationDegrees, _projectile.fireTime, _projectile.playerNonce);
-                copyProps(_projectile, newProjectile);
-                addEntity(newProjectile, 'projectile-' + _projectile.nonce)
-            }
+        'projectile-fire': function (_projectileList) {
+            _projectileList.forEach(function (_projectile) {
+                let cached_projectile = entities['projectile-' + _projectile.nonce];
+                if (cached_projectile) {
+                    copyProps(_projectile, cached_projectile);
+                } else {
+                    let newProjectile = new ShotgunProjectile(_projectile.nonce, _projectile.x, _projectile.y, _projectile.rotationDegrees, _projectile.fireTime, _projectile.playerNonce);
+                    copyProps(_projectile, newProjectile);
+                    addEntity(newProjectile, 'projectile-' + _projectile.nonce)
+                }
+            });
         },
         'update-chosen-room': function (room) {
             joinedRoom = room;

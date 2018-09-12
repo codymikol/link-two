@@ -76,9 +76,35 @@ class Room extends Entity {
 
     }
 
-    emitFireProjectile(projectile) {
-        this.environment.addProjectile(projectile);
-        this.emit('projectile-fire', projectile);
+    fireProjectile(player) {
+
+        let args = [projectileNonce++, player.x, player.y, player.rotationDegrees, Date.now(), player.nonce];
+
+        let serverProjectileList = [];
+
+        switch (player.activeWeapon) {
+            case 'GroundPistol':
+                serverProjectileList = [new PistolProjectile(...args)];
+                break;
+            case 'GroundShotgun':
+                for(var i = 0; i < 25; i++) {
+                    args[0] = projectileNonce++;
+                    serverProjectileList.push(new ShotgunProjectile(...args))
+                }
+                break;
+            case 'GroundMachineGun':
+                serverProjectileList = [new MachineGunProjectile(...args)];
+                break;
+            case 'GroundSmg':
+                serverProjectileList = [new SmgProjectile(...args)];
+                break;
+        }
+
+        serverProjectileList.forEach((serverProjectile) => {
+            this.environment.addProjectile(serverProjectile);
+        });
+        this.emit('projectile-fire', serverProjectileList);
+
     }
 
     _roomTick() {
@@ -277,15 +303,9 @@ module.exports = {
             }
         });
 
-        socket.on('fire-projectile', function (projectile) {
+        socket.on('fire-projectile', function () {
             let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
-            projectileNonce++;
-            projectile.nonce = projectileNonce;
-            selectedRoom.emitFireProjectile(new ShotgunProjectile(projectile.nonce
-                , thePlayer.x, thePlayer.y
-                , thePlayer.rotationDegrees
-                , Date.now()
-                , thePlayer.nonce));
+            selectedRoom.fireProjectile(thePlayer);
         });
 
         socket.on("disconnect", () => {
