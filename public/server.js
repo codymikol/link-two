@@ -4,12 +4,8 @@ let rooms = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
 
-// first is the top wall
-// second is the bottom wall
-// third is the left most wall.
-// fourth is the
-// const map_1 = "[{\"type\":\"Wall\",\"args\":[660,20,20,1280]},{\"type\":\"Wall\",\"args\":[660,850,20,1280]},{\"type\":\"Wall\",\"args\":[20,400,850,20]},{\"type\":\"Wall\",\"args\":[1300,350,1000,20]},{\"type\":\"Wall\",\"args\":[520,350,350,20]},{\"type\":\"Starting\",\"args\":[280,180,800,280,1540,190,850,740]}]";
-const map_1 = "[{\"type\":\"Starting\",\"args\":[280,180,800,280,1540,190,850,740]},{\"type\":\"Wall\",\"args\":[30,420,820,20]},{\"type\":\"Wall\",\"args\":[550,820,20,1035]},{\"type\":\"Wall\",\"args\":[1075,420,820,20]},{\"type\":\"Wall\",\"args\":[552,15,20,1065]}]";
+const map_1 = "[{\"type\":\"Starting\",\"args\":[50,40,50,800,1050,800,1050,40]},{\"type\":\"Floor\",\"args\":[550,420,790,1040]},{\"type\":\"Wall\",\"args\":[30,420,820,20]},{\"type\":\"Wall\",\"args\":[550,820,20,1035]},{\"type\":\"Wall\",\"args\":[1075,420,820,20]},{\"type\":\"Wall\",\"args\":[552,15,20,1065]},{\"type\":\"Wall\",\"args\":[150,400,20,250]},{\"type\":\"Wall\",\"args\":[945,400,20,240]},{\"type\":\"Wall\",\"args\":[540,680,260,20]},{\"type\":\"Wall\",\"args\":[540,150,260,20]},{\"type\":\"Wall\",\"args\":[120,165,130,20]},{\"type\":\"Wall\",\"args\":[975,165,130,20]},{\"type\":\"Wall\",\"args\":[920,100,20,130]},{\"type\":\"Wall\",\"args\":[175,100,20,130]},{\"type\":\"Wall\",\"args\":[120,680,130,20]},{\"type\":\"Wall\",\"args\":[975,680,130,20]},{\"type\":\"Wall\",\"args\":[180,735,20,140]},{\"type\":\"Wall\",\"args\":[915,735,20,140]},{\"type\":\"GroundShotgun\",\"args\":[150,136]},{\"type\":\"GroundShotgun\",\"args\":[945,130]},{\"type\":\"GroundShotgun\",\"args\":[945,700]},{\"type\":\"GroundShotgun\",\"args\":[150,705]},{\"type\":\"MachineGun\",\"args\":[536,400]}]";
+
 class Room extends Entity {
 
     constructor(nonce) {
