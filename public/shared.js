@@ -18,8 +18,7 @@ const map_count = 3;
 const tick_rate = 25;
 let serverTime = 0;
 
-const wallTestList = [
-];
+const wallTestList = [];
 
 class Entity {
     constructor(x, y, height, width, _screen) {
@@ -55,10 +54,17 @@ class Entity {
         this._resize = function () {
             if (this.onResize) this.onResize();
         };
+        this._keydown = function (key) {
+           if (this['on' + key.toUpperCase() + 'Down'] && this.isOnScreen()) this['on' + key.toUpperCase() + 'Down']();
+        };
         this.destroy = function () {
             delete entities[this.namespace || this.nonce];
         };
     }
+}
+
+function asCentered(e) {
+    return {x: e.width / 2 + e.x, y: e.height / 2 + e.y, height: e.height, width: e.width}
 }
 
 function entitiesCollide(a, b) {
@@ -81,7 +87,7 @@ class Environment {
     //TODO: This should be nonspecific to entities
     buildWalls() {
 
-        return wallTestList[Math.floor(randomIntFromInterval(0,wallTestList.length-1))]
+        return wallTestList[Math.floor(randomIntFromInterval(0, wallTestList.length - 1))]
             .reduce(function (col, currentWall) {
                 col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
                 return col;
@@ -104,12 +110,13 @@ class Environment {
             projectile.onTick();
 
             let hitPlayers = this.getPlayerColliding(projectile);
-            //TODO: Assume the client knows that wall colisions result in projectile destruction so we can remove this from network calls...
+            //TODO: Assume the client knows that wall colisions result in projectile destruction so we can remove this
+            // from network calls...
             let wallColliding = this.getWallColliding(projectile);
 
             let destroyProjectile = hitPlayers.length > 0 || wallColliding.length > 0;
 
-            if(hitPlayers.length > 0) projectileOwner.stats.awardHit();
+            if (hitPlayers.length > 0) projectileOwner.stats.awardHit();
             if (wallColliding.length > 0) projectileOwner.stats.awardMiss();
 
             if (destroyProjectile) {
@@ -119,7 +126,7 @@ class Environment {
 
             hitPlayers.forEach((player) => {
                 player.takeDamage(1);
-                if(player.isDead) projectileOwner.stats.awardKill();
+                if (player.isDead) projectileOwner.stats.awardKill();
             })
 
         });
@@ -174,10 +181,11 @@ class Actor extends Entity {
             ctx.globalAlpha = 1;
         };
     }
-    takeDamage(damageAmount){
+
+    takeDamage(damageAmount) {
         this.health -= damageAmount;
         this.isDead = this.health <= 0;
-        if(this.isDead) this.stats.awardDeath();
+        if (this.isDead) this.stats.awardDeath();
     }
 
     reset() {
@@ -200,7 +208,7 @@ class Projectile extends Entity {
         this.fireTime = fireTime;
         this.render = function () {
             let vm = this;
-            square(vm.x,vm.y,vm.width,vm.height,vm.color || 'orange', 1)
+            square(vm.x, vm.y, vm.width, vm.height, vm.color || 'orange', 1)
         };
         this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
@@ -239,6 +247,91 @@ class SmgProjectile extends Projectile {
 class Surface extends Entity {
     constructor(x, y, height, width) {
         super(x, y, height, width, 1);
+    }
+}
+
+class GroundWeapon extends Entity {
+    constructor(x, y, weaponTag, weaponName) {
+        super(x, y, 50, 50, 1);
+        this.weaponName = weaponName;
+        this.weaponTag = weaponTag;
+        this.cX = this.width/2 + this.x;
+        this.cY = this.height/2 + this.y;
+        this.baseRender = function () {
+            let vm = this;
+            if (entitiesCollide(player, asCentered(this))) {
+                square(50, 50, 800, 50, 'white', 0.3);
+                text('Press E to pickup: ' + (vm.weaponName || 'Big Fucking Gun'), 60, 85, 'black', 30);
+            }
+        };
+        this.onEDown = function () {
+            if (entitiesCollide(player, asCentered(this))) console.log('No fucking way hacks lmao')
+        };
+    }
+}
+
+class GroundPistol extends GroundWeapon {
+    constructor(x,y) {
+        super(x,y,'ground_pistol','Pocket Pistol');
+        this.render = function () {
+            this.baseRender();
+            this.renderWeapon();
+        };
+        this.renderWeapon = function () {
+            let vm = this;
+            square(vm.cX-10, vm.cY - 5, 5,13,'brown');
+            square(vm.cX-10, vm.cY - 5, 15,5,'silver');
+        }
+    }
+}
+
+class GroundShotgun extends GroundWeapon {
+    constructor(x,y) {
+        super(x,y,'ground_pistol','Thunderous Blunderbuss');
+        this.render = function () {
+            this.baseRender();
+            this.renderWeapon();
+        };
+        this.renderWeapon = function () {
+            let vm = this;
+            square(vm.cX-15, vm.cY - 5, 40,5,'silver');
+            square(vm.cX - 5, vm.cY - 1, 20,6,'brown');
+            square(vm.cX-20, vm.cY - 5, 10,10,'brown');
+            square(vm.cX-20, vm.cY + 5, 10,5,'brown');
+        }
+    }
+}
+
+class GroundMachineGun extends GroundWeapon {
+    constructor(x,y) {
+        super(x,y,'ground_pistol','Gatling Gun');
+        this.render = function () {
+            this.baseRender();
+            this.renderWeapon();
+        };
+        this.renderWeapon = function () {
+            let vm = this;
+            square(vm.cX-15, vm.cY - 5, 35,4,'#BDDA00');
+            square(vm.cX-15, vm.cY, 35,4,'#BDDA00');
+            square(vm.cX-15, vm.cY + 5, 35,4,'#BDDA00');
+            square(vm.cX-25, vm.cY -6, 14,18,'#858585');
+        }
+    }
+}
+
+class GroundSmg extends GroundWeapon {
+    constructor(x,y) {
+        super(x,y,'ground_pistol','SMG BABYY!');
+        this.render = function () {
+            this.baseRender();
+            this.renderWeapon();
+        };
+        this.renderWeapon = function () {
+            let vm = this;
+            square(vm.cX-15, vm.cY - 5, 5,12,'#666666');
+            square(vm.cX - 2, vm.cY - 5, 5,15,'#666666');
+            square(vm.cX-15, vm.cY - 5, 30,5,'#666666');
+        }
     }
 }
 
