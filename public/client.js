@@ -239,12 +239,10 @@ class StatsTextOverlay extends FullSize {
             text(`${player.name} - ${playerStats.totalWins} Points`, vm.width / 2 - 170,  425, undefined, 16);
 
             text(`Disposition: ${(playerStats.roundWon) ? 'ALIVE' : 'DEAD'}` , vm.width / 2 - 340,  440, undefined, 14);
-            text(`Shot Accuracy: ${Math.floor(playerStats.roundHits / playerStats.roundMisses *100)}% ${playerStats.roundHits}/${playerStats.roundMisses}` , vm.width / 2 - 340,  460, undefined, 14);
             text(`Shot Accuracy: ${Math.floor(playerStats.roundHits / (playerStats.totalHits + playerStats.totalMisses) * 100) || 0}% ${playerStats.roundHits}/${playerStats.totalHits + playerStats.totalMisses}`, vm.width / 2 - 340, 460, undefined, 14);
             text(`Kills: ${playerStats.roundKills}`, vm.width / 2 - 340,  480, undefined, 14);
 
             text(`Total Kills: ${playerStats.totalKills}` , vm.width / 2 + 100,  440, undefined, 14);
-            text(`Total Accuracy: ${Math.floor(playerStats.totalHits / playerStats.totalMisses *100)}% ${playerStats.totalHits}/${playerStats.totalMisses}` , vm.width / 2 + 100,  460, undefined, 14);
             text(`Total Accuracy: ${Math.floor(playerStats.totalHits / (playerStats.totalHits + playerStats.totalMisses) * 100) || 0}% ${playerStats.totalHits}/${playerStats.totalHits + playerStats.totalMisses}`, vm.width / 2 + 100, 460, undefined, 14);
             text(`Total Deaths: ${playerStats.roundKills}`, vm.width / 2 + 100,  480, undefined, 14);
 
