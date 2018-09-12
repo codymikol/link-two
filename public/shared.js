@@ -335,13 +335,6 @@ class GroundSmg extends GroundWeapon {
     }
 }
 
-class GroundWeapon extends Entity {
-    constructor() {
-        super(x,y,height,width, 1)
-    }
-
-}
-
 class Floor extends Surface {
     constructor(x, y, height, width) {
         super(x, y, height, width);
