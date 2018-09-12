@@ -74,7 +74,18 @@ function entitiesCollide(a, b) {
 function randomIntFromInterval(min, max) {
     return Math.random() * (max - min + 1) + min;
 }
-
+function newGun(type, args) {
+    switch (type) {
+        case 'GroundPistol' :
+            return new GroundPistol(...args);
+        case 'GroundShotgun':
+            return new GroundShotgun(...args);
+        case 'GroundMachineGun':
+            return new GroundMachineGun(...args);
+        case 'GroundSmg':
+            return new GroundSmg(...args);
+    }
+}
 class Environment {
     constructor(room) {
         this.room = room;
@@ -84,16 +95,34 @@ class Environment {
         // let mapIndex = Math.floor(randomIntFromInterval(0,wallTestList.length-1))
         let mapIndex = 0;
         this.walls = this.buildWalls(mapIndex);
-        this.assignStartingPositions(mapIndex)
+        this.assignStartingPositions(mapIndex);
+        this.groundWeapons = this.buildGroundWeapons(mapIndex);
     }
 
     //TODO: This should be nonspecific to entities
     buildWalls(mapIndex) {
         return wallTestList[mapIndex]
-            .filter(function (currentWall) {
+            .filter((currentWall) => {
                 return currentWall.type === 'Wall';
-            }).reduce(function (col, currentWall) {
+            }).reduce((col, currentWall) => {
                 col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
+                return col;
+            }, new Map());
+    }
+
+    buildGroundWeapons(mapIndex) {
+        return wallTestList[mapIndex]
+            .filter((currentObj) => {
+                return currentObj.type === 'GroundPistol'
+                    || currentObj.type === 'GroundShotgun'
+                    || currentObj.type === 'GroundMachineGun'
+                    || currentObj.type === 'GroundSmg';
+            }).reduce((col, currentObj) => {
+                wallNonce++;
+                let weaponNonce = wallNonce;
+                let gun = newGun(currentObj.type, currentObj.args);
+                gun.nonce = weaponNonce;
+                col.set(weaponNonce, gun);
                 return col;
             }, new Map());
     }
@@ -182,7 +211,7 @@ class Actor extends Entity {
         this.color = color;
         this.velocity = .1;
         this.getCallCtx = function () {
-            return {cX:this.width / this.x + 27,cY:this.height / - 5};
+            return {cX: this.width / this.x + 27, cY: this.height / -5};
         };
         this.render = function () {
             ctx.globalAlpha = (this.isDead) ? .3 : 1;
@@ -295,8 +324,8 @@ class GroundWeapon extends Entity {
         super(x, y, 50, 50, 1);
         this.weaponName = weaponName;
         this.weaponTag = weaponTag;
-        this.cX = this.width/2 + this.x;
-        this.cY = this.height/2 + this.y;
+        this.cX = this.width / 2 + this.x;
+        this.cY = this.height / 2 + this.y;
         this.baseRender = function () {
             let vm = this;
             if (entitiesCollide(player, asCentered(this))) {
@@ -311,72 +340,72 @@ class GroundWeapon extends Entity {
 }
 
 class GroundPistol extends GroundWeapon {
-    constructor(x,y) {
-        super(x,y,'GroundPistol','Pocket Pistol');
+    constructor(x, y) {
+        super(x, y, 'GroundPistol', 'Pocket Pistol');
         this.render = function () {
             this.baseRender();
             this.renderWeapon();
         };
         this.renderWeapon = function () {
             let vm = this;
-            square(vm.cX-10, vm.cY - 5, 5,13,'brown');
-            square(vm.cX-10, vm.cY - 5, 15,5,'silver');
+            square(vm.cX - 10, vm.cY - 5, 5, 13, 'brown');
+            square(vm.cX - 10, vm.cY - 5, 15, 5, 'silver');
         };
         this.renderWeapon = function () {
             let vm = this;
-            square(vm.cX-10, vm.cY - 5, 5,13,'brown');
-            square(vm.cX-10, vm.cY - 5, 15,5,'silver');
+            square(vm.cX - 10, vm.cY - 5, 5, 13, 'brown');
+            square(vm.cX - 10, vm.cY - 5, 15, 5, 'silver');
         }
     }
 
 }
 
 class GroundShotgun extends GroundWeapon {
-    constructor(x,y) {
-        super(x,y,'GroundShotgun','Thunderous Blunderbuss');
+    constructor(x, y) {
+        super(x, y, 'GroundShotgun', 'Thunderous Blunderbuss');
         this.render = function () {
             this.baseRender();
             this.renderWeapon();
         };
         this.renderWeapon = function () {
             let vm = this;
-            square(vm.cX-15, vm.cY - 5, 40,5,'silver');
-            square(vm.cX - 5, vm.cY - 1, 20,6,'brown');
-            square(vm.cX-20, vm.cY - 5, 10,10,'brown');
-            square(vm.cX-20, vm.cY + 5, 10,5,'brown');
+            square(vm.cX - 15, vm.cY - 5, 40, 5, 'silver');
+            square(vm.cX - 5, vm.cY - 1, 20, 6, 'brown');
+            square(vm.cX - 20, vm.cY - 5, 10, 10, 'brown');
+            square(vm.cX - 20, vm.cY + 5, 10, 5, 'brown');
         }
     }
 }
 
 class GroundMachineGun extends GroundWeapon {
-    constructor(x,y) {
-        super(x,y,'GroundMachineGun','Gatling Gun');
+    constructor(x, y) {
+        super(x, y, 'GroundMachineGun', 'Gatling Gun');
         this.render = function () {
             this.baseRender();
             this.renderWeapon();
         };
         this.renderWeapon = function () {
             let vm = this;
-            square(vm.cX-15, vm.cY - 5, 35,4,'#BDDA00');
-            square(vm.cX-15, vm.cY, 35,4,'#BDDA00');
-            square(vm.cX-15, vm.cY + 5, 35,4,'#BDDA00');
-            square(vm.cX-25, vm.cY -6, 14,18,'#858585');
+            square(vm.cX - 15, vm.cY - 5, 35, 4, '#BDDA00');
+            square(vm.cX - 15, vm.cY, 35, 4, '#BDDA00');
+            square(vm.cX - 15, vm.cY + 5, 35, 4, '#BDDA00');
+            square(vm.cX - 25, vm.cY - 6, 14, 18, '#858585');
         }
     }
 }
 
 class GroundSmg extends GroundWeapon {
-    constructor(x,y) {
-        super(x,y,'GroundSmg','SMG BABYY!');
+    constructor(x, y) {
+        super(x, y, 'GroundSmg', 'SMG BABYY!');
         this.render = function () {
             this.baseRender();
             this.renderWeapon();
         };
         this.renderWeapon = function () {
             let vm = this;
-            square(vm.cX-15, vm.cY - 5, 5,12,'black');
-            square(vm.cX - 2, vm.cY - 5, 5,15,'black');
-            square(vm.cX-15, vm.cY - 5, 30,5,'black');
+            square(vm.cX - 15, vm.cY - 5, 5, 12, 'black');
+            square(vm.cX - 2, vm.cY - 5, 5, 15, 'black');
+            square(vm.cX - 15, vm.cY - 5, 30, 5, 'black');
         }
     }
 }
