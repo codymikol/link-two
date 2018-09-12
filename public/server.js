@@ -308,6 +308,21 @@ module.exports = {
             selectedRoom.fireProjectile(thePlayer);
         });
 
+        socket.on('weapon-pickup', function (weaponNonce) {
+            let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
+            let theWeapon = selectedRoom.environment.groundWeapons.get(weaponNonce);
+            if (thePlayer && theWeapon && entitiesCollide(thePlayer, theWeapon)) {
+                wallNonce++;
+                let droppedWeaponNonce = wallNonce;
+                let droppedWeapon = newGunWithNonce(droppedWeaponNonce, thePlayer.activeWeapon, [thePlayer.x - 10, thePlayer.y - 10]);
+                selectedRoom.environment.groundWeapons.set(droppedWeaponNonce, droppedWeapon);
+                thePlayer.activeWeapon = theWeapon.weaponTag;
+                selectedRoom.emit('weapon-pickup'
+                    , {nonce: weaponNonce, playerNonce : currentPlayerNonce, droppedWeapon : droppedWeapon});
+                selectedRoom.environment.groundWeapons.delete(weaponNonce);
+            };
+        });
+
         socket.on("disconnect", () => {
             if (selectedRoom) selectedRoom.leave(currentPlayerNonce)
         });

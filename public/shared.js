@@ -55,7 +55,7 @@ class Entity {
             if (this.onResize) this.onResize();
         };
         this._keydown = function (key) {
-           if (this['on' + key.toUpperCase() + 'Down'] && this.isOnScreen()) this['on' + key.toUpperCase() + 'Down']();
+            if (this['on' + key.toUpperCase() + 'Down'] && this.isOnScreen()) this['on' + key.toUpperCase() + 'Down']();
         };
         this.destroy = function () {
             delete entities[this.namespace || this.nonce];
@@ -74,6 +74,13 @@ function entitiesCollide(a, b) {
 function randomIntFromInterval(min, max) {
     return Math.random() * (max - min + 1) + min;
 }
+
+function newGunWithNonce(nonce, type, args) {
+    let theGun = newGun(type, args);
+    theGun.nonce = nonce;
+    return theGun;
+}
+
 function newGun(type, args) {
     switch (type) {
         case 'GroundPistol' :
@@ -86,6 +93,7 @@ function newGun(type, args) {
             return new GroundSmg(...args);
     }
 }
+
 class Environment {
     constructor(room) {
         this.room = room;
@@ -105,7 +113,10 @@ class Environment {
             .filter((currentWall) => {
                 return currentWall.type === 'Wall';
             }).reduce((col, currentWall) => {
-                col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
+                wallNonce++;
+                let newNonce = wallNonce;
+                col.set(newNonce, new Wall(newNonce, ...currentWall.args));
+                console.log("The wall Nonce is " + wallNonce);
                 return col;
             }, new Map());
     }
@@ -120,8 +131,7 @@ class Environment {
             }).reduce((col, currentObj) => {
                 wallNonce++;
                 let weaponNonce = wallNonce;
-                let gun = newGun(currentObj.type, currentObj.args);
-                gun.nonce = weaponNonce;
+                let gun = newGunWithNonce(weaponNonce, currentObj.type, currentObj.args);
                 col.set(weaponNonce, gun);
                 return col;
             }, new Map());
@@ -334,7 +344,9 @@ class GroundWeapon extends Entity {
             }
         };
         this.onEDown = function () {
-            if (entitiesCollide(player, asCentered(this))) console.log('No fucking way hacks lmao')
+            if (entitiesCollide(player, asCentered(this))) {
+                socket.emit('weapon-pickup', this.nonce);
+            }
         };
     }
 }
