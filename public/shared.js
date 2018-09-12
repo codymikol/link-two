@@ -269,6 +269,7 @@ class Actor extends Entity {
 
     reset() {
         this.health = 100;
+        this.activeWeapon = 'GroundPistol';
         this.isDead = false;
     }
 
