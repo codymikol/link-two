@@ -508,6 +508,7 @@ window.addEventListener("load", function () {
             screen = 1
         },
         'round-end': (postRoundStats) => {
+            Object.keys(entities).filter(key => key.includes('groundweapon-')).forEach(key => delete entities[key]);
             roundStats = postRoundStats;
             screen = 4
         },
@@ -558,6 +559,7 @@ window.addEventListener("load", function () {
                 } else {
                     player.isDead = server_player.isDead;
                     player.health = server_player.health;
+                    player.activeWeapon = server_player.activeWeapon;
                     player.weaponCooldown = server_player.weaponCooldown;
                 }
             });
