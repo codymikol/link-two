@@ -75,8 +75,8 @@ class TitleButton extends Button {
         this.render = function () {
             let vm = this;
             square(vm.x, vm.y, vm.width, vm.height, this.hovered ? '#208C80' : '#208C30', 0.6);
-            text(vm.text, vm.x+20,vm.y+20,'black',20,0.6);
-            if (this.hovered) text('> ' + vm.sideText, vm.x-10,vm.y + (this.height/2) + 7,'#208C80',20,1,'right');
+            text(vm.text, vm.x + 20, vm.y + 20, 'black', 20, 0.6);
+            if (this.hovered) text('> ' + vm.sideText, vm.x - 10, vm.y + (this.height / 2) + 7, '#208C80', 20, 1, 'right');
         };
         this.onResize = function () {
             this.x = (a.width / 2) - 200;
@@ -104,7 +104,7 @@ class Background extends FullSize {
         super(screen);
         let vm = this;
         vm.render = function () {
-            square(0,0,vm.width,vm.height,'black');
+            square(0, 0, vm.width, vm.height, 'black');
             ctx.fillStyle = '#208C30';
             ctx.globalAlpha = 0.05;
             for (let i = 0; i < 1000; i++) {
@@ -168,7 +168,7 @@ class PlayerListGUI extends FullSize {
                 ? 'Competitors found, starting game in ' + Math.floor(joinedRoom.countdown / tick_rate)
                 : 'Connection is scarce, you must compete for this privilege, awaiting competition' + dots;
 
-            if(messageOverride) message = messageOverride;
+            if (messageOverride) message = messageOverride;
 
             text(message, vm.width / 2, 369, '#208C30', 16, 1, 'center');
 
@@ -220,7 +220,7 @@ class LobbyTextOverlay extends FullSize {
         super(_screen);
         this.render = function () {
             let vm = this;
-            text(`Competitor: ${player.name}`, vm.width / 2 - 325,  465, undefined, 30);
+            text(`Competitor: ${player.name}`, vm.width / 2 - 325, 465, undefined, 30);
             getEnemies().forEach((enemy, index) => text(`Competitor: ${enemy.name}`, vm.width / 2 - 325, 465 + 110 * (index + 1), undefined, 30))
         };
     }
@@ -236,15 +236,15 @@ class StatsTextOverlay extends FullSize {
 
             let playerStats = roundStats.filter(stat => stat.nonce === player.nonce)[0];
 
-            text(`${player.name} - ${playerStats.totalWins} Points`, vm.width / 2 - 170,  425, undefined, 16);
+            text(`${player.name} - ${playerStats.totalWins} Points`, vm.width / 2 - 170, 425, undefined, 16);
 
-            text(`Disposition: ${(playerStats.roundWon) ? 'ALIVE' : 'DEAD'}` , vm.width / 2 - 340,  440, undefined, 14);
+            text(`Disposition: ${(playerStats.roundWon) ? 'ALIVE' : 'DEAD'}`, vm.width / 2 - 340, 440, undefined, 14);
             text(`Shot Accuracy: ${Math.floor(playerStats.roundHits / (playerStats.totalHits + playerStats.totalMisses) * 100) || 0}% ${playerStats.roundHits}/${playerStats.totalHits + playerStats.totalMisses}`, vm.width / 2 - 340, 460, undefined, 14);
-            text(`Kills: ${playerStats.roundKills}`, vm.width / 2 - 340,  480, undefined, 14);
+            text(`Kills: ${playerStats.roundKills}`, vm.width / 2 - 340, 480, undefined, 14);
 
-            text(`Total Kills: ${playerStats.totalKills}` , vm.width / 2 + 100,  440, undefined, 14);
+            text(`Total Kills: ${playerStats.totalKills}`, vm.width / 2 + 100, 440, undefined, 14);
             text(`Total Accuracy: ${Math.floor(playerStats.totalHits / (playerStats.totalHits + playerStats.totalMisses) * 100) || 0}% ${playerStats.totalHits}/${playerStats.totalHits + playerStats.totalMisses}`, vm.width / 2 + 100, 460, undefined, 14);
-            text(`Total Deaths: ${playerStats.roundKills}`, vm.width / 2 + 100,  480, undefined, 14);
+            text(`Total Deaths: ${playerStats.roundKills}`, vm.width / 2 + 100, 480, undefined, 14);
 
             getEnemies().forEach((enemy, index) => {
 
@@ -252,15 +252,15 @@ class StatsTextOverlay extends FullSize {
 
                 let yOffset = 110;
 
-                text(`${enemy.name} - ${enemyStats.totalWins} Points`, vm.width / 2 - 170,  425 + yOffset * (index + 1), undefined, 16);
+                text(`${enemy.name} - ${enemyStats.totalWins} Points`, vm.width / 2 - 170, 425 + yOffset * (index + 1), undefined, 16);
 
-                text(`Disposition: ${(enemyStats.roundWon) ? 'ALIVE' : 'DEAD'}` , vm.width / 2 - 340,  440 + yOffset * (index + 1), undefined, 14);
+                text(`Disposition: ${(enemyStats.roundWon) ? 'ALIVE' : 'DEAD'}`, vm.width / 2 - 340, 440 + yOffset * (index + 1), undefined, 14);
                 text(`Shot Accuracy: ${Math.floor(enemyStats.roundHits / (enemyStats.totalHits + enemyStats.totalMisses) * 100) || 0}% ${enemyStats.roundHits}/${(enemyStats.totalHits + enemyStats.totalMisses)}`, vm.width / 2 - 340, 460 + yOffset * (index + 1), undefined, 14);
-                text(`Kills: ${enemyStats.roundKills}`, vm.width / 2 - 340,  480 + yOffset * (index + 1), undefined, 14);
+                text(`Kills: ${enemyStats.roundKills}`, vm.width / 2 - 340, 480 + yOffset * (index + 1), undefined, 14);
 
-                text(`Total Kills: ${enemyStats.totalKills}` , vm.width / 2 + 100,  440 + yOffset * (index + 1), undefined, 14);
+                text(`Total Kills: ${enemyStats.totalKills}`, vm.width / 2 + 100, 440 + yOffset * (index + 1), undefined, 14);
                 text(`Total Accuracy: ${Math.floor(enemyStats.totalHits / (enemyStats.totalHits + enemyStats.totalMisses) * 100) || 0}% ${enemyStats.totalHits}/${(enemyStats.totalHits + enemyStats.totalMisses)}`, vm.width / 2 + 100, 460 + yOffset * (index + 1), undefined, 14);
-                text(`Total Deaths: ${enemyStats.roundKills}`, vm.width / 2 + 100,  480 + yOffset * (index + 1), undefined, 14);
+                text(`Total Deaths: ${enemyStats.roundKills}`, vm.width / 2 + 100, 480 + yOffset * (index + 1), undefined, 14);
 
             })
         };
@@ -339,7 +339,6 @@ class DebugSquare extends Entity {
             if (keyDown.D) this.x += this.velocity * delta;
 
 
-
             if (keyDown.p) this.height -= this.velocity * delta;
             if (keyDown.o) this.height += this.velocity * delta;
             if (keyDown.i) this.height = 20;
@@ -348,7 +347,7 @@ class DebugSquare extends Entity {
             if (keyDown.k) this.width += this.velocity * delta;
             if (keyDown.j) this.width = 20;
             if (keyDown.m) console.log(`[${this.getRealX()},${this.getRealY()},${this.height},${this.width}]`)
-                // console.log(`text(${vm.text},${vm.x},${vm.y},\'red\',${vm.size},1`)
+            // console.log(`text(${vm.text},${vm.x},${vm.y},\'red\',${vm.size},1`)
         };
 
     }
@@ -393,7 +392,7 @@ window.addEventListener("load", function () {
 
     //load order for screen 1 - Game Screen
     addEntity(new Background(1));
-    addEntity(new Floor(550,420,790,1040));
+    addEntity(new Floor(550, 420, 790, 1040));
 
     addEntity(player);
 
@@ -439,6 +438,9 @@ window.addEventListener("load", function () {
                         cached_player.y = actor.y;
                     };
                 });
+            environmentEntities.groundWeapons.forEach(function (weapon) {
+                addEntity(newGun(weapon.weaponTag, [weapon.x, weapon.y]));
+            });
             screen = 1
         },
         'round-end': (postRoundStats) => {
@@ -450,7 +452,7 @@ window.addEventListener("load", function () {
             if (Array.isArray(entityKeyOrList)) entityKeyOrList.forEach((entityKey) => delete entities[entityKey]);
             else delete entities[entityKeyOrList];
         },
-       'projectile-collision': function (_collision) {
+        'projectile-collision': function (_collision) {
             _collision.forEach(function (proj) {
                 delete entities['projectile-' + proj.nonce];
             })
@@ -497,7 +499,6 @@ window.addEventListener("load", function () {
         entitiesCall('_render');
         ctx.font = "30px Arial";
         ctx.fillStyle = 'black';
-        ctx.fillText("Entities on screen: " + Object.keys(entities).length, 10, 50);
     }
 
     function mainLoop(timestamp) {
@@ -523,8 +524,8 @@ window.addEventListener("load", function () {
     }
 
     onkeydown = (e) => {
-      bindKey(e);
-      entitiesCall('_keydown', e.key);
+        bindKey(e);
+        entitiesCall('_keydown', e.key);
     };
     onkeyup = bindKey;
 
