@@ -213,7 +213,7 @@ class Actor extends Entity {
     constructor(x, y, color, name) {
         super(x, y, 20, 20, 1);
         this.health = 100;
-        this.activeWeapon = 'GroundShotgun';
+        this.activeWeapon = 'GroundPistol';
         this.weaponCooldown = 0;
         this.name = name;
         this.isDead = false;
