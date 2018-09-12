@@ -81,9 +81,25 @@ class Environment {
         this.nonce = room.nonce;
         this.projectiles = new Map();
         this.eventQueue = new Map();
-        this.walls = this.buildWalls();
+        // let mapIndex = Math.floor(randomIntFromInterval(0,wallTestList.length-1))
+        let mapIndex = 0;
+        this.walls = this.buildWalls(mapIndex);
+        this.assignStartingPositions(mapIndex)
+    }
 
-        let startingPosition = wallTestList[0].filter(function (currentObj) {
+    //TODO: This should be nonspecific to entities
+    buildWalls(mapIndex) {
+        return wallTestList[mapIndex]
+            .filter(function (currentWall) {
+                return currentWall.type === 'Wall';
+            }).reduce(function (col, currentWall) {
+                col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
+                return col;
+            }, new Map());
+    }
+
+    assignStartingPositions(mapIndex) {
+        let startingPosition = wallTestList[mapIndex].filter(function (currentObj) {
             return currentObj.type === 'Starting';
         })[0];
 
@@ -93,19 +109,6 @@ class Environment {
             actor.y = startingPosition.args[positionIndex + 1];
             positionIndex += 2;
         });
-    }
-
-    //TODO: This should be nonspecific to entities
-    buildWalls() {
-        // let mapIndex = Math.floor(randomIntFromInterval(0,wallTestList.length-1))
-        let mapIndex = 0;
-        return wallTestList[mapIndex]
-            .filter(function (currentWall) {
-                return currentWall.type !== 'Starting';
-            }).reduce(function (col, currentWall) {
-                col.set(wallNonce++, new Wall(wallNonce, ...currentWall.args));
-                return col;
-            }, new Map());
     }
 
     addEventQueue(eventName, val) {
@@ -384,7 +387,7 @@ class Floor extends Surface {
         this.render = function () {
             ctx.globalAlpha = .5;
             ctx.fillStyle = '#bcb9ad';
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
             ctx.globalAlpha = 1;
         }
     }
