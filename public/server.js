@@ -4,7 +4,7 @@ let rooms = new Map();
 let playerNonce = 0;
 let projectileNonce = 0;
 
-const map_1 = "[{\"type\":\"Starting\",\"args\":[50,40,50,800,1050,800,1050,40]},{\"type\":\"Floor\",\"args\":[550,420,790,1040]},{\"type\":\"Wall\",\"args\":[30,420,820,20]},{\"type\":\"Wall\",\"args\":[550,820,20,1035]},{\"type\":\"Wall\",\"args\":[1075,420,820,20]},{\"type\":\"Wall\",\"args\":[552,15,20,1065]},{\"type\":\"Wall\",\"args\":[150,400,20,250]},{\"type\":\"Wall\",\"args\":[945,400,20,240]},{\"type\":\"Wall\",\"args\":[540,680,260,20]},{\"type\":\"Wall\",\"args\":[540,150,260,20]},{\"type\":\"Wall\",\"args\":[120,165,130,20]},{\"type\":\"Wall\",\"args\":[975,165,130,20]},{\"type\":\"Wall\",\"args\":[920,100,20,130]},{\"type\":\"Wall\",\"args\":[175,100,20,130]},{\"type\":\"Wall\",\"args\":[120,680,130,20]},{\"type\":\"Wall\",\"args\":[975,680,130,20]},{\"type\":\"Wall\",\"args\":[180,735,20,140]},{\"type\":\"Wall\",\"args\":[915,735,20,140]},{\"type\":\"GroundShotgun\",\"args\":[150,136]},{\"type\":\"GroundShotgun\",\"args\":[945,130]},{\"type\":\"GroundShotgun\",\"args\":[945,700]},{\"type\":\"GroundShotgun\",\"args\":[150,705]},{\"type\":\"MachineGun\",\"args\":[536,400]}]";
+const map_1 = "[{\"type\":\"Starting\",\"args\":[50,40,50,800,1050,800,1050,40]},{\"type\":\"Floor\",\"args\":[550,420,790,1040]},{\"type\":\"Wall\",\"args\":[30,420,820,20]},{\"type\":\"Wall\",\"args\":[550,820,20,1035]},{\"type\":\"Wall\",\"args\":[1075,420,820,20]},{\"type\":\"Wall\",\"args\":[552,15,20,1065]},{\"type\":\"Wall\",\"args\":[150,400,20,250]},{\"type\":\"Wall\",\"args\":[945,400,20,240]},{\"type\":\"Wall\",\"args\":[540,680,260,20]},{\"type\":\"Wall\",\"args\":[540,150,260,20]},{\"type\":\"Wall\",\"args\":[120,165,130,20]},{\"type\":\"Wall\",\"args\":[975,165,130,20]},{\"type\":\"Wall\",\"args\":[920,100,20,130]},{\"type\":\"Wall\",\"args\":[175,100,20,130]},{\"type\":\"Wall\",\"args\":[120,680,130,20]},{\"type\":\"Wall\",\"args\":[975,680,130,20]},{\"type\":\"Wall\",\"args\":[180,735,20,140]},{\"type\":\"Wall\",\"args\":[915,735,20,140]},{\"type\":\"GroundShotgun\",\"args\":[150,136]},{\"type\":\"GroundShotgun\",\"args\":[900,130]},{\"type\":\"GroundShotgun\",\"args\":[900,670]},{\"type\":\"GroundShotgun\",\"args\":[150,670]},{\"type\":\"GroundMachineGun\",\"args\":[536,400]}]";
 
 class Room extends Entity {
 
@@ -51,7 +51,8 @@ class Room extends Entity {
         this.environment = new Environment(this);
         this.emit('round-start', {
             actors: Array.from(this.actors.values()),
-            walls: Array.from(this.environment.walls.values())
+            walls: Array.from(this.environment.walls.values()),
+            groundWeapons : Array.from(this.environment.groundWeapons.values())
         });
         this.phase = 'GAME';
         //TODO: Tell the client what the entities for this round are
