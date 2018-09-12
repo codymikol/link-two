@@ -421,7 +421,6 @@ window.addEventListener("load", function () {
         socket.on(key, fn)
     });
 
-
     function update(delta) {
         entitiesCall('_tick', delta);
     }
@@ -457,7 +456,10 @@ window.addEventListener("load", function () {
         keyDown[e.key] = e.type[3] === 'd';
     }
 
-    onkeydown = bindKey;
+    onkeydown = (e) => {
+      bindKey(e);
+      entitiesCall('_keydown', e.key);
+    };
     onkeyup = bindKey;
 
     onmousemove = function (e) {
