@@ -180,9 +180,26 @@ class CreditsTextOverlay extends FullSize {
     }
 }
 
-class PlayerListGUI extends FullSize {
-    constructor(_screen, messageOverride) {
+class InstructionsTextOverlay extends FullSize {
+    constructor(_screen) {
         super(_screen);
+        this.render = function () {
+            text('MOUSE', this.cX - 396, 450, 'black', 15, 1, 'center');
+            text('DOWN', this.cX - 396, 470, 'black', 15, 1, 'center');
+            text('Fire your held Killing Device', this.cX - 330, 470, undefined, 20, 1, 'start');
+            text('W A', this.cX - 396, 560, 'black', 25, 1, 'center');
+            text('S D', this.cX - 396, 590, 'black', 25, 1, 'center');
+            text('Navigate the Pre-Network Dungeon', this.cX - 330, 570, undefined, 20, 1, 'start');
+            text('E', this.cX - 396, 680, 'black', 25, 1, 'center');
+            text('Pick up Killing Devices scattered about the Pre Network', this.cX - 330, 680, undefined, 20, 1, 'start');
+        }
+    }
+}
+
+class PlayerListGUI extends FullSize {
+    constructor(_screen, messageOverride, hidePlayer) {
+        super(_screen);
+        this.hidePlayer = hidePlayer;
         let vm = this;
         this.render = function () {
 
@@ -216,15 +233,17 @@ class PlayerListGUI extends FullSize {
                 square(vm.width / 2 - 435, y + 3, 80, 80, 'white', 0.2)
             });
 
-            player.render.call({
-                x: vm.width / 2 - 395,
-                y: 455,
-                isDead: false,
-                color: 'green',
-                rotationDegrees: 0,
-                width: 20,
-                height: 20
-            });
+            if(!this.hidePlayer) {
+                player.render.call({
+                    x: vm.width / 2 - 395,
+                    y: 455,
+                    isDead: false,
+                    color: 'green',
+                    rotationDegrees: 0,
+                    width: 20,
+                    height: 20
+                });
+            }
 
             Object.keys(entities).filter(function (entityKey) {
                 return entityKey.includes('enemy-');
@@ -450,6 +469,13 @@ window.addEventListener("load", function () {
     addEntity(new PlayerListGUI(5, 'This hot mess was brought to you by...'));
     addEntity(new CreditsTextOverlay(5));
     addEntity(new TitleButton(a.width / 2 - 200, 770, 'Return', 'CTRL C', () => screen = 3, 5));
+
+    //load order for screen 6 - Instructions
+    addEntity(new Background(6));
+    addEntity(new TitleCard(6));
+    addEntity(new PlayerListGUI(6, 'This terminal has many useful commands for accessing "The Network"', true));
+    addEntity(new InstructionsTextOverlay(6));
+    addEntity(new TitleButton(a.width / 2 - 200, 770, 'Return', 'exit()', () => screen = 3, 6));
 
     forObj({
         'joined-room': function (server_player) {
