@@ -87,18 +87,23 @@ class Room extends Entity {
                 serverProjectileList = [new PistolProjectile(...args)];
                 break;
             case 'GroundShotgun':
-                for(var i = 0; i < 25; i++) {
+                for(var i = 0; i < 50; i++) {
                     args[0] = projectileNonce++;
                     serverProjectileList.push(new ShotgunProjectile(...args))
                 }
                 break;
             case 'GroundMachineGun':
-                serverProjectileList = [new MachineGunProjectile(...args)];
+                for(var i = 0; i < 2; i++) {
+                    args[0] = projectileNonce++;
+                    serverProjectileList.push(new MachineGunProjectile(...args));
+                }
                 break;
             case 'GroundSmg':
                 serverProjectileList = [new SmgProjectile(...args)];
                 break;
         }
+
+        player.weaponCooldown = serverProjectileList[0].weaponCooldown;
 
         serverProjectileList.forEach((serverProjectile) => {
             this.environment.addProjectile(serverProjectile);
@@ -122,6 +127,7 @@ class Room extends Entity {
                 if (this.roundStartCountdown === 0) this.startRound();
                 break;
             case 'GAME':
+                this.actors.forEach(actor => actor.tickCooldown());
                 this.environment.environmentTick();
                 this.checkRoundComplete();
                 break;
