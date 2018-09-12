@@ -159,11 +159,15 @@ class Actor extends Entity {
     constructor(x, y, color, name) {
         super(x, y, 20, 20, 1);
         this.health = 100;
+        this.activeWeapon = 'GroundPistol';
         this.name = name;
         this.isDead = false;
         this.rotationDegrees = 0;
         this.color = color;
         this.velocity = .1;
+        this.getCallCtx = function () {
+            return {cX:this.width / this.x + 27,cY:this.height / - 5};
+        };
         this.render = function () {
             ctx.globalAlpha = (this.isDead) ? .3 : 1;
             ctx.fillStyle = (this.isDead) ? 'white' : this.color;
@@ -171,6 +175,26 @@ class Actor extends Entity {
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotationDegrees * Math.PI / 180);
             ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
+
+            switch (this.activeWeapon) {
+                case 'GroundPistol':
+                    let pistol = new GroundPistol();
+                    pistol.renderWeapon.call(this.getCallCtx());
+                    break;
+                case 'GroundMachineGun':
+                    let machinegun = new GroundMachineGun();
+                    machinegun.renderWeapon.call(this.getCallCtx());
+                    break;
+                case 'GroundShotgun':
+                    let shotgun = new GroundShotgun();
+                    shotgun.renderWeapon.call(this.getCallCtx());
+                    break;
+                case 'GroundSmg':
+                    let smg = new GroundSmg();
+                    smg.renderWeapon.call(this.getCallCtx());
+                    break;
+            }
+
             ctx.fillStyle = (this.isDead) ? 'grey' : 'salmon';
             ctx.beginPath();
             ctx.moveTo(-(this.width / 2), this.height / 2);
@@ -261,7 +285,7 @@ class GroundWeapon extends Entity {
             let vm = this;
             if (entitiesCollide(player, asCentered(this))) {
                 square(50, 50, 800, 50, 'white', 0.3);
-                text('Press E to pickup: ' + (vm.weaponName || 'Big Fucking Gun'), 60, 85, 'black', 30);
+                text('Press E to pickup: ' + vm.weaponName, 60, 85, 'black', 30);
             }
         };
         this.onEDown = function () {
@@ -272,7 +296,7 @@ class GroundWeapon extends Entity {
 
 class GroundPistol extends GroundWeapon {
     constructor(x,y) {
-        super(x,y,'ground_pistol','Pocket Pistol');
+        super(x,y,'GroundPistol','Pocket Pistol');
         this.render = function () {
             this.baseRender();
             this.renderWeapon();
@@ -281,13 +305,19 @@ class GroundPistol extends GroundWeapon {
             let vm = this;
             square(vm.cX-10, vm.cY - 5, 5,13,'brown');
             square(vm.cX-10, vm.cY - 5, 15,5,'silver');
+        };
+        this.renderWeapon = function () {
+            let vm = this;
+            square(vm.cX-10, vm.cY - 5, 5,13,'brown');
+            square(vm.cX-10, vm.cY - 5, 15,5,'silver');
         }
     }
+
 }
 
 class GroundShotgun extends GroundWeapon {
     constructor(x,y) {
-        super(x,y,'ground_pistol','Thunderous Blunderbuss');
+        super(x,y,'GroundShotgun','Thunderous Blunderbuss');
         this.render = function () {
             this.baseRender();
             this.renderWeapon();
@@ -304,7 +334,7 @@ class GroundShotgun extends GroundWeapon {
 
 class GroundMachineGun extends GroundWeapon {
     constructor(x,y) {
-        super(x,y,'ground_pistol','Gatling Gun');
+        super(x,y,'GroundMachineGun','Gatling Gun');
         this.render = function () {
             this.baseRender();
             this.renderWeapon();
@@ -321,16 +351,16 @@ class GroundMachineGun extends GroundWeapon {
 
 class GroundSmg extends GroundWeapon {
     constructor(x,y) {
-        super(x,y,'ground_pistol','SMG BABYY!');
+        super(x,y,'GroundSmg','SMG BABYY!');
         this.render = function () {
             this.baseRender();
             this.renderWeapon();
         };
         this.renderWeapon = function () {
             let vm = this;
-            square(vm.cX-15, vm.cY - 5, 5,12,'#666666');
-            square(vm.cX - 2, vm.cY - 5, 5,15,'#666666');
-            square(vm.cX-15, vm.cY - 5, 30,5,'#666666');
+            square(vm.cX-15, vm.cY - 5, 5,12,'black');
+            square(vm.cX - 2, vm.cY - 5, 5,15,'black');
+            square(vm.cX-15, vm.cY - 5, 30,5,'black');
         }
     }
 }
