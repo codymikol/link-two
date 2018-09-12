@@ -231,23 +231,25 @@ class Actor extends Entity {
             ctx.rotate(this.rotationDegrees * Math.PI / 180);
             ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
 
-            switch (this.activeWeapon) {
-                case 'GroundPistol':
-                    let pistol = new GroundPistol();
-                    pistol.renderWeapon.call(this.getCallCtx());
-                    break;
-                case 'GroundMachineGun':
-                    let machinegun = new GroundMachineGun();
-                    machinegun.renderWeapon.call(this.getCallCtx());
-                    break;
-                case 'GroundShotgun':
-                    let shotgun = new GroundShotgun();
-                    shotgun.renderWeapon.call(this.getCallCtx());
-                    break;
-                case 'GroundSmg':
-                    let smg = new GroundSmg();
-                    smg.renderWeapon.call(this.getCallCtx());
-                    break;
+            if(!this.isDead) {
+                switch (this.activeWeapon) {
+                    case 'GroundPistol':
+                        let pistol = new GroundPistol();
+                        pistol.renderWeapon.call(this.getCallCtx());
+                        break;
+                    case 'GroundMachineGun':
+                        let machinegun = new GroundMachineGun();
+                        machinegun.renderWeapon.call(this.getCallCtx());
+                        break;
+                    case 'GroundShotgun':
+                        let shotgun = new GroundShotgun();
+                        shotgun.renderWeapon.call(this.getCallCtx());
+                        break;
+                    case 'GroundSmg':
+                        let smg = new GroundSmg();
+                        smg.renderWeapon.call(this.getCallCtx());
+                        break;
+                }
             }
 
             ctx.fillStyle = (this.isDead) ? 'grey' : 'salmon';
