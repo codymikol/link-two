@@ -115,7 +115,6 @@ class Stats {
         this.roundMisses = 0;
         this.roundKills = 0;
         this.roundWon = null;
-        this.totalShots = 0;
         this.totalWins = 0;
         this.totalHits = 0;
         this.totalMisses = 0;
@@ -126,13 +125,11 @@ class Stats {
     awardHit() {
         this.roundHits++;
         this.totalHits++;
-        this.totalShots++;
     }
 
     awardMiss() {
         this.roundMisses++;
         this.totalMisses++;
-        this.totalShots++;
     }
 
     awardRoundWin() {
@@ -164,7 +161,6 @@ class Stats {
             roundMisses: this.roundMisses,
             roundKills: this.roundKills,
             roundWon: this.roundWon,
-            totalShots: this.totalShots,
             totalWins: this.totalWins,
             totalHits: this.totalHits,
             totalMisses: this.totalMisses,
