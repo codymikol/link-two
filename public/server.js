@@ -78,37 +78,39 @@ class Room extends Entity {
 
     fireProjectile(player) {
 
-        let args = [projectileNonce++, player.x, player.y, player.rotationDegrees, Date.now(), player.nonce];
+        if(player.weaponCooldown === 0) {
+            let args = [projectileNonce++, player.x, player.y, player.rotationDegrees, Date.now(), player.nonce];
 
-        let serverProjectileList = [];
+            let serverProjectileList = [];
 
-        switch (player.activeWeapon) {
-            case 'GroundPistol':
-                serverProjectileList = [new PistolProjectile(...args)];
-                break;
-            case 'GroundShotgun':
-                for(var i = 0; i < 50; i++) {
-                    args[0] = projectileNonce++;
-                    serverProjectileList.push(new ShotgunProjectile(...args))
-                }
-                break;
-            case 'GroundMachineGun':
-                for(var i = 0; i < 2; i++) {
-                    args[0] = projectileNonce++;
-                    serverProjectileList.push(new MachineGunProjectile(...args));
-                }
-                break;
-            case 'GroundSmg':
-                serverProjectileList = [new SmgProjectile(...args)];
-                break;
+            switch (player.activeWeapon) {
+                case 'GroundPistol':
+                    serverProjectileList = [new PistolProjectile(...args)];
+                    break;
+                case 'GroundShotgun':
+                    for (var i = 0; i < 50; i++) {
+                        args[0] = projectileNonce++;
+                        serverProjectileList.push(new ShotgunProjectile(...args))
+                    }
+                    break;
+                case 'GroundMachineGun':
+                    for (var i = 0; i < 2; i++) {
+                        args[0] = projectileNonce++;
+                        serverProjectileList.push(new MachineGunProjectile(...args));
+                    }
+                    break;
+                case 'GroundSmg':
+                    serverProjectileList = [new SmgProjectile(...args)];
+                    break;
+            }
+
+            player.weaponCooldown = serverProjectileList[0].weaponCooldown;
+
+            serverProjectileList.forEach((serverProjectile) => {
+                this.environment.addProjectile(serverProjectile);
+            });
+            this.emit('projectile-fire', serverProjectileList);
         }
-
-        player.weaponCooldown = serverProjectileList[0].weaponCooldown;
-
-        serverProjectileList.forEach((serverProjectile) => {
-            this.environment.addProjectile(serverProjectile);
-        });
-        this.emit('projectile-fire', serverProjectileList);
 
     }
 
