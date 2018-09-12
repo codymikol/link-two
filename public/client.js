@@ -275,9 +275,7 @@ class Player extends Actor {
         };
         this.onAnyClick = function () {
             if (!this.isDead) {
-                for (var i = 0; i < 10; i++) {
-                    socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
-                }
+                socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
             }
         };
         this.onTick = function (delta) {
