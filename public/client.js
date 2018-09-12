@@ -330,6 +330,10 @@ class Contrail extends Entity {
     }
 }
 
+window.oncontextmenu = function () {
+    return false;
+};
+
 window.addEventListener("load", function () {
 
     socket = io({upgrade: true, transports: ["websocket"]});
