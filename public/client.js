@@ -61,16 +61,16 @@ function addEntity(entity, namespace) {
 }
 
 class Button extends Entity {
-    constructor(x, y, text, onClick) {
-        super(x, y, 30, 400, 3);
+    constructor(x, y, text, onClick, _screen) {
+        super(x, y, 30, 400, _screen);
         this.text = text;
         this.onClick = onClick;
     }
 }
 
 class TitleButton extends Button {
-    constructor(x, y, txt, sideText, onClick) {
-        super(a.width / 2 - 200, y, txt, onClick);
+    constructor(x, y, txt, sideText, onClick, _screen) {
+        super(a.width / 2 - 200, y, txt, onClick, _screen);
         this.sideText = sideText;
         this.render = function () {
             let vm = this;
@@ -88,9 +88,13 @@ class FullSize extends Entity {
     constructor(_screen) {
         super(0, 0, window.innerHeight, window.innerWidth, _screen);
         this.timer = 0;
+        this.cX = this.width / 2;
+        this.cY = this.height / 2;
         this.onResize = function () {
             this.height = window.innerHeight;
             this.width = window.innerWidth;
+            this.cX = this.width / 2;
+            this.cY = this.height / 2;
         };
         this.onTick = function () {
             this.timer += 1;
@@ -149,7 +153,31 @@ class TitleCard extends FullSize {
     }
 }
 
-var debugTool = 455;
+class CreditsTextOverlay extends FullSize {
+    constructor(_screen) {
+        super(_screen);
+        this.render = function () {
+            [
+                'Cody Mikol|https://github.com/codymikol|grey',
+                'John Flynn|https://github.com/Neuman968|purple',
+                'Morgan Coleman|https://github.com/KingCole22|blue',
+            ].forEach((line, index) => {
+                let parts = line.split('|');
+                text(parts[0], this.cX, 440 + 110 * index, undefined, 30,1,'center');
+                text(parts[1], this.cX, 480 + 110 * index, undefined, 25,1,'center');
+                player.render.call({
+                    x: this.cX - 395,
+                    y: 455 + ((index) * 110),
+                    isDead: false,
+                    color: parts[2],
+                    rotationDegrees: 0,
+                    width: 20,
+                    height: 20
+                });
+            });
+        }
+    }
+}
 
 class PlayerListGUI extends FullSize {
     constructor(_screen, messageOverride) {
@@ -403,15 +431,22 @@ window.addEventListener("load", function () {
     //load order for screen 3 - Title screen
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
-    addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join')));
-    addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame'));
-    addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man'));
+    addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join'),3));
+    addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame', () => screen = 5, 3));
+    addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man', () => screen = 6,3));
 
     //load order for screen 4 - Post Round Stats
     addEntity(new Background(4));
     addEntity(new TitleCard(4));
     addEntity(new PlayerListGUI(4, 'Post round stats, the next round will begin shortly'));
     addEntity(new StatsTextOverlay(4));
+
+    //load order for screen 5 - Authors
+    addEntity(new Background(5));
+    addEntity(new TitleCard(5));
+    addEntity(new PlayerListGUI(5, 'This hot mess was brought to you by...'));
+    addEntity(new CreditsTextOverlay(5));
+    addEntity(new TitleButton(a.width / 2 - 200, 770, 'Return', 'CTRL C', () => screen = 3, 5));
 
     forObj({
         'joined-room': function (server_player) {
