@@ -163,8 +163,8 @@ class CreditsTextOverlay extends FullSize {
                 'Morgan Coleman|https://github.com/KingCole22|blue',
             ].forEach((line, index) => {
                 let parts = line.split('|');
-                text(parts[0], this.cX, 440 + 110 * index, undefined, 30,1,'center');
-                text(parts[1], this.cX, 480 + 110 * index, undefined, 25,1,'center');
+                text(parts[0], this.cX, 440 + 110 * index, undefined, 30, 1, 'center');
+                text(parts[1], this.cX, 480 + 110 * index, undefined, 25, 1, 'center');
                 player.render.call({
                     x: this.cX - 395,
                     y: 455 + ((index) * 110),
@@ -431,9 +431,9 @@ window.addEventListener("load", function () {
     //load order for screen 3 - Title screen
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
-    addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join'),3));
+    addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join'), 3));
     addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame', () => screen = 5, 3));
-    addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man', () => screen = 6,3));
+    addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man', () => screen = 6, 3));
 
     //load order for screen 4 - Post Round Stats
     addEntity(new Background(4));
@@ -469,10 +469,12 @@ window.addEventListener("load", function () {
                         let cached_player = entities['enemy-' + actor.nonce];
                         cached_player.x = actor.x;
                         cached_player.y = actor.y;
-                    };
+                    }
+                    ;
                 });
             environmentEntities.groundWeapons.forEach(function (weapon) {
-                addEntity(newGun(weapon.weaponTag, [weapon.x, weapon.y]));
+                let funGun = newGunWithNonce(weapon.nonce, weapon.weaponTag, [weapon.x, weapon.y]);
+                entities['groundweapon-' + weapon.nonce] = funGun;
             });
             screen = 1
         },
@@ -501,6 +503,17 @@ window.addEventListener("load", function () {
                     addEntity(newProjectile, 'projectile-' + _projectile.nonce)
                 }
             });
+        },
+        'weapon-pickup': function (_weapon_pickup) {
+            let weapon = entities['groundweapon-' + _weapon_pickup.nonce];
+            let actor = _weapon_pickup.playerNonce === player.nonce
+                ? player : entities['enemy-' + _weapon_pickup.playerNonce];
+            if (weapon && actor) {
+                actor.activeWeapon = weapon.weaponTag;
+            }
+            delete entities['groundweapon-' + _weapon_pickup.nonce];
+            entities['groundweapon-' + _weapon_pickup.droppedWeapon.nonce]
+                = newGunWithNonce(_weapon_pickup.droppedWeapon.nonce, _weapon_pickup.droppedWeapon.weaponTag, [_weapon_pickup.droppedWeapon.x, _weapon_pickup.droppedWeapon.y]);
         },
         'update-chosen-room': function (room) {
             joinedRoom = room;
