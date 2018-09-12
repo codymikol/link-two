@@ -168,8 +168,9 @@ class Environment {
             // from network calls...
             let wallColliding = this.getWallColliding(projectile);
 
-            let destroyProjectile = hitPlayers.length > 0 || wallColliding.length > 0;
-
+            let destroyProjectile = hitPlayers.length > 0
+                || wallColliding.length > 0
+                || Date.now() >= (projectile.fireTime + projectile.halfLife);
             if (hitPlayers.length > 0) projectileOwner.stats.awardHit();
             if (wallColliding.length > 0) projectileOwner.stats.awardMiss();
 
@@ -279,9 +280,8 @@ class Actor extends Entity {
 }
 
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, wobble, speedFloor, speedCeiling, cooldown) {
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, wobble, speedFloor, speedCeiling, cooldown, halflife) {
         super(x, y, 5, 5,  1);
-        this.halflife = 15;
         this.nonce = nonce;
         this.weaponCooldown = cooldown;
         this._startingX = x;
@@ -290,6 +290,7 @@ class Projectile extends Entity {
         this.rotationDegrees = rotationDegrees;
         this.wobbleRotation = (randomIntFromInterval(-wobble, wobble)) + this.rotationDegrees;
         this.speed = randomIntFromInterval(speedFloor, speedCeiling);
+        this.halfLife = halflife - (this.speed * randomIntFromInterval(-(wobble + 5), (wobble + 5))); // 4 seconds.
         this.fireTime = fireTime;
         this.render = function () {
             let vm = this;
@@ -307,25 +308,25 @@ class Projectile extends Entity {
 
 class PistolProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 1, 8, 8, 10);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 1, 8, 8, 10,  4 * 1000);
     }
 }
 
 class ShotgunProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 5, 8, 50);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 9, 5, 8, 50, 900);
     }
 }
 
 class MachineGunProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 5, 8, 1);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 7, 9, 1, 1000);
     }
 }
 
 class SmgProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 3, 10, 11, 5);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 3, 10, 11, 5, 1500);
     }
 }
 
