@@ -3,6 +3,7 @@ let socket,
     lastFrameTimeMs = 0,
     screen = 3,
     entityNonce = 0,
+    mouseDown,
     mousePos = {},
     player,
     keyDown = {},
@@ -302,9 +303,7 @@ class Player extends Actor {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
         this.onAnyClick = function () {
-            if (!this.isDead) {
-                socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
-            }
+
         };
         this.onTick = function (delta) {
 
@@ -317,6 +316,10 @@ class Player extends Actor {
             if (keyDown.a) this.x -= this.velocity * delta;
             if (keyDown.s) this.y += this.velocity * delta;
             if (keyDown.d) this.x += this.velocity * delta;
+
+            if (mouseDown && !this.isDead && this.weaponCooldown === 0) {
+                socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
+            };
 
             if (Object.keys(entities).some(function (entityKey) {
                 if (!entities[entityKey].blocking) return false;
@@ -529,6 +532,7 @@ window.addEventListener("load", function () {
                 } else {
                     player.isDead = server_player.isDead;
                     player.health = server_player.health;
+                    player.weaponCooldown = server_player.weaponCooldown;
                 }
             });
             socket.emit('update-player', player);
@@ -576,6 +580,9 @@ window.addEventListener("load", function () {
         entitiesCall('_keydown', e.key);
     };
     onkeyup = bindKey;
+
+    onmousedown = () => { mouseDown = true };
+    onmouseup = () => { mouseDown = false };
 
     onmousemove = function (e) {
         let rect = a.getBoundingClientRect();
