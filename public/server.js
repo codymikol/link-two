@@ -277,6 +277,13 @@ function init() {
     }, tick_rate);
 }
 
+function getPlayerFromRoom(playerNonce, room) {
+    return room && room.actors ? room.actors.get(playerNonce) : null;
+}
+function getWeaponFromRoom(weaponNonce, room){
+    return room && room.environment && room.environment.groundWeapons
+        ? room.environment.groundWeapons.get(weaponNonce) : null;
+}
 init();
 
 module.exports = {
@@ -303,8 +310,8 @@ module.exports = {
         });
 
         socket.on('update-player', function (client_player) {
-            let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
-            if (client_player.x && client_player.y) {
+            let thePlayer = getPlayerFromRoom(currentPlayerNonce, selectedRoom);
+            if (thePlayer && client_player.x && client_player.y) {
                 thePlayer.x = client_player.x;
                 thePlayer.y = client_player.y;
                 thePlayer.rotationDegrees = client_player.rotationDegrees;
@@ -312,14 +319,16 @@ module.exports = {
         });
 
         socket.on('fire-projectile', function () {
-            let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
-            selectedRoom.fireProjectile(thePlayer);
+            let thePlayer = getPlayerFromRoom(currentPlayerNonce, selectedRoom);
+            if (thePlayer) {
+                selectedRoom.fireProjectile(thePlayer);
+            }
         });
 
         socket.on('weapon-pickup', function (weaponNonce) {
-            let thePlayer = selectedRoom.actors.get(currentPlayerNonce);
-            let theWeapon = selectedRoom.environment.groundWeapons.get(weaponNonce);
-            if (thePlayer && theWeapon && entitiesCollide(thePlayer, theWeapon)) {
+            let thePlayer = getPlayerFromRoom(currentPlayerNonce, selectedRoom);
+            let theWeapon = getWeaponFromRoom(weaponNonce, selectedRoom);
+            if (thePlayer && theWeapon && !thePlayer.isDead && entitiesCollide(thePlayer, theWeapon)) {
                 wallNonce++;
                 let droppedWeaponNonce = wallNonce;
                 let droppedWeapon = newGunWithNonce(droppedWeaponNonce, thePlayer.activeWeapon, [thePlayer.x - 10, thePlayer.y - 10]);
@@ -332,7 +341,7 @@ module.exports = {
         });
 
         socket.on("disconnect", () => {
-            if (selectedRoom) selectedRoom.leave(currentPlayerNonce)
+            if (getPlayerFromRoom(currentPlayerNonce, selectedRoom)) selectedRoom.leave(currentPlayerNonce)
         });
 
     },
