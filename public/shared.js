@@ -116,7 +116,6 @@ class Environment {
                 wallNonce++;
                 let newNonce = wallNonce;
                 col.set(newNonce, new Wall(newNonce, ...currentWall.args));
-                console.log("The wall Nonce is " + wallNonce);
                 return col;
             }, new Map());
     }

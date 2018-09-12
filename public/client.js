@@ -472,7 +472,6 @@ window.addEventListener("load", function () {
                     }
                     ;
                 });
-            console.log(environmentEntities);
             environmentEntities.groundWeapons.forEach(function (weapon) {
                 let funGun = newGunWithNonce(weapon.nonce, weapon.weaponTag, [weapon.x, weapon.y]);
                 entities['groundweapon-' + weapon.nonce] = funGun;
@@ -512,13 +511,9 @@ window.addEventListener("load", function () {
             if (weapon && actor) {
                 actor.activeWeapon = weapon.weaponTag;
             }
-            console.log("before entity delete");
-            console.log(entities);
             delete entities['groundweapon-' + _weapon_pickup.nonce];
             entities['groundweapon-' + _weapon_pickup.droppedWeapon.nonce]
                 = newGunWithNonce(_weapon_pickup.droppedWeapon.nonce, _weapon_pickup.droppedWeapon.weaponTag, [_weapon_pickup.droppedWeapon.x, _weapon_pickup.droppedWeapon.y]);
-            console.log("After");
-            console.log(entities);
         },
         'update-chosen-room': function (room) {
             joinedRoom = room;
