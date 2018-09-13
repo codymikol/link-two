@@ -211,6 +211,38 @@ function getStatusVals(winStatus) {
     }
 }
 
+class NameCollector extends FullSize {
+    constructor(_screen){
+        super(_screen);
+        this.name ='';
+        this.dirty = false;
+        this.render = function () {
+            let vm = this;
+            square(vm.cX - 200, vm.cY - 235, 400, 40, '#208C30', 1);
+            square(vm.cX - 195, vm.cY - 230, 390, 30, 'black', 1);
+            if(vm.timer < 30)text('>',vm.cX - 190, vm.cY - 205, '#208C30', 24);
+            if(!this.dirty)text('Enter Name',vm.cX - 170, vm.cY - 207, '#208C30', 24);
+            if(this.dirty)text(this.name,vm.cX - 170, vm.cY - 207, '#208C30', 24);
+        };
+        this.onAnyKeyDown = function (key) {
+
+            if(this.name.length > 10 && key !== 'Backspace') return;
+
+            if (key === 'Backspace' && this.name !== '') {
+                this.name = this.name.substring(0, this.name.length - 1);
+            } else {
+                if(key.length === 1) {
+                    this.dirty = true;
+                    this.name += key;
+                }
+            }
+
+            socket.emit('update-name', this.name)
+
+        };
+    }
+}
+
 class EndGameTextOverlay extends FullSize {
     constructor(_screen){
         super(_screen);
@@ -509,6 +541,7 @@ window.addEventListener("load", function () {
     //load order for screen 3 - Title screen
     addEntity(new Background(3));
     addEntity(new TitleCard(3));
+    addEntity(new NameCollector(3));
     addEntity(new TitleButton(a.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join'), 3));
     addEntity(new TitleButton((a.width / 2) - 200, 440, 'Our Creators', 'blame', () => screen = 5, 3));
     addEntity(new TitleButton(a.width / 2 - 200, 480, 'Internal Documentation', 'man', () => screen = 6, 3));
@@ -671,6 +704,7 @@ window.addEventListener("load", function () {
     onkeydown = (e) => {
         bindKey(e);
         entitiesCall('_keydown', e.key);
+        entitiesCall('_anykeydown', e.key);
     };
     onkeyup = bindKey;
 
