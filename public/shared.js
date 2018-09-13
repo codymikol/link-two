@@ -14,6 +14,7 @@ let abs = Math.abs;
 let wallNonce = 0;
 const map_count = 8;
 const tick_rate = 25;
+const max_health = 50;
 let serverTime = 0;
 
 const environmentMap = [];
@@ -216,7 +217,7 @@ class Environment {
 class Actor extends Entity {
     constructor(x, y, color, name) {
         super(x, y, 20, 20, 1);
-        this.health = 50;
+        this.health = max_health;
         this.activeWeapon = 'GroundPistol';
         this.weaponCooldown = 0;
         this.name = name;
@@ -274,7 +275,7 @@ class Actor extends Entity {
     }
 
     reset() {
-        this.health = 100;
+        this.health = max_health;
         this.activeWeapon = 'GroundPistol';
         this.isDead = false;
     }
