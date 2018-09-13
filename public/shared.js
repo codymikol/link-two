@@ -57,6 +57,9 @@ class Entity {
         this._keydown = function (key) {
             if (this['on' + key.toUpperCase() + 'Down'] && this.isOnScreen()) this['on' + key.toUpperCase() + 'Down']();
         };
+        this._anykeydown = function (key) {
+            if (this.isOnScreen() && this.onAnyKeyDown) this.onAnyKeyDown(key);
+        };
         this.destroy = function () {
             delete entities[this.namespace || this.nonce];
         };
