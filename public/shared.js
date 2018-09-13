@@ -300,7 +300,8 @@ class Projectile extends Entity {
         this.fireTime = fireTime;
         this.render = function () {
             let vm = this;
-            square(vm.x, vm.y, vm.width, vm.height, vm.color || 'orange', 1)
+            square(vm.x, vm.y, vm.width, vm.height, vm.color || 'orange', 1);
+            addEntity(new Contrail(this.x, this.y, this.height, this.width));
         };
         this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
