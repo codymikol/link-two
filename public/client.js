@@ -449,62 +449,6 @@ class Player extends Actor {
     }
 }
 
-// TODO!! We can delete this later but it is very useful ;)
-class DebugSquare extends Entity {
-    constructor(_screen, texty) {
-        super(100, 100, 500, 500, _screen,);
-
-        this.text = texty;
-        this.size = 24;
-        this.alpha = 1;
-        this.velocity = .01;
-
-        let vm = this;
-
-        this.render = function () {
-            square(vm.x, vm.y, vm.width, vm.height, 'purple')
-        };
-
-        this.getRealX = function () {
-            return this.x + this.width / 2;
-        };
-
-        this.getRealY = function () {
-            return this.y + this.height / 2;
-        };
-
-        this.onTick = function (delta) {
-            if (keyDown.w) this.y -= this.velocity * delta * 10;
-            if (keyDown.a) this.x -= this.velocity * delta * 10;
-            if (keyDown.s) this.y += this.velocity * delta * 10;
-            if (keyDown.d) this.x += this.velocity * delta * 10;
-
-            if (keyDown.W) this.y -= this.velocity * delta;
-            if (keyDown.A) this.x -= this.velocity * delta;
-            if (keyDown.S) this.y += this.velocity * delta;
-            if (keyDown.D) this.x += this.velocity * delta;
-
-
-            if (keyDown.p) this.height -= this.velocity * delta * 25;
-            if (keyDown.P) this.height -= this.velocity * delta;
-            if (keyDown.o) this.height += this.velocity * delta * 25;
-            if (keyDown.O) this.height += this.velocity * delta;
-
-            if (keyDown.i) this.height = 20;
-
-            if (keyDown.l) this.width -= this.velocity * delta * 25;
-            if (keyDown.L) this.width -= this.velocity * delta;
-            if (keyDown.k) this.width += this.velocity * delta * 25;
-            if (keyDown.K) this.width += this.velocity * delta;
-            if (keyDown.j) this.width = 20;
-            if (keyDown.m) console.log(`[${this.getRealX()},${this.getRealY()},${this.height},${this.width}]`);
-            // console.log(`text(${vm.text},${vm.x},${vm.y},\'red\',${vm.size},1`)
-            if (keyDown.M) addEntity(new Wall(this.getRealX(), this.getRealY(), this.height, this.width));
-        };
-
-    }
-}
-
 class Enemy extends Actor {
     constructor(x, y, rotationDegrees, health, height, width) {
         super(x, y, 'red', rotationDegrees, health, height, width);
@@ -520,7 +464,7 @@ class Contrail extends Entity {
             ctx.fillStyle = 'yellow';
             ctx.strokeStyle = 'yellow';
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.height * this.halflife / 2, 0, 2 * Math.PI);
+            ctx.arc(this.x, this.y, this.height * this.halflife / 20, 0, 2 * Math.PI);
             ctx.stroke();
             ctx.fill();
             ctx.globalAlpha = 1;

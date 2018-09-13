@@ -84,12 +84,10 @@ class Room extends Entity {
             groundWeapons : Array.from(this.environment.groundWeapons.values())
         });
         this.phase = 'GAME';
-        //TODO: Tell the client what the entities for this round are
     }
 
     endRound() {
-        // todo uncomment and change for debugging purposes.
-        this.roundStartCountdown = 200;
+        this.roundStartCountdown = 600;
         this.phase = 'ROUND_STATS';
         this.actors.forEach((actor) => actor.reset());
         this.emit('round-end', Array.from(this.actors.values()).map((actor) => actor.stats.getRoundStats()));

@@ -12,10 +12,9 @@ function copyProps(src, dest) {
 
 let abs = Math.abs;
 let wallNonce = 0;
-const map_height = 5000;
-const map_width = 5000;
 const map_count = 8;
 const tick_rate = 25;
+const max_health = 50;
 let serverTime = 0;
 
 const environmentMap = [];
@@ -123,7 +122,7 @@ class Environment {
                 return col;
             }, new Map());
     }
-
+    // build the weapons for a given environment.
     buildGroundWeapons(mapIndex) {
         return environmentMap[mapIndex]
             .filter((currentObj) => {
@@ -140,6 +139,7 @@ class Environment {
             }, new Map());
     }
 
+    // assign starting positions to all actors.
     assignStartingPositions(mapIndex) {
         let startingPosition = environmentMap[mapIndex].filter(function (currentObj) {
             return currentObj.type === 'Starting';
@@ -217,7 +217,7 @@ class Environment {
 class Actor extends Entity {
     constructor(x, y, color, name) {
         super(x, y, 20, 20, 1);
-        this.health = 100;
+        this.health = max_health;
         this.activeWeapon = 'GroundPistol';
         this.weaponCooldown = 0;
         this.name = name;
@@ -275,7 +275,7 @@ class Actor extends Entity {
     }
 
     reset() {
-        this.health = 100;
+        this.health = max_health;
         this.activeWeapon = 'GroundPistol';
         this.isDead = false;
     }
@@ -300,7 +300,8 @@ class Projectile extends Entity {
         this.fireTime = fireTime;
         this.render = function () {
             let vm = this;
-            square(vm.x, vm.y, vm.width, vm.height, vm.color || 'orange', 1)
+            square(vm.x, vm.y, vm.width, vm.height, vm.color || 'orange', 1);
+            addEntity(new Contrail(this.x, this.y, this.height, this.width));
         };
         this._getDeltaTime = function () {
             return ((serverTime - this.fireTime) / tick_rate);
