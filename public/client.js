@@ -203,7 +203,7 @@ let dX = 340;
 function getStatusVals(winStatus) {
     switch (winStatus) {
         case 'TIE':
-            return {color: 'blue', text: 'LINK TIE'};
+            return {color: '#cd7f32', text: 'LINK TIE'};
         case 'WINNER':
             return {color: 'gold', text: 'VICTORY'};
         default:
@@ -219,35 +219,38 @@ class EndGameTextOverlay extends FullSize {
 
             //TODO: Yeah I copy and pasted baby, gottem!!!
 
-            let playerStats = gameStats.filter(stat => stat.nonce === player.nonce)[0].gameStats;
+            if(gameStats.length > 0) {
 
-            let statVals = getStatusVals(playerStats.winStatus);
+                let playerStats = gameStats.filter(stat => stat.nonce === player.nonce)[0].gameStats;
 
-            text(`${player.name} - ${playerStats.totalWins} Points`, vm.width / 2 - 170, 425, undefined, 16);
+                let statVals = getStatusVals(playerStats.winStatus);
 
-            text(`STATUS: ${statVals.text}`, vm.width / 2 - 300, 467, statVals.color, 30);
+                text(`${player.name} - ${playerStats.totalWins} Points`, vm.width / 2 - 170, 425, undefined, 16);
 
-            text(`Total Kills: ${playerStats.totalKills}`, vm.width / 2 + 100, 440, undefined, 14);
-            text(`Total Accuracy: ${Math.floor(playerStats.totalHits / (playerStats.totalHits + playerStats.totalMisses) * 100) || 0}% ${playerStats.totalHits}/${playerStats.totalHits + playerStats.totalMisses}`, vm.width / 2 + 100, 460, undefined, 14);
-            text(`Total Deaths: ${playerStats.totalDeaths}`, vm.width / 2 + 100, 480, undefined, 14);
+                text(`STATUS: ${statVals.text}`, vm.width / 2 - 300, 467, statVals.color, 30);
 
-            getEnemies().forEach((enemy, index) => {
+                text(`Total Kills: ${playerStats.totalKills}`, vm.width / 2 + 100, 440, undefined, 14);
+                text(`Total Accuracy: ${Math.floor(playerStats.totalHits / (playerStats.totalHits + playerStats.totalMisses) * 100) || 0}% ${playerStats.totalHits}/${playerStats.totalHits + playerStats.totalMisses}`, vm.width / 2 + 100, 460, undefined, 14);
+                text(`Total Deaths: ${playerStats.totalDeaths}`, vm.width / 2 + 100, 480, undefined, 14);
 
-                let enemyStats = gameStats.filter(stat => stat.nonce === enemy.nonce)[0].gameStats;
+                getEnemies().forEach((enemy, index) => {
 
-                let eStatVals = getStatusVals(enemyStats.winStatus);
+                    let enemyStats = gameStats.filter(stat => stat.nonce === enemy.nonce)[0].gameStats;
 
-                let yOffset = 110;
+                    let eStatVals = getStatusVals(enemyStats.winStatus);
 
-                text(`${enemy.name} - ${enemyStats.totalWins} Points`, vm.width / 2 - 170, 425 + yOffset * (index + 1), undefined, 16);
+                    let yOffset = 110;
 
-                text(`STATUS: ${eStatVals.text}`, vm.width / 2 - 300, 467 + yOffset * (index + 1), eStatVals.color, 30);
+                    text(`${enemy.name} - ${enemyStats.totalWins} Points`, vm.width / 2 - 170, 425 + yOffset * (index + 1), undefined, 16);
 
-                text(`Total Kills: ${enemyStats.totalKills}`, vm.width / 2 + 100, 440 + yOffset * (index + 1), undefined, 14);
-                text(`Total Accuracy: ${Math.floor(enemyStats.totalHits / (enemyStats.totalHits + enemyStats.totalMisses) * 100) || 0}% ${enemyStats.totalHits}/${(enemyStats.totalHits + enemyStats.totalMisses)}`, vm.width / 2 + 100, 460 + yOffset * (index + 1), undefined, 14);
-                text(`Total Deaths: ${enemyStats.roundKills}`, vm.width / 2 + 100, 480 + yOffset * (index + 1), undefined, 14);
+                    text(`STATUS: ${eStatVals.text}`, vm.width / 2 - 300, 467 + yOffset * (index + 1), eStatVals.color, 30);
 
-            })
+                    text(`Total Kills: ${enemyStats.totalKills}`, vm.width / 2 + 100, 440 + yOffset * (index + 1), undefined, 14);
+                    text(`Total Accuracy: ${Math.floor(enemyStats.totalHits / (enemyStats.totalHits + enemyStats.totalMisses) * 100) || 0}% ${enemyStats.totalHits}/${(enemyStats.totalHits + enemyStats.totalMisses)}`, vm.width / 2 + 100, 460 + yOffset * (index + 1), undefined, 14);
+                    text(`Total Deaths: ${enemyStats.roundKills}`, vm.width / 2 + 100, 480 + yOffset * (index + 1), undefined, 14);
+
+                })
+            }
         };
     }
 }
@@ -536,8 +539,9 @@ window.addEventListener("load", function () {
     //load order for screen 7 - End Game Results
     addEntity(new Background(7));
     addEntity(new TitleCard(7));
-    addEntity(new PlayerListGUI(7, 'Candidate Evaluation Complete... failures will be DISCONNECTED'));
+    addEntity(new PlayerListGUI(7, ' '));
     addEntity(new EndGameTextOverlay(7));
+    addEntity(new TitleButton(a.width / 2 - 200, 350, 'Return To Prompt', ':q!', () => screen = 3, 7));
 
     forObj({
         'joined-room': function (server_player) {
