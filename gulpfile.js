@@ -21,7 +21,7 @@ gulp.task('smash-server', () => codySmash('server.js'));
 gulp.task('smash', gulp.parallel('smash-client', 'smash-shared', 'smash-server'));
 
 gulp.task('zip', () => {
-    return gulp.src('public/dist/compressed/*')
+    return gulp.src(['public/dist/compressed/*', 'public/index.html'])
         .pipe(zip('archive.zip'))
         .pipe(gulp.dest('public/dist'));
 });
