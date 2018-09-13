@@ -328,7 +328,7 @@ module.exports = {
         socket.on('weapon-pickup', function (weaponNonce) {
             let thePlayer = getPlayerFromRoom(currentPlayerNonce, selectedRoom);
             let theWeapon = getWeaponFromRoom(weaponNonce, selectedRoom);
-            if (thePlayer && theWeapon && !thePlayer.isDead && entitiesCollide(thePlayer, theWeapon)) {
+            if (thePlayer && theWeapon && !thePlayer.isDead && entitiesCollide(thePlayer, asCentered(theWeapon))) {
                 wallNonce++;
                 let droppedWeaponNonce = wallNonce;
                 let droppedWeapon = newGunWithNonce(droppedWeaponNonce, thePlayer.activeWeapon, [thePlayer.x - 10, thePlayer.y - 10]);
