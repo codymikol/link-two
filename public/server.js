@@ -87,7 +87,7 @@ class Room extends Entity {
     }
 
     endRound() {
-        this.roundStartCountdown = 200;
+        this.roundStartCountdown = 600;
         this.phase = 'ROUND_STATS';
         this.actors.forEach((actor) => actor.reset());
         this.emit('round-end', Array.from(this.actors.values()).map((actor) => actor.stats.getRoundStats()));
