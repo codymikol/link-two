@@ -218,12 +218,14 @@ class NameCollector extends FullSize {
         this.dirty = false;
         this.render = function () {
             let vm = this;
-            square(vm.cX - 200, vm.cY - 235, 400, 40, '#208C30', 1);
-            square(vm.cX - 195, vm.cY - 230, 390, 30, 'black', 1);
-            if(vm.timer < 30)text('>',vm.cX - 190, vm.cY - 205, '#208C30', 24);
-            if(!this.dirty)text('Enter Name',vm.cX - 170, vm.cY - 207, '#208C30', 24);
-            if(this.dirty)text(this.name,vm.cX - 170, vm.cY - 207, '#208C30', 24);
+            let yOffset = 580;
+            square(vm.cX - 200, yOffset - 235, 400, 40, '#208C30', 1);
+            square(vm.cX - 195, yOffset - 230, 390, 30, 'black', 1);
+            if(vm.timer < 30)text('>',vm.cX - 190, yOffset - 205, '#208C30', 24);
+            if(!this.dirty)text('Enter Name',vm.cX - 170, yOffset - 207, '#208C30', 24);
+            if(this.dirty)text(this.name,vm.cX - 170, yOffset - 207, '#208C30', 24);
         };
+
         this.onAnyKeyDown = function (key) {
 
             if(this.name.length > 10 && key !== 'Backspace') return;
