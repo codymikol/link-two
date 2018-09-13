@@ -14,11 +14,11 @@ let abs = Math.abs;
 let wallNonce = 0;
 const map_height = 5000;
 const map_width = 5000;
-const map_count = 3;
+const map_count = 8;
 const tick_rate = 25;
 let serverTime = 0;
 
-const wallTestList = [];
+const environmentMap = [];
 
 class Entity {
     constructor(x, y, height, width, _screen) {
@@ -103,8 +103,9 @@ class Environment {
         this.nonce = room.nonce;
         this.projectiles = new Map();
         this.eventQueue = new Map();
-        // let mapIndex = Math.floor(randomIntFromInterval(0,wallTestList.length-1))
-        let mapIndex = 0;
+        // randomly select a map from the map list. 0 - 7 are valid, change to be hardcoded
+        // if there is a specific map you would like to play on.
+        let mapIndex = Math.floor(randomIntFromInterval(0,environmentMap.length-1));
         this.walls = this.buildWalls(mapIndex);
         this.assignStartingPositions(mapIndex);
         this.groundWeapons = this.buildGroundWeapons(mapIndex);
@@ -112,7 +113,7 @@ class Environment {
 
     //TODO: This should be nonspecific to entities
     buildWalls(mapIndex) {
-        return wallTestList[mapIndex]
+        return environmentMap[mapIndex]
             .filter((currentWall) => {
                 return currentWall.type === 'Wall';
             }).reduce((col, currentWall) => {
@@ -124,7 +125,7 @@ class Environment {
     }
 
     buildGroundWeapons(mapIndex) {
-        return wallTestList[mapIndex]
+        return environmentMap[mapIndex]
             .filter((currentObj) => {
                 return currentObj.type === 'GroundPistol'
                     || currentObj.type === 'GroundShotgun'
@@ -140,7 +141,7 @@ class Environment {
     }
 
     assignStartingPositions(mapIndex) {
-        let startingPosition = wallTestList[mapIndex].filter(function (currentObj) {
+        let startingPosition = environmentMap[mapIndex].filter(function (currentObj) {
             return currentObj.type === 'Starting';
         })[0];
 

@@ -483,15 +483,21 @@ class DebugSquare extends Entity {
             if (keyDown.D) this.x += this.velocity * delta;
 
 
-            if (keyDown.p) this.height -= this.velocity * delta;
-            if (keyDown.o) this.height += this.velocity * delta;
+            if (keyDown.p) this.height -= this.velocity * delta * 25;
+            if (keyDown.P) this.height -= this.velocity * delta;
+            if (keyDown.o) this.height += this.velocity * delta * 25;
+            if (keyDown.O) this.height += this.velocity * delta;
+
             if (keyDown.i) this.height = 20;
 
-            if (keyDown.l) this.width -= this.velocity * delta;
-            if (keyDown.k) this.width += this.velocity * delta;
+            if (keyDown.l) this.width -= this.velocity * delta * 25;
+            if (keyDown.L) this.width -= this.velocity * delta;
+            if (keyDown.k) this.width += this.velocity * delta * 25;
+            if (keyDown.K) this.width += this.velocity * delta;
             if (keyDown.j) this.width = 20;
-            if (keyDown.m) console.log(`[${this.getRealX()},${this.getRealY()},${this.height},${this.width}]`)
+            if (keyDown.m) console.log(`[${this.getRealX()},${this.getRealY()},${this.height},${this.width}]`);
             // console.log(`text(${vm.text},${vm.x},${vm.y},\'red\',${vm.size},1`)
+            if (keyDown.M) addEntity(new Wall(this.getRealX(), this.getRealY(), this.height, this.width));
         };
 
     }
