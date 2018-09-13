@@ -284,19 +284,11 @@ function getBestRoom() {
 }
 
 function loadMaps() {
-    mapLoader();
     for (let i = 0; i < map_count; i++) {
         storage.get('map_' + (i + 1)).then(result => {
             wallTestList[i] = result;
         });
     }
-
-
-}
-
-// TODO!! remove me !!
-function mapLoader() {
-    storage.set("map_1", map_1, false);
 }
 
 function init() {
