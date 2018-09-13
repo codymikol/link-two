@@ -377,9 +377,6 @@ class Player extends Actor {
         this.onMouseMove = function () {
             this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
         };
-        this.onAnyClick = function () {
-
-        };
         this.onTick = function (delta) {
 
             let vm = this;
@@ -388,21 +385,29 @@ class Player extends Actor {
             let originalY = this.y;
 
             if (keyDown.w) this.y -= this.velocity * delta;
-            if (keyDown.a) this.x -= this.velocity * delta;
             if (keyDown.s) this.y += this.velocity * delta;
-            if (keyDown.d) this.x += this.velocity * delta;
 
-            if (mouseDown && !this.isDead && this.weaponCooldown === 0) {
-                socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
-            };
+            if (Object.keys(entities).some(function (entityKey) {
+                if (!entities[entityKey].blocking) return false;
+                return entitiesCollide(entities[entityKey], vm);
+            })) {
+                this.y = originalY;
+            }
+
+            if (keyDown.a) this.x -= this.velocity * delta;
+            if (keyDown.d) this.x += this.velocity * delta;
 
             if (Object.keys(entities).some(function (entityKey) {
                 if (!entities[entityKey].blocking) return false;
                 return entitiesCollide(entities[entityKey], vm);
             })) {
                 this.x = originalX;
-                this.y = originalY;
             }
+
+            if (mouseDown && !this.isDead && this.weaponCooldown === 0) {
+                socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
+            };
+
         };
     }
 }
