@@ -531,7 +531,10 @@ window.addEventListener("load", function () {
     addEntity(new TitleCard(7));
     addEntity(new PlayerListGUI(7, ' '));
     addEntity(new EndGameTextOverlay(7));
-    addEntity(new TitleButton(a.width / 2 - 200, 350, 'Return To Prompt', ':q!', () => screen = 3, 7));
+    addEntity(new TitleButton(a.width / 2 - 200, 350, 'Return To Prompt', ':q!', () => {
+        getEnemies().forEach((enemy) => {delete entities['enemy-' + enemy.nonce];});
+        screen = 3;
+    }, 7));
 
     forObj({
         'joined-room': function (server_player) {
