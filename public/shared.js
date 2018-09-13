@@ -12,8 +12,6 @@ function copyProps(src, dest) {
 
 let abs = Math.abs;
 let wallNonce = 0;
-const map_height = 5000;
-const map_width = 5000;
 const map_count = 8;
 const tick_rate = 25;
 let serverTime = 0;
