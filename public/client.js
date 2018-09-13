@@ -665,7 +665,7 @@ window.addEventListener("load", function () {
     };
 
     function bindKey(e) {
-        keyDown[e.key] = e.type[3] === 'd';
+        keyDown[e.key.toLowerCase()] = e.type[3] === 'd';
     }
 
     onkeydown = (e) => {
