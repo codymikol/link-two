@@ -9,6 +9,7 @@ let socket,
     keyDown = {},
     entities = {},
     roundStats = [],
+    gameStats = [],
     environmentKeys = [],
     map = {},
     joinedRoom,
@@ -193,6 +194,61 @@ class InstructionsTextOverlay extends FullSize {
             text('E', this.cX - 396, 680, 'black', 25, 1, 'center');
             text('Pick up Killing Devices scattered about the Pre Network', this.cX - 330, 680, undefined, 20, 1, 'start');
         }
+    }
+}
+
+let dY = 440;
+let dX = 340;
+
+function getStatusVals(winStatus) {
+    switch (winStatus) {
+        case 'TIE':
+            return {color: 'blue', text: 'LINK TIE'};
+        case 'WINNER':
+            return {color: 'gold', text: 'VICTORY'};
+        default:
+            return {color: 'red', text: 'TERMINATED'};
+    }
+}
+
+class EndGameTextOverlay extends FullSize {
+    constructor(_screen){
+        super(_screen);
+        this.render = function () {
+            let vm = this;
+
+            //TODO: Yeah I copy and pasted baby, gottem!!!
+
+            let playerStats = gameStats.filter(stat => stat.nonce === player.nonce)[0].gameStats;
+
+            let statVals = getStatusVals(playerStats.winStatus);
+
+            text(`${player.name} - ${playerStats.totalWins} Points`, vm.width / 2 - 170, 425, undefined, 16);
+
+            text(`STATUS: ${statVals.text}`, vm.width / 2 - 300, 467, statVals.color, 30);
+
+            text(`Total Kills: ${playerStats.totalKills}`, vm.width / 2 + 100, 440, undefined, 14);
+            text(`Total Accuracy: ${Math.floor(playerStats.totalHits / (playerStats.totalHits + playerStats.totalMisses) * 100) || 0}% ${playerStats.totalHits}/${playerStats.totalHits + playerStats.totalMisses}`, vm.width / 2 + 100, 460, undefined, 14);
+            text(`Total Deaths: ${playerStats.totalDeaths}`, vm.width / 2 + 100, 480, undefined, 14);
+
+            getEnemies().forEach((enemy, index) => {
+
+                let enemyStats = gameStats.filter(stat => stat.nonce === enemy.nonce)[0].gameStats;
+
+                let eStatVals = getStatusVals(enemyStats.winStatus);
+
+                let yOffset = 110;
+
+                text(`${enemy.name} - ${enemyStats.totalWins} Points`, vm.width / 2 - 170, 425 + yOffset * (index + 1), undefined, 16);
+
+                text(`STATUS: ${eStatVals.text}`, vm.width / 2 - 300, 467 + yOffset * (index + 1), eStatVals.color, 30);
+
+                text(`Total Kills: ${enemyStats.totalKills}`, vm.width / 2 + 100, 440 + yOffset * (index + 1), undefined, 14);
+                text(`Total Accuracy: ${Math.floor(enemyStats.totalHits / (enemyStats.totalHits + enemyStats.totalMisses) * 100) || 0}% ${enemyStats.totalHits}/${(enemyStats.totalHits + enemyStats.totalMisses)}`, vm.width / 2 + 100, 460 + yOffset * (index + 1), undefined, 14);
+                text(`Total Deaths: ${enemyStats.roundKills}`, vm.width / 2 + 100, 480 + yOffset * (index + 1), undefined, 14);
+
+            })
+        };
     }
 }
 
@@ -477,6 +533,12 @@ window.addEventListener("load", function () {
     addEntity(new InstructionsTextOverlay(6));
     addEntity(new TitleButton(a.width / 2 - 200, 770, 'Return', 'exit()', () => screen = 3, 6));
 
+    //load order for screen 7 - End Game Results
+    addEntity(new Background(7));
+    addEntity(new TitleCard(7));
+    addEntity(new PlayerListGUI(7, 'Candidate Evaluation Complete... failures will be DISCONNECTED'));
+    addEntity(new EndGameTextOverlay(7));
+
     forObj({
         'joined-room': function (server_player) {
             player.nonce = server_player.nonce;
@@ -512,7 +574,10 @@ window.addEventListener("load", function () {
             roundStats = postRoundStats;
             screen = 4
         },
-        'game-end': () => screen = 5,
+        'game-end': (endStats) => {
+            gameStats = endStats;
+            screen = 7;
+        },
         'destroy': (entityKeyOrList) => {
             if (Array.isArray(entityKeyOrList)) entityKeyOrList.forEach((entityKey) => delete entities[entityKey]);
             else delete entities[entityKeyOrList];

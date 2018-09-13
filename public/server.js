@@ -41,7 +41,29 @@ class Room extends Entity {
     }
 
     endGame() {
-        this.emit('game-end', Array.from(this.actors.values()).map((actor) => actor.stats.getGameStats()));
+
+        let actorList = Array.from(this.actors.values());
+
+        let highestScore = actorList.reduce((col, actor) => {
+            let score = actor.stats.getGameStats().totalWins;
+            return score > col ? score : col;
+        }, 0);
+
+        actorList.forEach((actor) => {
+           if(actor.stats.getGameStats().totalWins === highestScore) actor.isWinner = true;
+        });
+
+        let isTie = actorList.filter((actor) => {
+            return actor.isWinner;
+        }).length > 1;
+
+        this.emit('game-end', Array.from(this.actors.values()).map((actor) => {
+            actor.gameStats = actor.stats.getGameStats();
+            if(actor.isWinner) actor.gameStats.winStatus = (isTie) ? 'TIE' : 'WINNER';
+            actor.roundStats = actor.stats.getRoundStats();
+
+            return actor;
+        }));
         rooms.delete(this.nonce);
     }
 
