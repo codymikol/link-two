@@ -33,7 +33,7 @@ class Room extends Entity {
     join(player) {
         player.stats = new Stats(player);
         this.actors.set(player.nonce, player);
-        if (this.actors.size >= 2) this.countdown = 5 * tick_rate;
+        if (this.actors.size >= 2) this.countdown = 15 * tick_rate;
     }
 
     leave(playerNonce) {
