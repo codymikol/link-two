@@ -14,7 +14,7 @@ let abs = Math.abs;
 let wallNonce = 0;
 const map_height = 5000;
 const map_width = 5000;
-const map_count = 3;
+const map_count = 8;
 const tick_rate = 25;
 let serverTime = 0;
 
@@ -103,8 +103,9 @@ class Environment {
         this.nonce = room.nonce;
         this.projectiles = new Map();
         this.eventQueue = new Map();
-        // let mapIndex = Math.floor(randomIntFromInterval(0,wallTestList.length-1))
-        let mapIndex = 0;
+        // randomly select a map from the map list. 0 - 7 are valid, change to be hardcoded
+        // if there is a specific map you would like to play on.
+        let mapIndex = Math.floor(randomIntFromInterval(0,wallTestList.length-1));
         this.walls = this.buildWalls(mapIndex);
         this.assignStartingPositions(mapIndex);
         this.groundWeapons = this.buildGroundWeapons(mapIndex);
