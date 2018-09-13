@@ -217,7 +217,7 @@ class Environment {
 class Actor extends Entity {
     constructor(x, y, color, name) {
         super(x, y, 20, 20, 1);
-        this.health = 100;
+        this.health = 50;
         this.activeWeapon = 'GroundPistol';
         this.weaponCooldown = 0;
         this.name = name;
