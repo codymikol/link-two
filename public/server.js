@@ -286,7 +286,7 @@ function getBestRoom() {
 function loadMaps() {
     for (let i = 0; i < map_count; i++) {
         storage.get('map_' + (i + 1)).then(result => {
-            wallTestList[i] = result;
+            environmentMap[i] = result;
         });
     }
 }
