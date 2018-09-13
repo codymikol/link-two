@@ -106,7 +106,10 @@ class Room extends Entity {
     fireProjectile(player) {
 
         if(player.weaponCooldown === 0) {
-            let args = [projectileNonce++, player.x, player.y, player.rotationDegrees, Date.now(), player.nonce];
+
+            projectileNonce++;
+
+            let args = [projectileNonce, player.x, player.y, player.rotationDegrees, Date.now(), player.nonce];
 
             let serverProjectileList = [];
 
