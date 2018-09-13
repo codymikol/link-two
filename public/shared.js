@@ -121,7 +121,7 @@ class Environment {
                 return col;
             }, new Map());
     }
-
+    // build the weapons for a given environment.
     buildGroundWeapons(mapIndex) {
         return environmentMap[mapIndex]
             .filter((currentObj) => {
@@ -138,6 +138,7 @@ class Environment {
             }, new Map());
     }
 
+    // assign starting positions to all actors.
     assignStartingPositions(mapIndex) {
         let startingPosition = environmentMap[mapIndex].filter(function (currentObj) {
             return currentObj.type === 'Starting';
