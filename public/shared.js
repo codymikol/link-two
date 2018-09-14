@@ -184,7 +184,7 @@ class Environment {
             }
 
             hitPlayers.forEach((player) => {
-                player.takeDamage(1);
+                player.takeDamage(projectile.damage);
                 if (player.isDead) projectileOwner.stats.awardKill();
             })
 
@@ -286,12 +286,13 @@ class Actor extends Entity {
 }
 
 class Projectile extends Entity {
-    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, wobble, speedFloor, speedCeiling, cooldown, halflife) {
+    constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, wobble, speedFloor, speedCeiling, cooldown, halflife, damage) {
         super(x, y, 5, 5,  1);
         this.nonce = nonce;
         this.weaponCooldown = cooldown;
         this._startingX = x;
         this._startingY = y;
+        this.damage = damage;
         this.playerNonce = playerNonce;
         this.rotationDegrees = rotationDegrees;
         this.wobbleRotation = (randomIntFromInterval(-wobble, wobble)) + this.rotationDegrees;
@@ -315,25 +316,25 @@ class Projectile extends Entity {
 
 class PistolProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 1, 8, 8, 10,  4 * 1000);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 1, 8, 9, 10,  4 * 1000, 5);
     }
 }
 
 class ShotgunProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 9, 5, 8, 50, 900);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 9, 5, 8, 50, 900, 1);
     }
 }
 
 class MachineGunProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 7, 9, 1, 1000);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 8, 7, 10, 1, 1000, 1);
     }
 }
 
 class SmgProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 3, 10, 11, 5, 1500);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 1, 8, 11, 3, 1000, 1);
     }
 }
 
