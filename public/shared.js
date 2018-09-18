@@ -104,7 +104,7 @@ class Environment {
         this.eventQueue = new Map();
         // randomly select a map from the map list. 0 - 7 are valid, change to be hardcoded
         // if there is a specific map you would like to play on.
-        let mapIndex = Math.floor(randomIntFromInterval(0,environmentMap.length-1));
+        let mapIndex = Math.floor(randomIntFromInterval(0, environmentMap.length - 1));
         this.walls = this.buildWalls(mapIndex);
         this.assignStartingPositions(mapIndex);
         this.groundWeapons = this.buildGroundWeapons(mapIndex);
@@ -122,6 +122,7 @@ class Environment {
                 return col;
             }, new Map());
     }
+
     // build the weapons for a given environment.
     buildGroundWeapons(mapIndex) {
         return environmentMap[mapIndex]
@@ -236,7 +237,7 @@ class Actor extends Entity {
             ctx.rotate(this.rotationDegrees * Math.PI / 180);
             ctx.fillRect(this.width / this.x - 10, this.height / this.y - 10, this.width, this.height);
 
-            if(!this.isDead) {
+            if (!this.isDead) {
                 switch (this.activeWeapon) {
                     case 'GroundPistol':
                         let pistol = new GroundPistol();
@@ -281,13 +282,27 @@ class Actor extends Entity {
     }
 
     tickCooldown() {
-        if(this.weaponCooldown > 0) this.weaponCooldown--;
+        if (this.weaponCooldown > 0) this.weaponCooldown--;
     }
+
+    asDTO() {
+        return {
+            health: this.health,
+            activeWeapon: this.activeWeapon,
+            weaponCooldown: this.weaponCooldown,
+            name: this.name,
+            isDead: this.isDead,
+            rotationDegrees: this.rotationDegrees,
+            color: this.color,
+            velocity: this.velocity,
+        }
+    }
+
 }
 
 class Projectile extends Entity {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce, wobble, speedFloor, speedCeiling, cooldown, halflife) {
-        super(x, y, 5, 5,  1);
+        super(x, y, 5, 5, 1);
         this.nonce = nonce;
         this.weaponCooldown = cooldown;
         this._startingX = x;
@@ -315,7 +330,7 @@ class Projectile extends Entity {
 
 class PistolProjectile extends Projectile {
     constructor(nonce, x, y, rotationDegrees, fireTime, playerNonce) {
-        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 1, 8, 8, 10,  4 * 1000);
+        super(nonce, x, y, rotationDegrees, fireTime, playerNonce, 1, 8, 8, 10, 4 * 1000);
     }
 }
 
