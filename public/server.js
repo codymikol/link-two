@@ -172,7 +172,7 @@ class Room extends Entity {
             nonce: this.nonce,
             serverTime: serverTime,
             countdown: this.countdown,
-            actors: [...this.actors.values().map(actor => actor.asDTO())],
+            actors: [...this.actors.values()].map(actor => actor.asDTO()),
             playerSize: this.actors.length,
             roomName: this.roomName
         };

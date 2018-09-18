@@ -287,6 +287,7 @@ class Actor extends Entity {
 
     asDTO() {
         return {
+            nonce: this.nonce,
             health: this.health,
             activeWeapon: this.activeWeapon,
             weaponCooldown: this.weaponCooldown,
