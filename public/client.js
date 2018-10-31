@@ -281,7 +281,7 @@ class EndGameTextOverlay extends FullSize {
 
                     text(`Total Kills: ${enemyStats.totalKills}`, vm.width / 2 + 100, 440 + yOffset * (index + 1), undefined, 14);
                     text(`Total Accuracy: ${Math.floor(enemyStats.totalHits / (enemyStats.totalHits + enemyStats.totalMisses) * 100) || 0}% ${enemyStats.totalHits}/${(enemyStats.totalHits + enemyStats.totalMisses)}`, vm.width / 2 + 100, 460 + yOffset * (index + 1), undefined, 14);
-                    text(`Total Deaths: ${enemyStats.roundKills}`, vm.width / 2 + 100, 480 + yOffset * (index + 1), undefined, 14);
+                    text(`Total Deaths: ${enemyStats.totalDeaths}`, vm.width / 2 + 100, 480 + yOffset * (index + 1), undefined, 14);
 
                 })
             }
@@ -385,7 +385,7 @@ class StatsTextOverlay extends FullSize {
 
             text(`Total Kills: ${playerStats.totalKills}`, vm.width / 2 + 100, 440, undefined, 14);
             text(`Total Accuracy: ${Math.floor(playerStats.totalHits / (playerStats.totalHits + playerStats.totalMisses) * 100) || 0}% ${playerStats.totalHits}/${playerStats.totalHits + playerStats.totalMisses}`, vm.width / 2 + 100, 460, undefined, 14);
-            text(`Total Deaths: ${playerStats.roundKills}`, vm.width / 2 + 100, 480, undefined, 14);
+            text(`Total Deaths: ${playerStats.totalDeaths}`, vm.width / 2 + 100, 480, undefined, 14);
 
             getEnemies().forEach((enemy, index) => {
 
@@ -401,7 +401,7 @@ class StatsTextOverlay extends FullSize {
 
                 text(`Total Kills: ${enemyStats.totalKills}`, vm.width / 2 + 100, 440 + yOffset * (index + 1), undefined, 14);
                 text(`Total Accuracy: ${Math.floor(enemyStats.totalHits / (enemyStats.totalHits + enemyStats.totalMisses) * 100) || 0}% ${enemyStats.totalHits}/${(enemyStats.totalHits + enemyStats.totalMisses)}`, vm.width / 2 + 100, 460 + yOffset * (index + 1), undefined, 14);
-                text(`Total Deaths: ${enemyStats.roundKills}`, vm.width / 2 + 100, 480 + yOffset * (index + 1), undefined, 14);
+                text(`Total Deaths: ${enemyStats.totalDeaths}`, vm.width / 2 + 100, 480 + yOffset * (index + 1), undefined, 14);
 
             })
         };
