@@ -7,8 +7,8 @@ const parser = require('body-parser');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const code = fs.readFileSync('./server/server.js', 'utf8');
-const shared = fs.readFileSync('./public/shared.js', 'utf8');
+// const code = fs.readFileSync('./server/server.js', 'utf8');
+// const shared = fs.readFileSync('./public/shared.js', 'utf8');
 const vm = require('vm');
 
 function createSandbox() {
@@ -40,10 +40,10 @@ app.set('port', (process.env.PORT || 3000))
     .use(parser.urlencoded({extended: true}))
     .use(parser.json());
 
-vm.runInNewContext(shared + '\n' + code, sandbox);
+// vm.runInNewContext(shared + '\n' + code, sandbox);
 
-io.on('connection', sandbox.module.exports.io);
-
+// io.on('connection', sandbox.module.exports.io);
+//
 server.listen(app.get('port'), () => {
     console.log('Server started at port: ' + app.get('port'));
 });
