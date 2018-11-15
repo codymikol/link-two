@@ -7,6 +7,14 @@ export default class Screen {
         this.entities = {};
     }
 
+    getEntities() {
+        return _.values(this.entities)
+    }
+
+    forEntities(fn) {
+        this.getEntities().forEach(entity => fn(entity))
+    }
+
     add(entity) {
         this.entities[this.nonce] = entity;
         this.nonce ++;
@@ -14,18 +22,6 @@ export default class Screen {
 
     delete(key) {
         delete this.entities[key];
-    }
-
-    render(){
-        _.values(this.entities).forEach(entity => entity._render())
-    }
-
-    tick() {
-        _.values(this.entities).forEach(entity => entity._tick())
-    }
-
-    resize() {
-        _.values(this.entities).forEach(entity => entity._resize())
     }
 
 }

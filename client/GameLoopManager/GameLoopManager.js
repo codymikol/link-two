@@ -18,19 +18,6 @@ export default class GameLoopManager {
 
    }
 
-   update(delta) {
-       this.screenManager.update(delta);
-   }
-
-   draw(){
-       this.ctx.font = "30px Arial";
-       this.ctx.clearRect(0, 0, ScreenManager.width, ScreenManager.height);
-       this.screenManager.draw();
-       this.ctx.font = "30px Arial";
-       this.ctx.fillStyle = 'black';
-
-   }
-
    loop(timestamp) {
 
        if (timestamp < this.lastFrameTimeMs + (1000 / this.MAX_FPS)) {
@@ -41,13 +28,18 @@ export default class GameLoopManager {
        let delta = timestamp - this.lastFrameTimeMs;
        this.lastFrameTimeMs = timestamp;
 
-       this.update(delta);
-       this.draw();
+       this.screenManager.tick(delta);
+
+       this.ctx.font = "30px Arial";
+       this.ctx.clearRect(0, 0, ScreenManager.width, ScreenManager.height);
+       this.screenManager.render();
+       this.ctx.font = "30px Arial";
+       this.ctx.fillStyle = 'black';
+
        requestAnimationFrame(this.loop.bind(this));
    }
 
    init() {
-       console.log(this.screenManager.width)
        this.screenManager.set(new TitleScreen());
        requestAnimationFrame(this.loop.bind(this))
    }

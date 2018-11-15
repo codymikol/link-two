@@ -8,30 +8,41 @@ export default class ScreenManager {
 
         instance = this;
 
-        this.container = document.getElementById('a');
+        this.container = ScreenManager.getCanvas();
         this.container.width = window.innerWidth;
         this.container.height = window.innerHeight;
+
         Object.defineProperty(this, 'height', {get: () => this.container.height});
         Object.defineProperty(this, 'width', {get: () => this.container.width});
 
-        window.addEventListener('resize',() => {
+        window.addEventListener('resize', () => {
             this.container.width = window.innerWidth;
             this.container.height = window.innerHeight;
             this.resize();
-        })
+        });
 
+        window.addEventListener('contextmenu', () => false);
+
+    }
+
+    static getCanvas() {
+       return document.getElementById('a');
+    }
+
+    static getRect() {
+        return ScreenManager.getCanvas().getBoundingClientRect();
     }
 
     resize() {
-        this.activeScreen.resize();
+        this.activeScreen.forEntities((e) => e._resize())
     }
 
-    update() {
-        this.activeScreen.tick();
+    tick() {
+        this.activeScreen.forEntities((e) => e._tick());
     }
 
-    draw() {
-        this.activeScreen.render();
+    render() {
+        this.activeScreen.forEntities((e) => e.render());
     }
 
     set(screenInstance) {

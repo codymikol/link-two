@@ -16,7 +16,6 @@ export default class TitleScreen extends Screen {
         this.add(new NameCollector());
         //TODO Network manager...
         let screenManager = new ScreenManager();
-        console.log(screenManager.width, 'AHAHAHAHAHA');
         this.add(new TitleButton(screenManager.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join')));
         this.add(new TitleButton(screenManager.width / 2 - 200, 440, 'Our Creators', 'blame', () =>
             screenManager.set(new CreditsTextOverlay())));

@@ -1,44 +1,13 @@
 import GameLoopManager from "./GameLoopManager/GameLoopManager";
 
-let socket,
-    screen = 3,
-    entityNonce = 0,
-    mouseDown,
-    mousePos = {},
-    player,
-    keyDown = {},
-    entities = {},
-    roundStats = [],
-    gameStats = [],
-    environmentKeys = [],
-    joinedRoom,
-    a = document.getElementById('a'),
-    ctx = a.getContext('2d');
-
-
-// function entitiesCall(method, arg) {
-//     forObj(entities, (entity) => entity[method](arg))
-// }
-//
-// function getEnemies() {
-//     return Object.keys(entities).filter(key => key.includes('enemy-')).map(key => entities[key])
-// }
-//
-// function addEntity(entity, namespace) {
-//     entity.nonce = entityNonce;
-//     entity.namespace = namespace;
-//     entities[namespace || entityNonce] = entity;
-//     entityNonce++;
-//     return entity;
-// }
-//
-// window.oncontextmenu = function () {
-//     return false;
-// };
+let socket, a = document.getElementById('a');
 
 window.addEventListener("load", function () {
 
     socket = io({upgrade: true, transports: ["websocket"]});
+
+    let gameLoopManager = new GameLoopManager();
+    gameLoopManager.init();
 
     // forObj({
     //     'joined-room': function (server_player) {
@@ -153,18 +122,5 @@ window.addEventListener("load", function () {
     //
     // onmousedown = () => { mouseDown = true };
     // onmouseup = () => { mouseDown = false };
-    //
-    // onmousemove = function (e) {
-    //     let rect = a.getBoundingClientRect();
-    //     mousePos.x = e.clientX - rect.left;
-    //     mousePos.y = e.clientY - rect.top;
-    //     entitiesCall('_sethover');
-    //     entitiesCall('_mousemove');
-    // };
-
-    let gameLoopManager = new GameLoopManager();
-
-    gameLoopManager.init();
-
 
 }, false);

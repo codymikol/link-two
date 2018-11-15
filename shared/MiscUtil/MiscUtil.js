@@ -13,8 +13,8 @@ export default class MiscUtil {
         }
     }
 
-    static mouseInBounds(x, y, height, width) {
-        return mousePos.x > x && mousePos.x < x + width && mousePos.y > y && mousePos.y < y + height;
+    static mouseInBounds(x, y, height, width, mouseX, mouseY) {
+        return mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height;
     }
 
 }
