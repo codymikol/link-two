@@ -5,6 +5,7 @@
   "license": "MIT",
   "main": "server/index.js",
   "scripts": {
+    "go": "webpack && (cd client && webpack) && node server",
     "start": "node ./public/server.js",
     "test": "mocha test",
     "build": "(cd ./server; webpack)"

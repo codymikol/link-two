@@ -2,6 +2,7 @@ import MiscUtil from "../MiscUtil/MiscUtil";
 import Mouse from "../../client/Input/Mouse/Mouse";
 
 //TODO: Clean up these event handlers on destroy. ;D
+//TODO: Yikes this is a massive problem lol plz fix
 
 export default class Entity {
     constructor(x, y, height, width, _screen) {

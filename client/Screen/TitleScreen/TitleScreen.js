@@ -4,23 +4,26 @@ import NameCollector from "../../FullSize/NameCollector/NameCollector";
 import TitleButton from "../../Button/TitleButton/TitleButton";
 import ScreenManager from "../ScreenManager";
 import Screen from "../Screen";
-import InstructionsTextOverlay from "../../FullSize/InstructionsTextOverlay/InstructionsTextOverlay";
-import CreditsTextOverlay from "../../FullSize/CreditsTextOverlay/CreditsTextOverlay";
+import AuthorScreen from "../AuthorScreen/AuthorScreen";
+import InstructionsScreen from "../InstructionScreen/InstructionsScreen";
 
 export default class TitleScreen extends Screen {
 
     constructor() {
         super();
+        this.screenManager = new ScreenManager();
         this.add(new Background());
         this.add(new TitleCard());
         this.add(new NameCollector());
-        //TODO Network manager...
-        let screenManager = new ScreenManager();
-        this.add(new TitleButton(screenManager.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join')));
-        this.add(new TitleButton(screenManager.width / 2 - 200, 440, 'Our Creators', 'blame', () =>
-            screenManager.set(new CreditsTextOverlay())));
-        this.add(new TitleButton(screenManager.width / 2 - 200, 480, 'Internal Documentation', 'man', () =>
-            screenManager.set(new InstructionsTextOverlay())));
+        this.add(new TitleButton(this.screenManager.width / 2 - 200, 400, 'Connect', 'ssh', () => socket.emit('join')));
+        this.add(new TitleButton(this.screenManager.width / 2 - 200, 440, 'Our Creators', 'blame', () =>
+            this.screenManager.set(new AuthorScreen())));
+        this.add(new TitleButton(this.screenManager.width / 2 - 200, 480, 'Internal Documentation', 'man', () => {
+                console.log('test')
+                this.screenManager.set(new InstructionsScreen());
+            }
+        ));
+
     }
 
 }
