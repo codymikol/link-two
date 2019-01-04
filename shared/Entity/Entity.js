@@ -1,13 +1,6 @@
 import MiscUtil from "../MiscUtil/MiscUtil";
 import Mouse from "../../client/Input/Mouse/Mouse";
 
-//TODO: Clean up these event handlers on destroy. ;D
-//TODO: Yikes this is a massive problem lol plz fix
-
-//TODO: We need to add some kind of destroy event to entities so when a screen is destroyed it can
-//TODO: recursively call destroy on all entities. This should unregister all events and make the entrities available
-//TODO: for garbage collection.
-
 export default class Entity {
     constructor(x, y, height, width, _screen) {
         this.nonce = null;
