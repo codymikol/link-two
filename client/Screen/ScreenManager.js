@@ -1,5 +1,7 @@
 let instance = null;
 
+import _ from "lodash"
+
 export default class ScreenManager {
 
     constructor() {
@@ -46,6 +48,7 @@ export default class ScreenManager {
     }
 
     set(screenInstance) {
+        if(this.activeScreen) _.each(this.activeScreen.entities, (entity)=> entity.destroy());
         delete this.activeScreen;
         this.activeScreen = screenInstance;
     }

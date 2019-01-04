@@ -43,31 +43,35 @@ export default class Entity {
             if (this.onAnyKeyDown) this.onAnyKeyDown(key);
         };
         this.destroy = function () {
-            delete entities[this.namespace || this.nonce];
+            window.removeEventListener('keydown', this.handleKeyDown);
+            window.removeEventListener('click', this.handleClick);
+            window.removeEventListener('mousemove', this.handleMouseMove)
         };
 
         let self = this;
 
         let mouse = new Mouse();
 
-        window.addEventListener('keydown', (e) => {
-            this._keydown(e.key);
-            this._anykeydown(e.key)
-        });
+        this.handleKeyDown = function(e) {
+            self._keydown(e.key);
+            self._anykeydown(e.key)
+        };
 
-        window.addEventListener('click', () => {
-            this._anyclick();
-            this._click();
-        });
+        window.addEventListener('keydown', this.handleKeyDown);
 
-        window.addEventListener('mousemove', (e) => {
-            self.hovered = MiscUtil.mouseInBounds(this.x, this.y, this.height, this.width, mouse.x, mouse.y);
-            this._mousemove();
-        });
+        this.handleClick = function(e) {
+            self._anyclick();
+            self._click();
+        };
 
-        window.addEventListener('mousemove', () => {
+        window.addEventListener('click', this.handleClick);
 
-        });
+        this.handleMouseMove = function() {
+            self.hovered = MiscUtil.mouseInBounds(self.x, self.y, self.height, self.width, mouse.x, mouse.y);
+            self._mousemove();
+        };
+
+        window.addEventListener('mousemove', this.handleMouseMove);
 
     }
 }
