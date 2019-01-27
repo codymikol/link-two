@@ -1,15 +1,22 @@
+
+//TODO: Reason about what an "Environment" is. What belongs only here?
+
 export default class Environment {
-    constructor(room) {
-        this.room = room;
-        this.nonce = room.nonce;
-        this.projectiles = new Map();
-        this.eventQueue = new Map();
-        // randomly select a map from the map list. 0 - 7 are valid, change to be hardcoded
-        // if there is a specific map you would like to play on.
+    constructor() {
+
+        //TODO: Should we use Maps here? It might be faster to iter arrays :S
+
+        //Definitely this should be here!
+        this.projectiles = [];
+        this.surfaces = [];
+
+        //We can do better than this :S
         let mapIndex = Math.floor(randomIntFromInterval(0,environmentMap.length-1));
         this.walls = this.buildWalls(mapIndex);
         this.assignStartingPositions(mapIndex);
         this.groundWeapons = this.buildGroundWeapons(mapIndex);
+        //This queues socket events so they can be compressed to a single packet.
+        this.eventQueue = new Map();
     }
 
     //TODO: This should be nonspecific to entities
@@ -24,6 +31,7 @@ export default class Environment {
                 return col;
             }, new Map());
     }
+
     // build the weapons for a given environment.
     buildGroundWeapons(mapIndex) {
         return environmentMap[mapIndex]
@@ -63,13 +71,16 @@ export default class Environment {
     }
 
     environmentTick() {
+
         this.projectiles.forEach((projectile, key) => {
 
+            //TODO: projectiles should know about who their owner is
             let projectileOwner = this.room.actors.get(projectile.playerNonce);
 
             projectile.onTick();
 
             let hitPlayers = this.getPlayerColliding(projectile);
+
             //TODO: Assume the client knows that wall colisions result in projectile destruction so we can remove this
             // from network calls...
             let wallColliding = this.getWallColliding(projectile);
@@ -106,6 +117,10 @@ export default class Environment {
     }
 
     getPlayerColliding(projectile) {
+
+        //TODO: We should not use Array.from anymore, this is too expensive, just store them as arrays.
+        //TODO: Research QuadTree hit detection so we can binary search positions
+
         return Array.from(this.room.actors.values())
             .filter((actor) => !actor.isDead && (actor.nonce !== projectile.playerNonce) && entitiesCollide(actor, projectile));
     }

@@ -37,5 +37,10 @@ export default class DrawUtil {
         this.resetCTX();
     }
 
+    static image(img, x, y, h, w) {
+        let ctx = this.getCtx();
+        ctx.drawImage(img, x, y, w, h)
+    }
+
 }
 

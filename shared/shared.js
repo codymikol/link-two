@@ -2,19 +2,12 @@
 
 //TODO: Clean up this random shit...
 
-function forObj(obj, fn) {
-    Object.keys(obj).forEach(function (key) {
-        fn(obj[key], key);
-    })
-}
-
 function copyProps(src, dest) {
     Object.keys(src).forEach((key) => dest[key] = src[key]);
 }
 
 let abs = Math.abs;
 let wallNonce = 0;
-const map_count = 8;
 const tick_rate = 25;
 const max_health = 50;
 let serverTime = 0;

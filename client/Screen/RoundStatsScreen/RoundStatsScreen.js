@@ -13,5 +13,4 @@ export default class RoundStatsScreen extends Screen {
         this.add(StatsTextOverlay())
     }
 
-
 }

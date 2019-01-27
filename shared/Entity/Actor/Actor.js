@@ -3,7 +3,7 @@ import Entity from "../Entity";
 export default class Actor extends Entity {
     constructor(x, y, color, name) {
         super(x, y, 20, 20, 1);
-        this.health = max_health;
+        this.health = 100;
         this.activeWeapon = 'GroundPistol';
         this.weaponCooldown = 0;
         this.name = name;

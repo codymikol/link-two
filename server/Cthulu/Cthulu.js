@@ -12,13 +12,13 @@
 
  ============================================================================================================
 
- This class is intended to act as the main thread, It's responsibilities are starting up the socket / express servers
- and filling the open matchmaking rooms. Then the Rooms spin up their own game thread and are put into a set of active
- rooms. Other things that need to be accounted for are disconnected players and private lobbies.
+ This class is intended to act as the main thread, It's responsibilities are gobbling up sockets as they come into
+ existence. It should send the socket off to the socket manager.
 
 */
 
 import Room from '../Room/Room'
+import SocketManager from "../Socket/SocketManager/SocketManager";
 
 const fs = require('fs');
 const express = require('express');
@@ -26,7 +26,7 @@ const session = require('express-session');
 const parser = require('body-parser');
 const app = express();
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {wsEngine: 'ws'});
 const path = require('path');
 
 
@@ -36,35 +36,22 @@ export default class Cthulu {
 
         console.log(__dirname + '/public');
 
-        fs.readdir('public', (err, files) => {
-            files.forEach(file => {
-                console.log(file);
-            });
-        });
-
         app.set('port', (process.env.PORT || 3000))
             .use(express.static(path.join(__dirname + '/public')))
             .use(session({secret: process.env.SECRET || 'codyisthebest', saveUninitialized: false, resave: false}))
             .use(parser.urlencoded({extended: true}))
             .use(parser.json());
 
-        //TODO: Ponder a bit on this...
-        this.searchingRoom = new Room();
-        this.activeRoomList = new Map();
+        //TODO: I Think it might be a better idea to have a user manager that can juggle where people are..
+        this.socketManager = new SocketManager();
 
     }
 
     awaken() {
         server.listen(app.get('port'), () => console.log('Server started at port: ' + app.get('port')));
         io.on('connection', (socket) => {
-            socket.on("join", function () {
-                var actor = new Actor(0, 0, 'red', displayName);
-                actor.nonce = currentPlayerNonce;
-                selectedRoom.join(actor);
-                socket.join('room_' + selectedRoom.nonce);
-                socket.emit('joined-room', actor);
-                socket.emit('environment-walls', [...selectedRoom.environment.walls.values()])
-            });
+            this.socketManager.add(socket);
+            socket.on('disconnect', () => this.socketManager.remove(socket));
         })
     }
 

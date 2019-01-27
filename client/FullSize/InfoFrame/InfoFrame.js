@@ -15,12 +15,12 @@ export default class InfoFrame extends FullSize {
             
             for (let i = 0; i < 36; i++) {
                 [410, 520, 630, 740, 850].forEach((y) => {
-                    Draw.text('=', (i * 25) + (this.width / 2) - 455, y);
+                    Draw.text('=', (i * 25) + (this.cX) - 455, y);
                 });
             }
             for (let i = 0; i < 76; i++) {
                 [430, -460].forEach((x) => {
-                    Draw.text('+', x + (this.width / 2), (i * 7) + 320, undefined, 24);
+                    Draw.text('+', x + (this.cX), (i * 7) + 320, undefined, 24);
                 })
             }
 

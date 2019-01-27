@@ -1,10 +1,12 @@
 import Actor from "../../shared/Entity/Actor/Actor";
+import Mouse from "../Input/Mouse/Mouse"
 
 export default class Player extends Actor {
     constructor(x, y, rotationDegrees, health, height, width) {
         super(x, y, 'green', rotationDegrees, health, height, width);
+        this.mouse = new Mouse();
         this.onMouseMove = function () {
-            this.rotationDegrees = Math.atan2(mousePos.y - this.y, mousePos.x - this.x) * 180 / Math.PI;
+            this.rotationDegrees = Math.atan2(this.mouse.y - this.y, this.mouse.x - this.x) * 180 / Math.PI;
         };
         this.onTick = function (delta) {
 

@@ -29,8 +29,6 @@ export default class NameCollector extends FullSize {
                 }
             }
 
-            socket.emit('update-name', this.name)
-
         };
     }
 }

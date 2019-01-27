@@ -3,7 +3,7 @@ import Draw from "../Draw/Draw";
 
 export default class Contrail extends Entity {
     constructor(x, y, height, width) {
-        super(x, y, height, width, 1);
+        super(x, y, height, width);
         this.halflife = 1;
         this.render = function () {
             let ctx = Draw.getCtx();

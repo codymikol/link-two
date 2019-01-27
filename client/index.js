@@ -1,10 +1,6 @@
 import GameLoopManager from "./GameLoopManager/GameLoopManager";
 
-let socket, a = document.getElementById('a');
-
 window.addEventListener("load", function () {
-
-    socket = io({upgrade: true, transports: ["websocket"]});
 
     let gameLoopManager = new GameLoopManager();
     gameLoopManager.init();

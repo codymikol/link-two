@@ -2,7 +2,7 @@ import MiscUtil from "../MiscUtil/MiscUtil";
 import Mouse from "../../client/Input/Mouse/Mouse";
 
 export default class Entity {
-    constructor(x, y, height, width, _screen) {
+    constructor(x, y, height, width) {
         this.nonce = null;
         this.namespace = null;
         this.x = x;
@@ -10,7 +10,6 @@ export default class Entity {
         this.height = height;
         this.width = width;
         this.hovered = false;
-        this._screen = _screen;
         this._anyclick = function () {
             if (this.onAnyClick) this.onAnyClick();
         };

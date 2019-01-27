@@ -1,4 +1,3 @@
-
 export default class Room {
 
     constructor(nonce) {
@@ -8,7 +7,7 @@ export default class Room {
         this.roundStartCountdown = 0;
         this.requiredPlayers = 2;
         this.nonce = nonce;
-        //this.environment = new Environment(this);
+        this.environment = new Environment(this);
     }
 
     emit(key, value) {
@@ -42,7 +41,7 @@ export default class Room {
         }, 0);
 
         actorList.forEach((actor) => {
-            if(actor.stats.getGameStats().totalWins === highestScore) actor.isWinner = true;
+            if (actor.stats.getGameStats().totalWins === highestScore) actor.isWinner = true;
         });
 
         let isTie = actorList.filter((actor) => {
@@ -51,7 +50,7 @@ export default class Room {
 
         this.emit('game-end', Array.from(this.actors.values()).map((actor) => {
             actor.gameStats = actor.stats.getGameStats();
-            if(actor.isWinner) actor.gameStats.winStatus = (isTie) ? 'TIE' : 'WINNER';
+            if (actor.isWinner) actor.gameStats.winStatus = (isTie) ? 'TIE' : 'WINNER';
             actor.roundStats = actor.stats.getRoundStats();
 
             return actor;
@@ -66,7 +65,7 @@ export default class Room {
         this.emit('round-start', {
             actors: Array.from(this.actors.values()),
             walls: Array.from(this.environment.walls.values()),
-            groundWeapons : Array.from(this.environment.groundWeapons.values())
+            groundWeapons: Array.from(this.environment.groundWeapons.values())
         });
         this.phase = 'GAME';
     }
@@ -90,7 +89,7 @@ export default class Room {
 
     fireProjectile(player) {
 
-        if(player.weaponCooldown === 0) {
+        if (player.weaponCooldown === 0) {
 
             projectileNonce++;
 
@@ -200,24 +199,24 @@ export default class Room {
 //             if (thePlayer && theWeapon && !thePlayer.isDead && entitiesCollide(thePlayer, asCentered(theWeapon))) {
 //                 wallNonce++;
 //                 let droppedWeaponNonce = wallNonce;
-//                 let droppedWeapon = newGunWithNonce(droppedWeaponNonce, thePlayer.activeWeapon, [thePlayer.x - 10, thePlayer.y - 10]);
+//                 let droppedWeapon = newGunWithNonce(droppedWeaponNonce, thePlayer.activeWeapon, [thePlayer.x - 10,
+//                     thePlayer.y - 10]);
 //                 selectedRoom.environment.groundWeapons.set(droppedWeaponNonce, droppedWeapon);
 //                 thePlayer.activeWeapon = theWeapon.weaponTag;
-//                 selectedRoom.emit('weapon-pickup'
-//                     , {nonce: weaponNonce, playerNonce : currentPlayerNonce, droppedWeapon : droppedWeapon});
+//                 selectedRoom.emit('weapon-pickup', {
+//                     nonce: weaponNonce, playerNonce:
+//                     currentPlayerNonce, droppedWeapon: droppedWeapon
+//                 });
 //                 selectedRoom.environment.groundWeapons.delete(weaponNonce);
-//             };
+//             }
+//             ;
 //         });
-//
 //         socket.on("disconnect", () => {
-//             if (getPlayerFromRoom(currentPlayerNonce, selectedRoom)) selectedRoom.leave(currentPlayerNonce)
+//             if (getPlayerFromRoom(currentPlayerNonce, selectedRoom))
+//                 selectedRoom.leave(currentPlayerNonce)
 //         });
-//
 //     },
 // };
-//
-// //We should use nodeJS to spawn a child process for each room.
-// // This should make everything muuuuuuch faster ;)
 //
 // function serverTick() {
 //     serverTime = Date.now();
