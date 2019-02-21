@@ -43,6 +43,7 @@
     "sqlite3": "*",
     "uglify-js": "^3.4.9",
     "underscore": "^1.9.1",
+    "uuid": "^3.3.2",
     "uws": "10.148.1",
     "webpack": "^4.25.1",
     "webpack-cli": "^3.1.2",

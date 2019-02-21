@@ -1,7 +1,7 @@
 import Entity from "../../shared/Entity/Entity";
 import Draw from "../Draw/Draw";
 
-export default class Sprite extends Entity{
+export default class Sprite extends Entity {
 
     constructor(src, x, y, h, w) {
         super();

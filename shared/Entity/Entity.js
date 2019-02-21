@@ -26,6 +26,7 @@ export default class Entity {
             if (this.onTick) this.onTick(delta);
         };
         this._resize = function () {
+            this.zoom = Math.round(window.devicePixelRatio * 100 / 2);
             if (this.onResize) this.onResize();
         };
         this._keydown = function (key) {

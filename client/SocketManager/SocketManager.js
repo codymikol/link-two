@@ -16,10 +16,10 @@ export default class SocketManager {
         this.socket.emit(event, payload)
     }
 
-    promit(event, payload, response) {
+    promit(event, response, payload) {
         return new Promise((resolve, reject) => {
-            this.emit(event, payload);
-            this.on(response, (response) => resolve(response))
+            this.socket.emit(event, payload);
+            this.socket.once(response, (response) => resolve(response) )
         })
     }
 

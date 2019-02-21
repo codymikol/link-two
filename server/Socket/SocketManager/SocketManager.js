@@ -1,17 +1,19 @@
+import User from "../../User/User";
+
 export default class SocketManager {
 
     constructor() {
-        this.sockets = new Map();
+        this.users = new Map();
     }
 
     add(socket) {
         console.log(socket.id, ' - connected');
-        this.sockets.set(socket.id, socket);
+        this.users.set(socket.id, new User(socket));
     }
 
     remove(socket) {
         console.log(socket.id, ' - disconnected');
-        this.sockets.delete(socket.sessionId);
+        this.users.delete(socket.sessionId);
     }
 
 }

@@ -17,10 +17,8 @@
 
 */
 
-import Room from '../Room/Room'
 import SocketManager from "../Socket/SocketManager/SocketManager";
 
-const fs = require('fs');
 const express = require('express');
 const session = require('express-session');
 const parser = require('body-parser');
@@ -42,7 +40,6 @@ export default class Cthulu {
             .use(parser.urlencoded({extended: true}))
             .use(parser.json());
 
-        //TODO: I Think it might be a better idea to have a user manager that can juggle where people are..
         this.socketManager = new SocketManager();
 
     }

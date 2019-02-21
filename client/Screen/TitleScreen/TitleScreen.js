@@ -23,6 +23,7 @@ export default class TitleScreen extends Screen {
         this.add(new TitleButton(this.screenManager.width / 2 - 200, 400, 'Connect', 'ssh', () => {
             this.playerManager
                 .updateName(this.nameCollector.name)
+                .then(this.playerManager.searchForGame.bind(this.playerManager))
                 .then(() =>this.screenManager.set(new MatchmakingScreen()))
         }));
 

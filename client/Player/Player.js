@@ -37,7 +37,7 @@ export default class Player extends Actor {
 
             if (mouseDown && !this.isDead && this.weaponCooldown === 0) {
                 socket.emit('fire-projectile', {x: this.x, y: this.y, rotationDegrees: this.rotationDegrees});
-            };
+            }
 
         };
     }

@@ -6,11 +6,11 @@ import InfoFrame from "../../FullSize/InfoFrame/InfoFrame";
 
 export default class MatchmakingScreen extends Screen {
 
-    constructor(props) {
-        super(props);
+    constructor() {
+        super();
         this.add(new Background());
         this.add(new TitleCard());
-        this.add(new InfoFrame());
+        this.add(new InfoFrame('Searching for a game...'));
         this.add(new LobbyTextOverlay());
     }
 

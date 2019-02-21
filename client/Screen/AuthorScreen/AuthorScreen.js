@@ -7,7 +7,6 @@ import TitleScreen from "../TitleScreen/TitleScreen";
 import Screen from "../Screen"
 import InfoFrame from "../../FullSize/InfoFrame/InfoFrame";
 import FullScreenSprite from "../../FullSize/FullScreenImage/FullScreenSprite";
-import Button from "../../Button/Button";
 import HighlightButton from "../../Button/HighlightButton/HighlightButton";
 
 export default class AuthorScreen extends Screen {

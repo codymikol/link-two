@@ -4,20 +4,21 @@
 export default class Environment {
     constructor() {
 
-        //TODO: Should we use Maps here? It might be faster to iter arrays :S
-
         //Definitely this should be here!
         this.projectiles = [];
         this.surfaces = [];
+        this.groundWeapons = [];
 
         //We can do better than this :S
         let mapIndex = Math.floor(randomIntFromInterval(0,environmentMap.length-1));
         this.walls = this.buildWalls(mapIndex);
         this.assignStartingPositions(mapIndex);
-        this.groundWeapons = this.buildGroundWeapons(mapIndex);
         //This queues socket events so they can be compressed to a single packet.
         this.eventQueue = new Map();
+
     }
+
+    //TODO: Stuff that assigns items to an environment should happen in a manager :D
 
     //TODO: This should be nonspecific to entities
     buildWalls(mapIndex) {
