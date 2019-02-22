@@ -17,43 +17,26 @@
 
 */
 
-import SocketManager from "../Socket/SocketManager/SocketManager";
-
-const express = require('express');
-const session = require('express-session');
-const parser = require('body-parser');
-const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server, {wsEngine: 'ws'});
-const path = require('path');
-
+import ExpressManager from "../Express/ExpressManager";
+import IOManager from "../IO/IOManager";
 
 export default class Cthulu {
 
     constructor() {
-
-        console.log(__dirname + '/public');
-
-        app.set('port', (process.env.PORT || 3000))
-            .use(express.static(path.join(__dirname + '/public')))
-            .use(session({secret: process.env.SECRET || 'codyisthebest', saveUninitialized: false, resave: false}))
-            .use(parser.urlencoded({extended: true}))
-            .use(parser.json());
-
-        this.socketManager = new SocketManager();
-
+        this.expressManager = new ExpressManager();
+        this.expressManager.init();
+        this.ioManager = new IOManager(this.expressManager.server);
+        this.ioManager.init();
     }
 
     awaken() {
-        server.listen(app.get('port'), () => console.log('Server started at port: ' + app.get('port')));
-        io.on('connection', (socket) => {
-            this.socketManager.add(socket);
-            socket.on('disconnect', () => this.socketManager.remove(socket));
-        })
+        this.expressManager.listen();
+        this.ioManager.listen();
     }
 
     sleep() {
-        io.close();
+        this.expressManager.sleep();
+        this.ioManager.sleep();
     }
 
 }

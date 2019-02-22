@@ -1,4 +1,5 @@
-import * as io from "socket.io";
+import IOManager from "../IO/IOManager";
+
 const uuidv4 = require('uuid/v4');
 
 export default class Queue {
@@ -6,14 +7,21 @@ export default class Queue {
     constructor() {
         this.maxUsers = 4;
         this.uuid = uuidv4();
-        this.group = io.of(`/queue/${this.uuid}`);
+        this.ioManager = new IOManager();
+        this.group = this.ioManager.io.of(`/queue/${this.uuid}`);
         this.users = [];
     }
 
     addUser(user) {
+
+        let usernames = this.users.reduce(function (col, u) {
+            return col + u.name + ', ';
+        }, '');
+
         this.users.push(user);
         console.log('We just added ', user.name, ' to our queue');
-        console.log('The other users are, ', this.users.reduce((col, u) => col + u.name + ' '), '')
+
+        console.log('The other users are, ', usernames)
     }
 
     removeUser() {
