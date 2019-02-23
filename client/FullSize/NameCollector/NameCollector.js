@@ -1,9 +1,14 @@
 import FullSize from "../FullSize";
 import DrawUtil from "../../Draw/Draw";
+import MatchmakingScreen from "../../Screen/MatchmakingScreen/MatchmakingScreen";
+import PlayerManager from "../../Player/PlayerManager";
+import ScreenManager from "../../Screen/ScreenManager";
 
 export default class NameCollector extends FullSize {
     constructor(_screen){
         super(_screen);
+        this.playerManager = new PlayerManager();
+        this.screenManager = new ScreenManager();
         this.name ='';
         this.dirty = false;
         this.render = function () {
@@ -19,7 +24,13 @@ export default class NameCollector extends FullSize {
         this.onAnyKeyDown = function (key) {
 
             if(this.name.length > 10 && key !== 'Backspace') return;
-
+            if(key === 'Enter') {
+                this.playerManager
+                    .updateName(this.name)
+                    .then(this.playerManager.searchForGame.bind(this.playerManager))
+                    .then(() =>this.screenManager.set(new MatchmakingScreen()))
+                return;
+            }
             if (key === 'Backspace' && this.name !== '') {
                 this.name = this.name.substring(0, this.name.length - 1);
             } else {
@@ -28,7 +39,7 @@ export default class NameCollector extends FullSize {
                     this.name += key;
                 }
             }
-
         };
+
     }
 }
