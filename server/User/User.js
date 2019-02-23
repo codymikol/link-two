@@ -17,6 +17,12 @@ export default class User {
 
     }
 
+    asDTO() {
+        return {
+            name: this.name
+        }
+    }
+
     updateName(name) {
         this.name = name;
         this.socket.emit(EVENTS.NAME_UPDATED)
