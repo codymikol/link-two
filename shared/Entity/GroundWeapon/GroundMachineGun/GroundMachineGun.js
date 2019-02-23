@@ -1,4 +1,5 @@
 import GroundWeapon from "../GroundWeapon";
+import Draw from "../../../../client/Draw/Draw";
 
 export default class GroundMachineGun extends GroundWeapon {
     constructor(x, y) {
@@ -9,10 +10,10 @@ export default class GroundMachineGun extends GroundWeapon {
         };
         this.renderWeapon = function () {
             let vm = this;
-            square(vm.cX - 15, vm.cY - 5, 35, 4, '#BDDA00');
-            square(vm.cX - 15, vm.cY, 35, 4, '#BDDA00');
-            square(vm.cX - 15, vm.cY + 5, 35, 4, '#BDDA00');
-            square(vm.cX - 25, vm.cY - 6, 14, 18, '#858585');
+            Draw.square(vm.cX - 15, vm.cY - 5, 35, 4, '#BDDA00');
+            Draw.square(vm.cX - 15, vm.cY, 35, 4, '#BDDA00');
+            Draw.square(vm.cX - 15, vm.cY + 5, 35, 4, '#BDDA00');
+            Draw.square(vm.cX - 25, vm.cY - 6, 14, 18, '#858585');
         }
     }
 }

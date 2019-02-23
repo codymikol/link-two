@@ -1,4 +1,5 @@
 import Entity from "../Entity";
+import Draw from "../../../client/Draw/Draw";
 
 export default class GroundWeapon extends Entity {
     constructor(x, y, weaponTag, weaponName) {
@@ -10,7 +11,7 @@ export default class GroundWeapon extends Entity {
         this.baseRender = function () {
             let vm = this;
             if (entitiesCollide(player, asCentered(this))) {
-                square(50, 50, 800, 50, 'white', 0.3);
+                Draw.square(50, 50, 800, 50, 'white', 0.3);
                 text('Press E to pickup: ' + vm.weaponName, 60, 85, 'black', 30);
             }
         };
