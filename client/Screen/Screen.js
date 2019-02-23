@@ -17,7 +17,7 @@ export default class Screen {
 
     add(entity) {
         this.entities[this.nonce] = entity;
-        this.nonce ++;
+        this.nonce++;
     }
 
     delete(key) {
