@@ -48,13 +48,21 @@ export default class ScreenManager {
     }
 
     set(screenInstance) {
-        console.log('setting screen to  ', screenInstance);
+        this.cleanup();
+        this.bootstrap(screenInstance);
+    }
+
+    bootstrap(screenInstance) {
+        this.activeScreen = screenInstance;
+        //TODO: should child mgmt of entities happen here or elsewhere?
+    }
+
+    cleanup() {
         if(this.activeScreen) {
             _.each(this.activeScreen.entities, (entity) => entity.destroy());
             if (this.activeScreen.onDestroy) this.activeScreen.onDestroy();
         }
         delete this.activeScreen;
-        this.activeScreen = screenInstance;
     }
 
 }
