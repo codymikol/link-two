@@ -1,5 +1,6 @@
 import MiscUtil from "../MiscUtil/MiscUtil";
 import Mouse from "../../client/Input/Mouse/Mouse";
+import ScreenManager from "../../client/Screen/ScreenManager";
 
 export default class Entity {
     constructor(x, y, height, width) {
@@ -10,6 +11,10 @@ export default class Entity {
         this.height = height;
         this.width = width;
         this.hovered = false;
+        this._screenManager = new ScreenManager();
+        this._intervalList = [];
+        this._timeoutList = [];
+        this._childEntities =[];
         this._anyclick = function () {
             if (this.onAnyClick) this.onAnyClick();
         };
@@ -35,12 +40,21 @@ export default class Entity {
         this._anykeydown = function (key) {
             if (this.onAnyKeyDown) this.onAnyKeyDown(key);
         };
-        this._intervalList = [];
-        this.interval = function (fn, timeout) {
-            this._intervalList.push(setInterval(fn, timeout));
+        this.interval = function (fn, interval) {
+            this._intervalList.push(setInterval(fn, interval));
+        };
+        this.timeout = function (fn, timeout) {
+            this._timeoutList.push(setTimeout(fn, timeout))
+        };
+        this.add = function (child) {
+            this._screenManager.activeScreen.add(child);
+            console.log('Adding Child Entity: ', child)
+            this._childEntities.push(child);
         };
         this.destroy = function () {
+            this._childEntities.forEach((x) => x.destroy());
             this._intervalList.forEach((x) => clearInterval(x));
+            this._timeoutList.forEach((x) => clearTimeout(x));
             window.removeEventListener('keydown', this.handleKeyDown);
             window.removeEventListener('click', this.handleClick);
             window.removeEventListener('mousemove', this.handleMouseMove)
