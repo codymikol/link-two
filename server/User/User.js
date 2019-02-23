@@ -9,6 +9,7 @@ export default class User {
         this.queueManager = new QueueManager();
 
         this.socket = socket;
+        this.id = this.socket.id;
         this.name = 'New Player';
         this.status = PLAYER_STATUS.IN_MENU;
 
@@ -19,7 +20,8 @@ export default class User {
 
     asDTO() {
         return {
-            name: this.name
+            name: this.name,
+            id: this.id,
         }
     }
 
