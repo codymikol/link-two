@@ -20,6 +20,7 @@ export default class Actor extends Entity {
             return {cX: this.width / this.x + 27, cY: this.height / -5};
         };
         this.render = function () {
+            var ctx = DrawUtil.getCtx();
             ctx.globalAlpha = (this.isDead) ? .3 : 1;
             ctx.fillStyle = (this.isDead) ? 'white' : this.color;
             ctx.save();
