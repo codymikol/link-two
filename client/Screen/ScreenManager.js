@@ -28,7 +28,7 @@ export default class ScreenManager {
     }
 
     static getCanvas() {
-       return document.getElementById('a');
+        return document.getElementById('a');
     }
 
     static getRect() {
