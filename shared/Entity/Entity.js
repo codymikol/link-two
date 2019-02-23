@@ -57,7 +57,7 @@ export default class Entity {
 
         window.addEventListener('keydown', this.handleKeyDown);
 
-        this.handleClick = function(e) {
+        this.handleClick = function() {
             self._anyclick();
             self._click();
         };
