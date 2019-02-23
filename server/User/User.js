@@ -28,13 +28,9 @@ export default class User {
     }
 
     searchForGame() {
-
         this.updateStatus(PLAYER_STATUS.IN_QUEUE);
-
         this.queueManager.findSession(this);
-
         this.socket.emit(EVENTS.SEARCHING_GAME);
-
     }
 
 }
