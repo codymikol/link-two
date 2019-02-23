@@ -35,7 +35,12 @@ export default class Entity {
         this._anykeydown = function (key) {
             if (this.onAnyKeyDown) this.onAnyKeyDown(key);
         };
+        this._intervalList = [];
+        this.interval = function (fn, timeout) {
+            this._intervalList.push(setInterval(fn, timeout));
+        };
         this.destroy = function () {
+            this._intervalList.forEach((x) => clearInterval(x));
             window.removeEventListener('keydown', this.handleKeyDown);
             window.removeEventListener('click', this.handleClick);
             window.removeEventListener('mousemove', this.handleMouseMove)
