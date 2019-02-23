@@ -25,7 +25,7 @@ export default class MatchmakingScreen extends Screen {
     }
 
     updateUsers(users) {
-        this.users = users;
+        this.users = users.filter((u) => u.id !== this.socketManager.socket.sessionId);
         this.add(new Enemy(100, 100, 0, 100, 10, 10))
     }
 
