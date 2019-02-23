@@ -49,7 +49,10 @@ export default class ScreenManager {
 
     set(screenInstance) {
         console.log('setting screen to  ', screenInstance);
-        if(this.activeScreen) _.each(this.activeScreen.entities, (entity)=> entity.destroy());
+        if(this.activeScreen) {
+            _.each(this.activeScreen.entities, (entity) => entity.destroy());
+            if (this.activeScreen.onDestroy) this.activeScreen.onDestroy();
+        }
         delete this.activeScreen;
         this.activeScreen = screenInstance;
     }
