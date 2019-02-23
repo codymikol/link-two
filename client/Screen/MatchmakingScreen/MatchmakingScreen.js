@@ -6,6 +6,7 @@ import SocketManager from "../../SocketManager/SocketManager";
 import {EVENTS} from "../../../shared/Enums/Events";
 import Enemy from "../../Enemy/Enemy";
 import SearchingFrame from "../../FullSize/InfoFrame/SearchingFrame/SearchingFrame";
+import ListItem from "../../FullSize/InfoFrame/ListOffset/ListItem/ListItem";
 
 export default class MatchmakingScreen extends Screen {
 
@@ -15,7 +16,8 @@ export default class MatchmakingScreen extends Screen {
         this.add(new TitleCard());
         this.add(new SearchingFrame());
         this.add(new LobbyTextOverlay());
-        this.users = [];
+        this.userListItem = new ListItem(0);
+        this.userListItem.message = 'Competitor';
         this.socketManager = new SocketManager();
         this.socketManager.socket.on(EVENTS.UPDATED_QUEUE, this.updateUsers.bind(this));
     }
