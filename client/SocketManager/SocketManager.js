@@ -1,3 +1,5 @@
+import {EVENTS} from "../../shared/Enums/Events";
+
 let instance = null;
 
 export default class SocketManager {
