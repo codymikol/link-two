@@ -1,4 +1,6 @@
 import IOManager from "../IO/IOManager";
+import {EVENTS} from "../../shared/Enums/Events";
+import _ from "lodash"
 
 const uuidv4 = require('uuid/v4');
 
@@ -8,24 +10,19 @@ export default class Queue {
         this.maxUsers = 4;
         this.uuid = uuidv4();
         this.ioManager = new IOManager();
-        this.group = this.ioManager.io.of(`/queue/${this.uuid}`);
         this.users = [];
     }
 
     addUser(user) {
-
-        let usernames = this.users.reduce(function (col, u) {
-            return col + u.name + ', ';
-        }, '');
-
         this.users.push(user);
-        console.log('We just added ', user.name, ' to our queue');
-
-        console.log('The other users are, ', usernames)
+        user.socket.join(this.uuid);
+        this.ioManager.io.to(this.uuid).emit(EVENTS.UPDATED_QUEUE, _.map(this.users, (u) => u.asDTO()));
     }
 
-    removeUser() {
-
+    removeUser(user) {
+        _.remove(this.users, (x) => user === x);
+        this.ioManager.io.to(this.uuid).emit(EVENTS.UPDATED_QUEUE, _.map(this.users, (u) => u.asDTO()));
+        user.socket.leave(this.uuid);
     }
 
     startGame() {

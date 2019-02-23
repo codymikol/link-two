@@ -7,4 +7,5 @@ export const EVENTS = Object.freeze({
     NAME_UPDATED: 'name-updated',
     SEARCHING_GAME: 'searching-game',
     STATUS_UPDATED: 'status-updated',
+    UPDATED_QUEUE: 'updated-queue'
 });
