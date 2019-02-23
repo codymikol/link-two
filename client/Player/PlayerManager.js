@@ -18,7 +18,7 @@ export default class PlayerManager {
     }
 
     searchForGame() {
-        return this.socketManager.promit(EVENTS.SEARCH_GAME, EVENTS.SEARCHING_GAME)
+        return this.socketManager.promit(EVENTS.SEARCH_GAME, EVENTS.SEARCHING_GAME);
     }
 
 }
