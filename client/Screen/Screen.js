@@ -21,6 +21,7 @@ export default class Screen {
     }
 
     delete(key) {
+        this.entities[key].destroy();
         delete this.entities[key];
     }
 
