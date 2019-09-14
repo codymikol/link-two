@@ -1,8 +1,10 @@
 /node_modules
 /.idea
 /.vscode
+/server.js
 /dist.zip
 /public/dist
+public/bundle.js
 *.sqlite
 *.xml
 .DS_store
